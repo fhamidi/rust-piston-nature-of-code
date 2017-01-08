@@ -2,7 +2,6 @@
 //! http://natureofcode.com/
 //!
 //! Introduction - Random walker.
-//!
 
 extern crate piston_app;
 
@@ -17,24 +16,11 @@ impl App {
 }
 
 impl PistonApp for App {
-    fn setup<W, E>(&mut self, window: &mut PistonWindow<W>, e: &E, args: &RenderArgs)
-        where E: GenericEvent,
-              W: OpenGLWindow,
-              W::Event: GenericEvent
-    {
-        window.draw_2d(e, |_, gl| {
-            clear([1.0, 1.0, 1.0, 1.0], gl);
-        });
+    fn setup(&mut self, context: Context, gl: &mut G2d, args: &RenderArgs) {
+        clear([1.0; 4], gl);
     }
 
-    fn draw<W, E>(&mut self, window: &mut PistonWindow<W>, e: &E, args: &RenderArgs)
-        where E: GenericEvent,
-              W: OpenGLWindow,
-              W::Event: GenericEvent
-    {
-        window.draw_2d(e, |context, gl| {
-        });
-    }
+    fn draw(&mut self, context: Context, gl: &mut G2d, args: &RenderArgs) {}
 }
 
 fn main() {
