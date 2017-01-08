@@ -12,36 +12,33 @@ use rand::Rng;
 
 #[derive(Debug)]
 struct Walker {
-    x: i32,
-    y: i32,
+    x: Scalar,
+    y: Scalar,
 }
 
 impl Walker {
     fn new() -> Self {
-        Walker { x: 0, y: 0 }
+        Walker { x: 0.0, y: 0.0 }
     }
 
-    fn set_position(&mut self, x: i32, y: i32) {
+    fn set_position(&mut self, x: Scalar, y: Scalar) {
         self.x = x;
         self.y = y;
     }
 
     fn draw(&self, context: Context, gl: &mut G2d) {
         rectangle([0.0, 0.0, 0.0, 1.0],
-                  rectangle::square(self.x as Scalar, self.y as Scalar, 1.0),
+                  rectangle::square(self.x, self.y, 1.0),
                   context.transform,
                   gl);
     }
 
     fn step(&mut self) {
-        let choice = rand::thread_rng().gen_range(0, 4);
-        match choice {
-            0 => self.x += 1,
-            1 => self.x -= 1,
-            2 => self.y += 1,
-            3 => self.y -= 1,
-            _ => unreachable!()
-        }
+        let mut rng = rand::thread_rng();
+        let step_x = rng.gen_range(-1.0, 1.0);
+        let step_y = rng.gen_range(-1.0, 1.0);
+        self.x += step_x;
+        self.y += step_y;
     }
 }
 
@@ -58,7 +55,7 @@ impl App {
 
 impl PistonApp for App {
     fn setup(&mut self, _: Context, gl: &mut G2d, args: &RenderArgs) {
-        self.walker.set_position(args.width as i32 / 2, args.height as i32 / 2);
+        self.walker.set_position(args.width as Scalar / 2.0, args.height as Scalar / 2.0);
         clear([1.0; 4], gl);
     }
 
