@@ -6,4 +6,5 @@ authors = ["ko"]
 [dependencies]
 piston_window = "*"
 pistoncore-sdl2_window = "*"
+rand = "*"
 

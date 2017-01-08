@@ -5,9 +5,12 @@
 //! used in the book.
 
 extern crate piston_window;
+extern crate rand;
 extern crate sdl2_window;
 
+pub use math::*;
 pub use piston_window::*;
+pub use rand::Rng;
 
 use sdl2_window::Sdl2Window;
 
