@@ -12,11 +12,19 @@ pub use piston_window::*;
 use sdl2_window::Sdl2Window;
 
 pub trait PistonApp {
-    fn setup<E: GenericEvent>(&mut self, e: &E, args: &RenderArgs);
+    fn setup<W, E>(&mut self, window: &mut PistonWindow<W>, e: &E, args: &RenderArgs)
+        where E: GenericEvent,
+              W: OpenGLWindow,
+              W::Event: GenericEvent;
 
-    fn draw<E: GenericEvent>(&mut self, e: &E, args: &RenderArgs);
+    fn draw<W, E>(&mut self, window: &mut PistonWindow<W>, e: &E, args: &RenderArgs)
+        where E: GenericEvent,
+              W: OpenGLWindow,
+              W::Event: GenericEvent;
 
-    fn run<T: Into<String>>(title: T, app: &mut Self) {
+    fn run<T>(title: T, app: &mut Self)
+        where T: Into<String>
+    {
         let mut window: PistonWindow<Sdl2Window> = WindowSettings::new(title, [640, 480])
             .exit_on_esc(true)
             .resizable(false)
@@ -28,9 +36,9 @@ pub trait PistonApp {
             if let Some(args) = e.render_args() {
                 if first {
                     first = false;
-                    app.setup(&e, &args);
+                    app.setup(&mut window, &e, &args);
                 }
-                app.draw(&e, &args);
+                app.draw(&mut window, &e, &args);
             }
         }
     }
