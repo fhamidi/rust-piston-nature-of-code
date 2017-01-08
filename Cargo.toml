@@ -1,0 +1,9 @@
+[package]
+name = "piston-app"
+version = "0.1.0"
+authors = ["ko"]
+
+[dependencies]
+piston_window = "*"
+pistoncore-sdl2_window = "*"
+
