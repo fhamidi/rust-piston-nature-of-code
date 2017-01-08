@@ -12,7 +12,7 @@ pub use piston_window::*;
 use sdl2_window::Sdl2Window;
 
 pub trait PistonApp {
-    fn setup(&mut self, context: Context, gl: &mut G2d, args: &RenderArgs);
+    fn setup(&mut self, context: Context, gl: &mut G2d, args: &RenderArgs) {}
 
     fn draw(&mut self, context: Context, gl: &mut G2d, args: &RenderArgs);
 
