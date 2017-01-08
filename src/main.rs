@@ -4,6 +4,7 @@
 //! Application template.
 
 extern crate piston_app;
+extern crate rand;
 
 use piston_app::*;
 

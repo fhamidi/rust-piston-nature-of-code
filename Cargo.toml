@@ -5,4 +5,5 @@ authors = ["ko"]
 
 [dependencies]
 piston-app = { path = "../piston-app" }
+rand = "*"
 
