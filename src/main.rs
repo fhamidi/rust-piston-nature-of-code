@@ -18,11 +18,19 @@ impl App {
 }
 
 impl PistonApp for App {
-    fn setup(&mut self, context: Context, gl: &mut G2d, args: &RenderArgs) {
+    fn setup(&mut self,
+             context: Context,
+             gl: &mut G2d,
+             state: &PistonAppState,
+             args: &RenderArgs) {
         unimplemented!();
     }
 
-    fn draw(&mut self, context: Context, gl: &mut G2d, args: &RenderArgs) {
+    fn draw(&mut self,
+            context: Context,
+            gl: &mut G2d,
+            state: &PistonAppState,
+            args: &RenderArgs) {
         unimplemented!();
     }
 }
