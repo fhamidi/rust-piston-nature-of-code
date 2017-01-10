@@ -28,7 +28,11 @@ impl App {
 }
 
 impl PistonApp for App {
-    fn draw(&mut self, context: Context, gl: &mut G2d, args: &RenderArgs) {
+    fn draw(&mut self,
+            context: Context,
+            gl: &mut G2d,
+            _: &PistonAppState,
+            args: &RenderArgs) {
         let length = self.random_counts.len();
         let index = rand::thread_rng().gen_range(0, length);
         self.random_counts[index] += 1;
