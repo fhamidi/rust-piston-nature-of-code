@@ -52,12 +52,22 @@ impl App {
 }
 
 impl PistonApp for App {
-    fn setup(&mut self, _: Context, gl: &mut G2d, args: &RenderArgs) {
-        self.walker.set_position(args.width as Scalar / 2.0, args.height as Scalar / 2.0);
+    fn setup(&mut self,
+             _: Context,
+             gl: &mut G2d,
+             _: &PistonAppState,
+             args: &RenderArgs) {
+        let x = args.width as Scalar / 2.0;
+        let y = args.height as Scalar / 2.0;
+        self.walker.set_position(x, y);
         clear([1.0; 4], gl);
     }
 
-    fn draw(&mut self, context: Context, gl: &mut G2d, _: &RenderArgs) {
+    fn draw(&mut self,
+            context: Context,
+            gl: &mut G2d,
+            _: &PistonAppState,
+            _: &RenderArgs) {
         self.walker.step();
         self.walker.draw(context, gl);
     }
