@@ -19,21 +19,17 @@ impl App {
 }
 
 impl PistonApp for App {
-    fn setup(&mut self, _: Context, gl: &mut G2d, _: &PistonAppState, _: &RenderArgs) {
+    fn setup(&mut self, _: Context, gl: &mut G2d, _: &PistonAppState) {
         clear([1.0; 4], gl);
     }
 
-    fn draw(&mut self,
-            context: Context,
-            gl: &mut G2d,
-            _: &PistonAppState,
-            args: &RenderArgs) {
+    fn draw(&mut self, context: Context, gl: &mut G2d, state: &PistonAppState) {
         let mean = 320.0;
         let sd = 60.0;
         let StandardNormal(x) = rand::random();
         let result = x * sd + mean;
         ellipse([0.0, 0.0, 0.0, 0.1],
-                ellipse::circle(result, args.height as Scalar / 2.0, 16.0),
+                ellipse::circle(result, state.height() / 2.0, 16.0),
                 context.transform,
                 gl);
     }
