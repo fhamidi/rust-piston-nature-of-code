@@ -19,8 +19,10 @@ use sdl2_window::Sdl2Window;
 pub struct PistonAppState {
     mouse_button: MouseButton,
     mouse_pressed: u8,
-    mouse_x: f64,
-    mouse_y: f64,
+    mouse_x: Scalar,
+    mouse_y: Scalar,
+    width: Scalar,
+    height: Scalar,
 }
 
 impl PistonAppState {
@@ -30,39 +32,46 @@ impl PistonAppState {
             mouse_pressed: 0,
             mouse_x: 0.0,
             mouse_y: 0.0,
+            width: 0.0,
+            height: 0.0,
         }
     }
 
+    #[inline]
     pub fn mouse_button(&self) -> MouseButton {
         self.mouse_button
     }
 
+    #[inline]
     pub fn mouse_pressed(&self) -> bool {
         self.mouse_pressed > 0
     }
 
-    pub fn mouse_x(&self) -> f64 {
+    #[inline]
+    pub fn mouse_x(&self) -> Scalar {
         self.mouse_x
     }
 
-    pub fn mouse_y(&self) -> f64 {
+    #[inline]
+    pub fn mouse_y(&self) -> Scalar {
         self.mouse_y
+    }
+
+    #[inline]
+    pub fn width(&self) -> Scalar {
+        self.width
+    }
+
+    #[inline]
+    pub fn height(&self) -> Scalar {
+        self.height
     }
 }
 
 pub trait PistonApp {
-    fn setup(&mut self,
-             _context: Context,
-             _gl: &mut G2d,
-             _state: &PistonAppState,
-             _args: &RenderArgs) {
-    }
+    fn setup(&mut self, _context: Context, _gl: &mut G2d, _state: &PistonAppState) {}
 
-    fn draw(&mut self,
-            context: Context,
-            gl: &mut G2d,
-            state: &PistonAppState,
-            args: &RenderArgs);
+    fn draw(&mut self, context: Context, gl: &mut G2d, state: &PistonAppState);
 
     fn run<T: Into<String>>(title: T, app: &mut Self) {
         let mut window: PistonWindow<Sdl2Window> = WindowSettings::new(title, [640, 480])
@@ -75,15 +84,16 @@ pub trait PistonApp {
         let mut first = true;
         while let Some(e) = window.next() {
             if let Some(args) = e.render_args() {
+                state.width = args.width as Scalar;
+                state.height = args.height as Scalar;
                 window.draw_2d(&e, |context, gl| {
                     if first {
                         first = false;
-                        app.setup(context, gl, &state, &args);
+                        app.setup(context, gl, &state);
                     }
-                    app.draw(context, gl, &state, &args);
+                    app.draw(context, gl, &state);
                 });
             }
-            let state = &mut state;
             if let Some(Button::Mouse(_)) = e.press_args() {
                 state.mouse_pressed += 1;
             }
