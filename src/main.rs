@@ -31,12 +31,15 @@ impl Walker {
                   gl);
     }
 
-    fn step(&mut self) {
+    fn step(&mut self, state: &PistonAppState) {
         let mut rng = rand::thread_rng();
-        let step_x = rng.gen_range(-1.0, 1.0);
-        let step_y = rng.gen_range(-1.0, 1.0);
-        self.x += step_x;
-        self.y += step_y;
+        if state.mouse_pressed() && rng.gen() {
+            self.x += rng.next_f64() * (state.mouse_x() - self.x).signum();
+            self.y += rng.next_f64() * (state.mouse_y() - self.y).signum();
+        } else {
+            self.x += rng.gen_range(-1.0, 1.0);
+            self.y += rng.gen_range(-1.0, 1.0);
+        }
     }
 }
 
@@ -66,9 +69,9 @@ impl PistonApp for App {
     fn draw(&mut self,
             context: Context,
             gl: &mut G2d,
-            _: &PistonAppState,
+            state: &PistonAppState,
             _: &RenderArgs) {
-        self.walker.step();
+        self.walker.step(state);
         self.walker.draw(context, gl);
     }
 }
