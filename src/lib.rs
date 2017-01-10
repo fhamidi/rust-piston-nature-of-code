@@ -11,6 +11,7 @@ extern crate sdl2_window;
 pub use math::*;
 pub use piston_window::*;
 pub use rand::Rng;
+pub use types::{Color, ColorComponent};
 
 use sdl2_window::Sdl2Window;
 
@@ -39,4 +40,9 @@ pub trait PistonApp {
             }
         }
     }
+}
+
+pub fn random_color() -> Color {
+    let mut rng = rand::thread_rng();
+    [rng.gen_range(0.3, 1.0), rng.gen_range(0.3, 1.0), rng.gen_range(0.3, 1.0), 1.0]
 }
