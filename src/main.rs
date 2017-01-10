@@ -11,11 +11,19 @@ use piston_app::*;
 #[derive(Debug)]
 struct App {
     random_counts: [u32; 20],
+    colors: [Color; 20],
 }
 
 impl App {
     fn new() -> Self {
-        App { random_counts: [0; 20] }
+        let mut app = App {
+            random_counts: [0; 20],
+            colors: [[0.0; 4]; 20],
+        };
+        for i in 0..app.colors.len() {
+            app.colors[i] = random_color();
+        }
+        app
     }
 }
 
@@ -30,7 +38,7 @@ impl PistonApp for App {
         for x in 0..length {
             let count = self.random_counts[x] as Scalar;
             Rectangle::new_border([0.0, 0.0, 0.0, 1.0], 1.0)
-                .color([0.5, 0.5, 0.5, 1.0])
+                .color(self.colors[x])
                 .draw([x as Scalar * width, height - count, width - 1.0, count],
                       &context.draw_state,
                       context.transform,
