@@ -4,6 +4,7 @@
 //! Simple application framework, similar to the Processing environment
 //! used in the book.
 
+extern crate noise;
 extern crate piston_window;
 extern crate rand;
 extern crate sdl2_window;
@@ -13,14 +14,14 @@ pub use piston_window::*;
 pub use rand::Rng;
 pub use types::{Color, ColorComponent};
 
-use sdl2_window::Sdl2Window;
+const MIN_COLOR_COMPONENT: ColorComponent = 1.0 / 3.0;
 
-#[derive(Debug)]
 pub struct PistonAppState {
     mouse_button: MouseButton,
     mouse_pressed: u8,
     mouse_x: Scalar,
     mouse_y: Scalar,
+    noise_seed: noise::Seed,
     width: Scalar,
     height: Scalar,
 }
@@ -32,6 +33,7 @@ impl PistonAppState {
             mouse_pressed: 0,
             mouse_x: 0.0,
             mouse_y: 0.0,
+            noise_seed: rand::random::<noise::Seed>(),
             width: 0.0,
             height: 0.0,
         }
@@ -66,6 +68,61 @@ impl PistonAppState {
     pub fn height(&self) -> Scalar {
         self.height
     }
+
+    #[inline]
+    pub fn map_x(&self, x: Scalar) -> Scalar {
+        self.map_range(x, 0.0, 1.0, 0.0, self.width())
+    }
+
+    #[inline]
+    pub fn map_y(&self, y: Scalar) -> Scalar {
+        self.map_range(y, 0.0, 1.0, 0.0, self.height())
+    }
+
+    #[inline]
+    pub fn map_range(&self,
+                     value: Scalar,
+                     in_min: Scalar,
+                     in_max: Scalar,
+                     out_min: Scalar,
+                     out_max: Scalar)
+                     -> Scalar {
+        (value - in_min) / (in_max - in_min) * (out_max - out_min) + out_min
+    }
+
+    pub fn noise(&self, input: Scalar) -> Scalar {
+        (noise::perlin2(&self.noise_seed, &[input, 0.0]) + 1.0) / 2.0
+    }
+
+    pub fn random_color(&self, alpha: Option<ColorComponent>) -> Color {
+        let mut rng = rand::thread_rng();
+        [rng.gen_range(MIN_COLOR_COMPONENT, 1.0),
+         rng.gen_range(MIN_COLOR_COMPONENT, 1.0),
+         rng.gen_range(MIN_COLOR_COMPONENT, 1.0),
+         alpha.unwrap_or_else(|| rng.gen_range(MIN_COLOR_COMPONENT, 1.0))]
+    }
+
+    pub fn noise_color(&self, input: Scalar, alpha: Option<ColorComponent>) -> Color {
+        let alpha = alpha.unwrap_or_else(|| {
+            self.map_range(self.noise(input),
+                           0.0,
+                           1.0,
+                           MIN_COLOR_COMPONENT as Scalar,
+                           1.0) as ColorComponent
+        });
+        hsv([1.0, 0.0, 0.0, alpha],
+            self.map_range(self.noise(input + 25.0),
+                           0.0,
+                           1.0,
+                           0.0,
+                           2.0 * ::std::f64::consts::PI) as ColorComponent,
+            self.noise(input + 50.0) as ColorComponent,
+            self.map_range(self.noise(input + 75.0),
+                           0.0,
+                           1.0,
+                           2.0 * MIN_COLOR_COMPONENT as Scalar,
+                           1.0) as ColorComponent)
+    }
 }
 
 pub trait PistonApp {
@@ -74,14 +131,14 @@ pub trait PistonApp {
     fn draw(&mut self, context: Context, gl: &mut G2d, state: &PistonAppState);
 
     fn run<T: Into<String>>(title: T, app: &mut Self) {
-        let mut window: PistonWindow<Sdl2Window> = WindowSettings::new(title, [640, 480])
-            .exit_on_esc(true)
-            .resizable(false)
-            .vsync(true)
-            .build()
-            .unwrap();
-        let mut state = PistonAppState::new();
         let mut first = true;
+        let mut state = PistonAppState::new();
+        let mut window: PistonWindow<sdl2_window::Sdl2Window> =
+            WindowSettings::new(title, [640, 480])
+                .exit_on_esc(true)
+                .resizable(false)
+                .build()
+                .unwrap();
         while let Some(e) = window.next() {
             if let Some(args) = e.render_args() {
                 state.width = args.width as Scalar;
@@ -108,9 +165,4 @@ pub trait PistonApp {
             }
         }
     }
-}
-
-pub fn random_color() -> Color {
-    let mut rng = rand::thread_rng();
-    [rng.gen_range(0.3, 1.0), rng.gen_range(0.3, 1.0), rng.gen_range(0.3, 1.0), 1.0]
 }

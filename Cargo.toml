@@ -1,9 +1,10 @@
 [package]
 name = "piston-app"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["ko"]
 
 [dependencies]
+noise = "*"
 piston_window = "*"
 pistoncore-sdl2_window = "*"
 rand = "*"
