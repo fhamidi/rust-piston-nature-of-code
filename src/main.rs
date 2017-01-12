@@ -20,7 +20,7 @@ impl App {
 
 impl PistonApp for App {
     fn setup(&mut self, _: Context, gl: &mut G2d, _: &PistonAppState) {
-        clear([1.0; 4], gl);
+        clear(color::WHITE, gl);
     }
 
     fn draw(&mut self, context: Context, gl: &mut G2d, state: &PistonAppState) {
