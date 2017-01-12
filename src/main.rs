@@ -46,8 +46,8 @@ impl Walker {
 
     fn step(&mut self, state: &PistonAppState) {
         self.color = state.noise_color(self.tcolor, Some(1.0));
-        self.x = state.map_x(state.noise(self.tx));
-        self.y = state.map_y(state.noise(self.ty));
+        self.x = state.map_x(state.noise(&[self.tx]));
+        self.y = state.map_y(state.noise(&[self.ty]));
         self.tcolor += 1e-3;
         self.tx += 0.01;
         self.ty += 0.01;
