@@ -25,7 +25,7 @@ impl Walker {
     }
 
     fn draw(&self, context: Context, gl: &mut G2d) {
-        rectangle([0.0, 0.0, 0.0, 1.0],
+        rectangle(color::BLACK,
                   rectangle::square(self.x, self.y, 1.0),
                   context.transform,
                   gl);
@@ -57,7 +57,7 @@ impl App {
 impl PistonApp for App {
     fn setup(&mut self, _: Context, gl: &mut G2d, state: &PistonAppState) {
         self.walker.set_position(state.width() / 2.0, state.height() / 2.0);
-        clear([1.0; 4], gl);
+        clear(color::WHITE, gl);
     }
 
     fn draw(&mut self, context: Context, gl: &mut G2d, state: &PistonAppState) {
