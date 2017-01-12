@@ -90,8 +90,18 @@ impl PistonAppState {
         (value - in_min) / (in_max - in_min) * (out_max - out_min) + out_min
     }
 
-    pub fn noise(&self, input: Scalar) -> Scalar {
-        (noise::perlin2(&self.noise_seed, &[input, 0.0]) + 1.0) / 2.0
+    pub fn noise(&self, input: &[Scalar]) -> Scalar {
+        let result = match input.len() {
+            0 => 0.0,
+            1 => noise::perlin2(&self.noise_seed, &[input[0], 0.0]),
+            2 => noise::perlin2(&self.noise_seed, &[input[0], input[1]]),
+            3 => noise::perlin3(&self.noise_seed, &[input[0], input[1], input[2]]),
+            _ => {
+                noise::perlin4(&self.noise_seed,
+                               &[input[0], input[1], input[2], input[3]])
+            }
+        };
+        (result + 1.0) / 2.0
     }
 
     pub fn random_color(&self, alpha: Option<ColorComponent>) -> Color {
@@ -104,20 +114,20 @@ impl PistonAppState {
 
     pub fn noise_color(&self, input: Scalar, alpha: Option<ColorComponent>) -> Color {
         let alpha = alpha.unwrap_or_else(|| {
-            self.map_range(self.noise(input),
+            self.map_range(self.noise(&[input]),
                            0.0,
                            1.0,
                            MIN_COLOR_COMPONENT as Scalar,
                            1.0) as ColorComponent
         });
         hsv([1.0, 0.0, 0.0, alpha],
-            self.map_range(self.noise(input + 25.0),
+            self.map_range(self.noise(&[input + 25.0]),
                            0.0,
                            1.0,
                            0.0,
                            2.0 * ::std::f64::consts::PI) as ColorComponent,
-            self.noise(input + 50.0) as ColorComponent,
-            self.map_range(self.noise(input + 75.0),
+            self.noise(&[input + 50.0]) as ColorComponent,
+            self.map_range(self.noise(&[input + 75.0]),
                            0.0,
                            1.0,
                            2.0 * MIN_COLOR_COMPONENT as Scalar,
