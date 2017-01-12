@@ -16,27 +16,29 @@ struct App {
 
 impl App {
     fn new() -> Self {
-        let mut app = App {
+        App {
             random_counts: [0; 20],
-            colors: [[0.0; 4]; 20],
-        };
-        for i in 0..app.colors.len() {
-            app.colors[i] = random_color();
+            colors: [color::TRANSPARENT; 20],
         }
-        app
     }
 }
 
 impl PistonApp for App {
+    fn setup(&mut self, _: Context, _: &mut G2d, state: &PistonAppState) {
+        for i in 0..self.colors.len() {
+            self.colors[i] = state.random_color(Some(1.0));
+        }
+    }
+
     fn draw(&mut self, context: Context, gl: &mut G2d, state: &PistonAppState) {
         let length = self.random_counts.len();
         let index = rand::thread_rng().gen_range(0, length);
         self.random_counts[index] += 1;
         let width = state.width() / length as Scalar;
-        clear([1.0; 4], gl);
+        clear(color::WHITE, gl);
         for x in 0..length {
             let count = self.random_counts[x] as Scalar;
-            Rectangle::new_border([0.0, 0.0, 0.0, 1.0], 1.0)
+            Rectangle::new_border(color::BLACK, 1.0)
                 .color(self.colors[x])
                 .draw([x as Scalar * width, state.height() - count, width - 1.0, count],
                       &context.draw_state,
