@@ -1,9 +1,10 @@
 [package]
 name = "piston-app"
-version = "0.3.0"
+version = "1.0.0"
 authors = ["ko"]
 
 [dependencies]
+image = "*"
 noise = "*"
 piston_window = "*"
 pistoncore-sdl2_window = "*"

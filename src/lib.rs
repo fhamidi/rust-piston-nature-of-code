@@ -4,39 +4,106 @@
 //! Simple application framework, similar to the Processing environment
 //! used in the book.
 
+pub extern crate image as img;
+pub extern crate rand;
+
 extern crate noise;
 extern crate piston_window;
-extern crate rand;
 extern crate sdl2_window;
 
-pub use math::*;
+pub use math::{Scalar, Vec2d};
 pub use piston_window::*;
 pub use rand::Rng;
+pub use rand::distributions::normal::StandardNormal;
 pub use types::{Color, ColorComponent};
 
-const MIN_COLOR_COMPONENT: ColorComponent = 1.0 / 3.0;
+pub type PistonAppWindow = PistonWindow<sdl2_window::Sdl2Window>;
+
+pub trait PistonApp {
+    fn setup(&mut self, _window: &mut PistonAppWindow, _state: &PistonAppState) {}
+
+    fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState);
+
+    fn run<T: Into<String>>(title: T, app: &mut Self) {
+        let mut first = true;
+        let mut state = PistonAppState::new();
+        let mut window: PistonAppWindow = WindowSettings::new(title, [640, 480])
+            .exit_on_esc(true)
+            .resizable(false)
+            .build()
+            .unwrap();
+        while let Some(e) = window.next() {
+            if let Some(args) = e.render_args() {
+                state.event = e.clone();
+                state.width = args.width as Scalar;
+                state.height = args.height as Scalar;
+                if first {
+                    first = false;
+                    app.setup(&mut window, &state);
+                }
+                app.draw(&mut window, &state);
+            }
+            if let Some(Button::Mouse(button)) = e.press_args() {
+                state.mouse_button = button;
+                state.mouse_pressed += 1;
+            }
+            if let Some(Button::Mouse(_)) = e.release_args() {
+                if state.mouse_pressed > 0 {
+                    state.mouse_pressed -= 1;
+                }
+            }
+            if let Some(position) = e.mouse_cursor_args() {
+                state.mouse_x = position[0];
+                state.mouse_y = position[1];
+            }
+        }
+    }
+}
 
 pub struct PistonAppState {
+    event: Event,
+    width: Scalar,
+    height: Scalar,
     mouse_button: MouseButton,
     mouse_pressed: u8,
     mouse_x: Scalar,
     mouse_y: Scalar,
     noise_seed: noise::Seed,
-    width: Scalar,
-    height: Scalar,
 }
 
 impl PistonAppState {
     fn new() -> Self {
         PistonAppState {
+            event: Event::Render(RenderArgs {
+                ext_dt: 0.0,
+                width: 0,
+                height: 0,
+                draw_width: 0,
+                draw_height: 0,
+            }),
+            width: 0.0,
+            height: 0.0,
             mouse_button: MouseButton::Unknown,
             mouse_pressed: 0,
             mouse_x: 0.0,
             mouse_y: 0.0,
-            noise_seed: rand::random::<noise::Seed>(),
-            width: 0.0,
-            height: 0.0,
+            noise_seed: rand::random(),
         }
+    }
+
+    #[inline]
+    pub fn event(&self) -> &Event {
+        &self.event
+    }
+
+    #[inline]
+    pub fn width(&self) -> Scalar {
+        self.width
+    }
+
+    #[inline]
+    pub fn height(&self) -> Scalar {
+        self.height
     }
 
     #[inline]
@@ -57,16 +124,6 @@ impl PistonAppState {
     #[inline]
     pub fn mouse_y(&self) -> Scalar {
         self.mouse_y
-    }
-
-    #[inline]
-    pub fn width(&self) -> Scalar {
-        self.width
-    }
-
-    #[inline]
-    pub fn height(&self) -> Scalar {
-        self.height
     }
 
     #[inline]
@@ -101,10 +158,11 @@ impl PistonAppState {
                                &[input[0], input[1], input[2], input[3]])
             }
         };
-        (result + 1.0) / 2.0
+        ((result + 1.0) / 2.0).max(0.0).min(1.0)
     }
 
     pub fn random_color(&self, alpha: Option<ColorComponent>) -> Color {
+        const MIN_COLOR_COMPONENT: ColorComponent = 1.0 / 3.0;
         let mut rng = rand::thread_rng();
         [rng.gen_range(MIN_COLOR_COMPONENT, 1.0),
          rng.gen_range(MIN_COLOR_COMPONENT, 1.0),
@@ -113,66 +171,100 @@ impl PistonAppState {
     }
 
     pub fn noise_color(&self, input: Scalar, alpha: Option<ColorComponent>) -> Color {
+        const MIN_ALPHA: Scalar = 1.0 / 3.0;
+        const MIN_SATURATION: Scalar = 1.0 / 2.0;
+        const MIN_VALUE: Scalar = 2.0 / 3.0;
         let alpha = alpha.unwrap_or_else(|| {
             self.map_range(self.noise(&[input]),
                            0.0,
                            1.0,
-                           MIN_COLOR_COMPONENT as Scalar,
+                           MIN_ALPHA,
                            1.0) as ColorComponent
         });
-        hsv([1.0, 0.0, 0.0, alpha],
-            self.map_range(self.noise(&[input + 25.0]),
-                           0.0,
-                           1.0,
-                           0.0,
-                           2.0 * ::std::f64::consts::PI) as ColorComponent,
-            self.noise(&[input + 50.0]) as ColorComponent,
-            self.map_range(self.noise(&[input + 75.0]),
-                           0.0,
-                           1.0,
-                           2.0 * MIN_COLOR_COMPONENT as Scalar,
-                           1.0) as ColorComponent)
+        self.color_from_hsv(self.map_range(self.noise(&[input + 25.0]),
+                                           0.0,
+                                           1.0,
+                                           0.0,
+                                           360.0),
+                            self.map_range(self.noise(&[input + 50.0]),
+                                           0.0,
+                                           1.0,
+                                           MIN_SATURATION,
+                                           1.0),
+                            self.map_range(self.noise(&[input + 75.0]),
+                                           0.0,
+                                           1.0,
+                                           MIN_VALUE,
+                                           1.0),
+                            alpha)
+    }
+
+    pub fn color_from_hsv(&self,
+                          hue: Scalar,
+                          saturation: Scalar,
+                          value: Scalar,
+                          alpha: ColorComponent)
+                          -> Color {
+        let c = value * saturation;
+        let h = (hue - ((hue / 360.0).floor() * 360.0)) / 60.0;
+        let x = c * (1.0 - (h % 2.0 - 1.0).abs());
+        let m = value - c;
+        let (r, g, b) = match h {
+            0.0...1.0 => (c, x, 0.0),
+            1.0...2.0 => (x, c, 0.0),
+            2.0...3.0 => (0.0, c, x),
+            3.0...4.0 => (0.0, x, c),
+            4.0...5.0 => (x, 0.0, c),
+            _ => (c, 0.0, x),
+        };
+        [(r + m) as ColorComponent,
+         (g + m) as ColorComponent,
+         (b + m) as ColorComponent,
+         alpha]
     }
 }
 
-pub trait PistonApp {
-    fn setup(&mut self, _context: Context, _gl: &mut G2d, _state: &PistonAppState) {}
+pub struct TextureCanvas {
+    canvas: img::RgbaImage,
+    texture: G2dTexture,
+}
 
-    fn draw(&mut self, context: Context, gl: &mut G2d, state: &PistonAppState);
-
-    fn run<T: Into<String>>(title: T, app: &mut Self) {
-        let mut first = true;
-        let mut state = PistonAppState::new();
-        let mut window: PistonWindow<sdl2_window::Sdl2Window> =
-            WindowSettings::new(title, [640, 480])
-                .exit_on_esc(true)
-                .resizable(false)
-                .build()
-                .unwrap();
-        while let Some(e) = window.next() {
-            if let Some(args) = e.render_args() {
-                state.width = args.width as Scalar;
-                state.height = args.height as Scalar;
-                window.draw_2d(&e, |context, gl| {
-                    if first {
-                        first = false;
-                        app.setup(context, gl, &state);
-                    }
-                    app.draw(context, gl, &state);
-                });
-            }
-            if let Some(Button::Mouse(_)) = e.press_args() {
-                state.mouse_pressed += 1;
-            }
-            if let Some(Button::Mouse(_)) = e.release_args() {
-                if state.mouse_pressed > 0 {
-                    state.mouse_pressed -= 1;
-                }
-            }
-            if let Some(position) = e.mouse_cursor_args() {
-                state.mouse_x = position[0];
-                state.mouse_y = position[1];
-            }
+impl TextureCanvas {
+    pub fn new(window: &mut PistonAppWindow,
+               width: Scalar,
+               height: Scalar,
+               settings: Option<TextureSettings>)
+               -> Self {
+        let canvas = img::RgbaImage::new(width as u32, height as u32);
+        let texture = Texture::from_image(&mut window.factory,
+                                          &canvas,
+                                          &settings.unwrap_or(TextureSettings::new()))
+            .unwrap();
+        TextureCanvas {
+            canvas: canvas,
+            texture: texture,
         }
+    }
+
+    #[inline]
+    pub fn canvas(&self) -> &img::RgbaImage {
+        &self.canvas
+    }
+
+    #[inline]
+    pub fn canvas_mut(&mut self) -> &mut img::RgbaImage {
+        &mut self.canvas
+    }
+
+    #[inline]
+    pub fn texture(&self) -> &G2dTexture {
+        &self.texture
+    }
+
+    pub fn update<F>(&mut self, window: &mut PistonAppWindow, f: F)
+        where F: FnOnce(&mut img::RgbaImage)
+    {
+        f(&mut self.canvas);
+        self.texture.update(&mut window.encoder, &self.canvas).unwrap();
     }
 }
