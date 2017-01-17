@@ -1,7 +1,7 @@
 //! Nature of code - Following the book... in Rust, with Piston!
 //! http://natureofcode.com/
 //!
-//! Two-dimensional perlin noise.
+//! Introduction - Two-dimensional perlin noise.
 
 extern crate piston_app;
 
