@@ -31,7 +31,7 @@ impl Ball {
     }
 
     fn step(&mut self, state: &PistonAppState) {
-        self.location = math::add(self.location, self.speed);
+        self.location = vec2_add(self.location, self.speed);
         let (x, y) = (self.location[0], self.location[1]);
         if x > state.width() || x < 0.0 {
             self.speed[0] *= -1.0;
