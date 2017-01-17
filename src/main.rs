@@ -19,7 +19,7 @@ impl App {
 impl PistonApp for App {
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
         let center = [state.width() / 2.0, state.height() / 2.0];
-        let mouse = math::sub([state.mouse_x(), state.mouse_y()], center);
+        let mouse = vec2_sub([state.mouse_x(), state.mouse_y()], center);
         window.draw_2d(state.event(), |context, gfx| {
             clear(color::WHITE, gfx);
             let line = Line::new_round(color::BLACK, 3.0);
