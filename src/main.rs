@@ -4,7 +4,6 @@
 //! Application template.
 
 extern crate piston_app;
-extern crate rand;
 
 use piston_app::*;
 
@@ -18,12 +17,14 @@ impl App {
 }
 
 impl PistonApp for App {
-    fn setup(&mut self, context: Context, gl: &mut G2d, state: &PistonAppState) {
+    fn setup(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
         unimplemented!();
     }
 
-    fn draw(&mut self, context: Context, gl: &mut G2d, state: &PistonAppState) {
-        unimplemented!();
+    fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
+        window.draw_2d(state.event(), |context, gfx| {
+            unimplemented!();
+        });
     }
 }
 
