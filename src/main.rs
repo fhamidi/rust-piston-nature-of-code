@@ -22,11 +22,11 @@ impl PistonApp for App {
         let mouse = math::sub([state.mouse_x(), state.mouse_y()], center);
         window.draw_2d(state.event(), |context, gfx| {
             clear(color::WHITE, gfx);
-            Line::new_round(color::BLACK, 3.0).draw([0.0, 0.0, mouse[0], mouse[1]],
-                                                    &context.draw_state,
-                                                    context.transform
-                                                        .trans(center[0], center[1]),
-                                                    gfx);
+            let line = Line::new_round(color::BLACK, 3.0);
+            line.draw([0.0, 0.0, mouse[0], mouse[1]],
+                      &context.draw_state,
+                      context.transform.trans(center[0], center[1]),
+                      gfx);
         });
     }
 }
