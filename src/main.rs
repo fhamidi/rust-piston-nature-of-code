@@ -4,7 +4,6 @@
 //! Introduction - Random distribution graph.
 
 extern crate piston_app;
-extern crate rand;
 
 use piston_app::*;
 
@@ -24,27 +23,28 @@ impl App {
 }
 
 impl PistonApp for App {
-    fn setup(&mut self, _: Context, _: &mut G2d, state: &PistonAppState) {
+    fn setup(&mut self, _: &mut PistonAppWindow, state: &PistonAppState) {
         for i in 0..self.colors.len() {
             self.colors[i] = state.random_color(Some(1.0));
         }
     }
 
-    fn draw(&mut self, context: Context, gl: &mut G2d, state: &PistonAppState) {
+    fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
         let length = self.random_counts.len();
         let index = rand::thread_rng().gen_range(0, length);
         self.random_counts[index] += 1;
         let width = state.width() / length as Scalar;
-        clear(color::WHITE, gl);
-        for x in 0..length {
-            let count = self.random_counts[x] as Scalar;
-            Rectangle::new_border(color::BLACK, 1.0)
-                .color(self.colors[x])
-                .draw([x as Scalar * width, state.height() - count, width - 1.0, count],
-                      &context.draw_state,
-                      context.transform,
-                      gl);
-        }
+        window.draw_2d(state.event(), |context, gfx| {
+            clear(color::WHITE, gfx);
+            for x in 0..length {
+                let count = self.random_counts[x] as Scalar;
+                let coords =
+                    [x as Scalar * width, state.height() - count, width - 1.0, count];
+                Rectangle::new_border(color::BLACK, 1.0)
+                    .color(self.colors[x])
+                    .draw(coords, &context.draw_state, context.transform, gfx);
+            }
+        });
     }
 }
 
