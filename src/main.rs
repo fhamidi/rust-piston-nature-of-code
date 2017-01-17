@@ -9,39 +9,35 @@ use piston_app::*;
 
 #[derive(Debug)]
 struct Ball {
-    x: Scalar,
-    y: Scalar,
-    x_speed: Scalar,
-    y_speed: Scalar,
+    location: Vec2d,
+    speed: Vec2d,
 }
 
 impl Ball {
     fn new() -> Self {
         Ball {
-            x: 128.0,
-            y: 128.0,
-            x_speed: 2.0,
-            y_speed: 10.0 / 3.0,
+            location: [128.0, 128.0],
+            speed: [2.0, 10.0 / 3.0],
         }
     }
 
     fn draw(&self, context: Context, gfx: &mut G2d) {
         Ellipse::new_border(color::BLACK, 1.0)
             .color([0.5, 0.5, 0.5, 1.0])
-            .draw(ellipse::circle(self.x, self.y, 32.0),
+            .draw(ellipse::circle(self.location[0], self.location[1], 32.0),
                   &context.draw_state,
                   context.transform,
                   gfx);
     }
 
     fn step(&mut self, state: &PistonAppState) {
-        self.x += self.x_speed;
-        self.y += self.y_speed;
-        if self.x > state.width() || self.x < 0.0 {
-            self.x_speed *= -1.0;
+        self.location = math::add(self.location, self.speed);
+        let (x, y) = (self.location[0], self.location[1]);
+        if x > state.width() || x < 0.0 {
+            self.speed[0] *= -1.0;
         }
-        if self.y > state.height() || self.y < 0.0 {
-            self.y_speed *= -1.0;
+        if y > state.height() || y < 0.0 {
+            self.speed[1] *= -1.0;
         }
     }
 }
