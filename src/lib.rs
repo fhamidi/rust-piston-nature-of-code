@@ -19,6 +19,8 @@ pub use rand::distributions::normal::StandardNormal;
 pub use types::{Color, ColorComponent};
 pub use vecmath::*;
 
+use std::ops::{Add, Mul, Div};
+
 pub type PistonAppWindow = PistonWindow<sdl2_window::Sdl2Window>;
 
 pub trait PistonApp {
@@ -268,5 +270,16 @@ impl TextureCanvas {
     {
         f(&mut self.canvas);
         self.texture.update(&mut window.encoder, &self.canvas).unwrap();
+    }
+}
+
+pub fn vec2_limit<T>(vec: Vector2<T>, max: T) -> Vector2<T>
+    where T: Copy + PartialOrd + traits::One + traits::Sqrt +
+             Add<T, Output = T> + Mul<T, Output = T> + Div<T, Output = T>
+{
+    if vec2_len(vec) > max {
+        vec2_scale(vec2_normalized(vec), max)
+    } else {
+        vec
     }
 }
