@@ -4,7 +4,6 @@
 //! Introduction - Random walker.
 
 extern crate piston_app;
-extern crate rand;
 
 use piston_app::*;
 
@@ -24,11 +23,11 @@ impl Walker {
         self.y = y;
     }
 
-    fn draw(&self, context: Context, gl: &mut G2d) {
+    fn draw(&self, context: Context, gfx: &mut G2d) {
         rectangle(color::BLACK,
                   rectangle::square(self.x, self.y, 1.0),
                   context.transform,
-                  gl);
+                  gfx);
     }
 
     fn step(&mut self, state: &PistonAppState) {
@@ -55,14 +54,14 @@ impl App {
 }
 
 impl PistonApp for App {
-    fn setup(&mut self, _: Context, gl: &mut G2d, state: &PistonAppState) {
+    fn setup(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
         self.walker.set_position(state.width() / 2.0, state.height() / 2.0);
-        clear(color::WHITE, gl);
+        window.draw_2d(state.event(), |_, gfx| clear(color::WHITE, gfx));
     }
 
-    fn draw(&mut self, context: Context, gl: &mut G2d, state: &PistonAppState) {
+    fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
         self.walker.step(state);
-        self.walker.draw(context, gl);
+        window.draw_2d(state.event(), |context, gfx| self.walker.draw(context, gfx));
     }
 }
 
