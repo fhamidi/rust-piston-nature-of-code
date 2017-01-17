@@ -10,12 +10,14 @@ pub extern crate rand;
 extern crate noise;
 extern crate piston_window;
 extern crate sdl2_window;
+extern crate vecmath;
 
 pub use math::{Scalar, Vec2d};
 pub use piston_window::*;
 pub use rand::Rng;
 pub use rand::distributions::normal::StandardNormal;
 pub use types::{Color, ColorComponent};
+pub use vecmath::*;
 
 pub type PistonAppWindow = PistonWindow<sdl2_window::Sdl2Window>;
 
