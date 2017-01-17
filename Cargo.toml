@@ -1,6 +1,6 @@
 [package]
 name = "perlin-noise-2d"
-version = "0.1.0"
+version = "1.0.0"
 authors = ["ko"]
 
 [dependencies]
