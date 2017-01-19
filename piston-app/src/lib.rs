@@ -296,7 +296,7 @@ impl TextureCanvas {
     }
 }
 
-use std::ops::{Add, Mul, Div};
+use std::ops::{Add, Sub, Mul, Div};
 
 pub fn vec2_limit<T>(vec: Vector2<T>, max: T) -> Vector2<T>
     where T: Copy + PartialOrd + traits::One + traits::Sqrt +
@@ -307,4 +307,15 @@ pub fn vec2_limit<T>(vec: Vector2<T>, max: T) -> Vector2<T>
     } else {
         vec
     }
+}
+
+pub fn vec2_random<T>() -> Vector2<T>
+    where T: Copy + PartialOrd + rand::distributions::range::SampleRange +
+             traits::Zero + traits::One + traits::Sqrt +
+             Add<T, Output = T> + Sub<T, Output = T> +
+             Mul<T, Output = T> + Div<T, Output = T>
+{
+    let mut rng = rand::thread_rng();
+    vec2_normalized([rng.gen_range(T::zero(), T::one() + T::one()) - T::one(),
+                     rng.gen_range(T::zero(), T::one() + T::one()) - T::one()])
 }
