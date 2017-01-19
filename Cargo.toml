@@ -1,0 +1,13 @@
+[package]
+name = "piston-app"
+version = "1.0.2"
+authors = ["ko"]
+
+[dependencies]
+image = "*"
+noise = "*"
+piston_window = "*"
+pistoncore-sdl2_window = "*"
+rand = "*"
+vecmath = "*"
+
