@@ -30,7 +30,7 @@ impl Ball {
                   gfx);
     }
 
-    fn step(&mut self, state: &PistonAppState) {
+    fn update(&mut self, state: &PistonAppState) {
         self.location = vec2_add(self.location, self.speed);
         let (x, y) = (self.location[0], self.location[1]);
         if x > state.width() || x < 0.0 {
@@ -55,7 +55,7 @@ impl App {
 
 impl PistonApp for App {
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
-        self.ball.step(state);
+        self.ball.update(state);
         window.draw_2d(state.event(), |context, gfx| {
             clear(color::WHITE, gfx);
             self.ball.draw(context, gfx);

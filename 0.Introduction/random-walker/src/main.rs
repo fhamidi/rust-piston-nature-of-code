@@ -30,7 +30,7 @@ impl Walker {
                   gfx);
     }
 
-    fn step(&mut self, state: &PistonAppState) {
+    fn update(&mut self, state: &PistonAppState) {
         let mut rng = rand::thread_rng();
         if state.mouse_pressed() && rng.gen() {
             self.x += rng.next_f64() * (state.mouse_x() - self.x).signum();
@@ -60,7 +60,7 @@ impl PistonApp for App {
     }
 
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
-        self.walker.step(state);
+        self.walker.update(state);
         window.draw_2d(state.event(), |context, gfx| self.walker.draw(context, gfx));
     }
 }

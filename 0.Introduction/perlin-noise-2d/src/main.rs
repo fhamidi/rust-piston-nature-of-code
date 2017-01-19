@@ -26,7 +26,7 @@ impl Background {
         image(self.canvas.texture(), context.transform, gfx);
     }
 
-    fn step(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
+    fn update(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
         let (width, height) = (state.width() as u32, state.height() as u32);
         let color = state.noise_color(self.color_offset, Some(1.0));
         let time = self.time;
@@ -76,7 +76,7 @@ impl PistonApp for App {
     }
 
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
-        self.background_mut().step(window, state);
+        self.background_mut().update(window, state);
         window.draw_2d(state.event(), |context, gfx| {
             self.background().draw(context, gfx);
         });

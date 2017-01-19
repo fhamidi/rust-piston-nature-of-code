@@ -43,7 +43,7 @@ impl Walker {
                   gfx);
     }
 
-    fn step(&mut self, state: &PistonAppState) {
+    fn update(&mut self, state: &PistonAppState) {
         self.color = state.noise_color(self.color_offset, Some(1.0));
         self.x = state.map_x(state.noise(&[self.x_offset]));
         self.y = state.map_y(state.noise(&[self.y_offset]));
@@ -70,7 +70,7 @@ impl PistonApp for App {
     }
 
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
-        self.walker.step(state);
+        self.walker.update(state);
         window.draw_2d(state.event(), |context, gfx| {
             clear(color::WHITE, gfx);
             self.walker.draw(context, gfx);
