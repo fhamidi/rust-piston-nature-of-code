@@ -1,0 +1,8 @@
+[package]
+name = "random-walker"
+version = "1.0.0"
+authors = ["ko"]
+
+[dependencies]
+piston-app = { path = "../../piston-app" }
+
