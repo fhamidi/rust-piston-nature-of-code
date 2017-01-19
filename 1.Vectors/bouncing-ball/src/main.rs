@@ -9,6 +9,8 @@ use piston_app::*;
 
 #[derive(Debug)]
 struct Ball {
+    color: Color,
+    color_offset: Scalar,
     location: Vec2d,
     speed: Vec2d,
 }
@@ -16,6 +18,8 @@ struct Ball {
 impl Ball {
     fn new() -> Self {
         Ball {
+            color: color::TRANSPARENT,
+            color_offset: 0.0,
             location: [128.0, 128.0],
             speed: [2.0, 10.0 / 3.0],
         }
@@ -23,7 +27,7 @@ impl Ball {
 
     fn draw(&self, context: Context, gfx: &mut G2d) {
         Ellipse::new_border(color::BLACK, 1.0)
-            .color([0.5, 0.5, 0.5, 1.0])
+            .color(self.color)
             .draw(ellipse::circle(self.location[0], self.location[1], 32.0),
                   &context.draw_state,
                   context.transform,
@@ -31,6 +35,8 @@ impl Ball {
     }
 
     fn update(&mut self, state: &PistonAppState) {
+        self.color = state.noise_color(self.color_offset, Some(1.0));
+        self.color_offset += 1e-3;
         self.location = vec2_add(self.location, self.speed);
         let (x, y) = (self.location[0], self.location[1]);
         if x > state.width() || x < 0.0 {

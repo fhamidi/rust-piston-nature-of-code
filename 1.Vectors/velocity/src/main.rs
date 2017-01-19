@@ -9,15 +9,17 @@ use piston_app::*;
 
 #[derive(Debug)]
 struct Mover {
+    color: Color,
     location: Vec2d,
     velocity: Vec2d,
 }
 
 impl Mover {
     fn new(state: &PistonAppState) -> Self {
-        const MAX_VELOCITY: Scalar = 2.0;
+        const MAX_VELOCITY: Scalar = 6.0;
         let mut rng = rand::thread_rng();
         Mover {
+            color: state.random_color(Some(1.0)),
             location: [rng.gen_range(0.0, state.width()),
                        rng.gen_range(0.0, state.height())],
             velocity: [rng.gen_range(-MAX_VELOCITY, MAX_VELOCITY),
@@ -27,7 +29,7 @@ impl Mover {
 
     fn draw(&self, context: Context, gfx: &mut G2d) {
         Ellipse::new_border(color::BLACK, 1.0)
-            .color([0.5, 0.5, 0.5, 1.0])
+            .color(self.color)
             .draw(ellipse::circle(self.location[0], self.location[1], 32.0),
                   &context.draw_state,
                   context.transform,
