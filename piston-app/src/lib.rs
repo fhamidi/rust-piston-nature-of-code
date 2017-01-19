@@ -19,8 +19,6 @@ pub use rand::distributions::normal::StandardNormal;
 pub use types::{Color, ColorComponent};
 pub use vecmath::*;
 
-use std::ops::{Add, Mul, Div};
-
 pub type PistonAppWindow = PistonWindow<sdl2_window::Sdl2Window>;
 
 pub trait PistonApp {
@@ -47,18 +45,29 @@ pub trait PistonApp {
                 }
                 app.draw(&mut window, &state);
             }
-            if let Some(Button::Mouse(button)) = e.press_args() {
-                state.mouse_button = button;
-                state.mouse_pressed += 1;
-            }
-            if let Some(Button::Mouse(_)) = e.release_args() {
-                if state.mouse_pressed > 0 {
-                    state.mouse_pressed -= 1;
-                }
-            }
             if let Some(position) = e.mouse_cursor_args() {
                 state.mouse_x = position[0];
                 state.mouse_y = position[1];
+            }
+            match e.press_args() {
+                Some(Button::Keyboard(key)) => {
+                    state.key = key;
+                    state.key_pressed += 1;
+                }
+                Some(Button::Mouse(button)) => {
+                    state.mouse_button = button;
+                    state.mouse_pressed += 1;
+                }
+                _ => (),
+            }
+            match e.release_args() {
+                Some(Button::Keyboard(_)) if state.key_pressed > 0 => {
+                    state.key_pressed -= 1;
+                }
+                Some(Button::Mouse(_)) if state.mouse_pressed > 0 => {
+                    state.mouse_pressed -= 1;
+                }
+                _ => (),
             }
         }
     }
@@ -68,6 +77,8 @@ pub struct PistonAppState {
     event: Event,
     width: Scalar,
     height: Scalar,
+    key: Key,
+    key_pressed: u8,
     mouse_button: MouseButton,
     mouse_pressed: u8,
     mouse_x: Scalar,
@@ -87,6 +98,8 @@ impl PistonAppState {
             }),
             width: 0.0,
             height: 0.0,
+            key: Key::Unknown,
+            key_pressed: 0,
             mouse_button: MouseButton::Unknown,
             mouse_pressed: 0,
             mouse_x: 0.0,
@@ -108,6 +121,16 @@ impl PistonAppState {
     #[inline]
     pub fn height(&self) -> Scalar {
         self.height
+    }
+
+    #[inline]
+    pub fn key(&self) -> Key {
+        self.key
+    }
+
+    #[inline]
+    pub fn key_pressed(&self) -> bool {
+        self.key_pressed > 0
     }
 
     #[inline]
@@ -272,6 +295,8 @@ impl TextureCanvas {
         self.texture.update(&mut window.encoder, &self.canvas).unwrap();
     }
 }
+
+use std::ops::{Add, Mul, Div};
 
 pub fn vec2_limit<T>(vec: Vector2<T>, max: T) -> Vector2<T>
     where T: Copy + PartialOrd + traits::One + traits::Sqrt +

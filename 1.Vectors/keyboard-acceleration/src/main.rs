@@ -1,7 +1,7 @@
 //! Nature of code - Following the book... in Rust, with Piston!
 //! http://natureofcode.com/
 //!
-//! Vectors - Motion 101 (constant acceleration).
+//! Vectors - Keyboard-controlled acceleration.
 
 extern crate piston_app;
 
@@ -20,8 +20,8 @@ impl Mover {
         Mover {
             color: color::TRANSPARENT,
             location: [state.width() / 2.0, state.height() / 2.0],
-            velocity: [0.0, 0.0],
-            acceleration: [-3e-3, 0.01],
+            velocity: [1.0, 0.0],
+            acceleration: [0.0, 0.0],
         }
     }
 
@@ -36,8 +36,19 @@ impl Mover {
 
     fn update(&mut self, state: &PistonAppState) {
         const MAX_VELOCITY: Scalar = 9.0;
+        if state.key_pressed() {
+            match state.key() {
+                Key::Down | Key::Left => self.acceleration[0] -= 6e-3,
+                Key::Up | Key::Right => self.acceleration[0] += 1e-3,
+                _ => (),
+            }
+        }
         self.velocity = vec2_limit(vec2_add(self.velocity, self.acceleration),
                                    MAX_VELOCITY);
+        if self.velocity[0] < 0.0 {
+            self.acceleration[0] = 0.0;
+            self.velocity[0] = 0.0;
+        }
         self.location = vec2_add(self.location, self.velocity);
         self.check_edges(state);
         let hue = state.map_range(vec2_len(self.velocity), 0.0, MAX_VELOCITY, 0.0, 120.0);
