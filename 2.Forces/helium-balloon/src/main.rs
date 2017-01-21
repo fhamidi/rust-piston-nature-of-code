@@ -94,7 +94,7 @@ impl App {
             let transform = context.transform
                 .trans(state.width() / 2.0, state.height() - 32.0);
             Line::new_round(color, 2.0)
-                .draw_arrow(arrow, 20.0 / 3.0, &context.draw_state, transform, gfx);
+                .draw_arrow(arrow, 4.2, &context.draw_state, transform, gfx);
         }
     }
 }
@@ -113,10 +113,10 @@ impl PistonApp for App {
                 wind = -wind;
             }
             self.wind = [wind, 0.0];
-            self.wind_offset += 0.01;
         } else {
             self.wind = [0.0, 0.0];
         }
+        self.wind_offset += 0.01;
         for mover in &mut self.movers {
             mover.apply_force(self.wind);
             mover.update(state);
