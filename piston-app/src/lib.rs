@@ -32,6 +32,7 @@ pub trait PistonApp {
         let mut window: PistonAppWindow = WindowSettings::new(title, [640, 480])
             .exit_on_esc(true)
             .resizable(false)
+            .vsync(true)
             .build()
             .unwrap();
         while let Some(e) = window.next() {

@@ -41,15 +41,18 @@ impl Mover {
     }
 
     fn update(&mut self, state: &PistonAppState) {
-        const BOUNCE_FACTOR: Scalar = -1.75;
+        const BOUNCE_FACTOR: Scalar = -1.8;
         const REVERSE_GRAVITY: Scalar = -0.1;
         let (x, y) = (self.location[0], self.location[1]);
+        let (width, height) = (state.width(), state.height());
         let velocity = [self.velocity[0] + self.velocity[0].signum(),
                         self.velocity[1] + self.velocity[1].signum()];
-        if x > state.width() || x < 0.0 {
+        if x > width || x < 0.0 {
+            self.location[0] = x.max(0.0).min(width);
             self.apply_force([velocity[0] * BOUNCE_FACTOR, 0.0]);
         }
-        if y > state.height() || y < 0.0 {
+        if y > height || y < 0.0 {
+            self.location[1] = y.max(0.0).min(height);
             self.apply_force([0.0, velocity[1] * BOUNCE_FACTOR]);
         }
         self.apply_force([0.0, REVERSE_GRAVITY]);
@@ -62,22 +65,60 @@ impl Mover {
 #[derive(Debug)]
 struct App {
     movers: Vec<Mover>,
+    wind: Vec2d,
+    wind_offset: Scalar,
 }
+
+const MAX_WIND: Scalar = 2.0 / 3.0;
 
 impl App {
     fn new() -> Self {
-        App { movers: vec![] }
+        App {
+            movers: vec![],
+            wind: [0.0, 0.0],
+            wind_offset: 0.0,
+        }
+    }
+
+    fn draw_wind(&mut self, context: Context, gfx: &mut G2d, state: &PistonAppState) {
+        let wind = vec2_len(self.wind);
+        if wind > 0.01 {
+            let hue = 240.0 - state.map_range(wind, 0.0, MAX_WIND, 0.0, 240.0);
+            let color = state.color_from_hsv(hue, 1.0, 2.0 / 3.0, 1.0);
+            let wind_len = state.width() * 0.42;
+            let arrow =
+                [0.0,
+                 0.0,
+                 state.map_range(self.wind[0], -MAX_WIND, MAX_WIND, -wind_len, wind_len),
+                 0.0];
+            let transform = context.transform
+                .trans(state.width() / 2.0, state.height() - 32.0);
+            Line::new_round(color, 2.0)
+                .draw_arrow(arrow, 20.0 / 3.0, &context.draw_state, transform, gfx);
+        }
     }
 }
 
 impl PistonApp for App {
     fn setup(&mut self, _: &mut PistonAppWindow, state: &PistonAppState) {
-        const MAX_MOVERS: usize = 1;
+        const MAX_MOVERS: usize = 32;
         self.movers = (0..MAX_MOVERS).map(|_| Mover::new(state)).collect();
     }
 
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
+        if state.mouse_pressed() {
+            let mut wind = state.map_range(
+                state.noise(&[self.wind_offset]), 0.0, 1.0, 0.0, MAX_WIND);
+            if state.mouse_x() < state.width() / 2.0 {
+                wind = -wind;
+            }
+            self.wind = [wind, 0.0];
+            self.wind_offset += 0.01;
+        } else {
+            self.wind = [0.0, 0.0];
+        }
         for mover in &mut self.movers {
+            mover.apply_force(self.wind);
             mover.update(state);
         }
         window.draw_2d(state.event(), |context, gfx| {
@@ -85,6 +126,7 @@ impl PistonApp for App {
             for mover in &self.movers {
                 mover.draw(context, gfx);
             }
+            self.draw_wind(context, gfx, state);
         });
     }
 }
