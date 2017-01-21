@@ -1,7 +1,7 @@
 //! Nature of code - Following the book... in Rust, with Piston!
 //! http://natureofcode.com/
 //!
-//! Vectors - Motion 101 (random acceleration).
+//! Vectors - Motion 101 (noise-based acceleration).
 
 extern crate piston_app;
 
@@ -13,6 +13,8 @@ struct Mover {
     location: Vec2d,
     velocity: Vec2d,
     acceleration: Vec2d,
+    x_offset: Scalar,
+    y_offset: Scalar,
 }
 
 impl Mover {
@@ -22,6 +24,8 @@ impl Mover {
             location: [state.width() / 2.0, state.height() / 2.0],
             velocity: [0.0, 0.0],
             acceleration: [0.0, 0.0],
+            x_offset: 0.0,
+            y_offset: 1e3,
         }
     }
 
@@ -37,15 +41,24 @@ impl Mover {
     fn update(&mut self, state: &PistonAppState) {
         const MAX_VELOCITY: Scalar = 9.0;
         const MAX_ACCELERATION: Scalar = 2.0;
-        self.acceleration = vec2_scale(vec2_random(),
-                                       rand::thread_rng()
-                                           .gen_range(0.0, MAX_ACCELERATION));
+        self.acceleration = [state.map_range(state.noise(&[self.x_offset]),
+                                             0.0,
+                                             1.0,
+                                             -MAX_ACCELERATION,
+                                             MAX_ACCELERATION),
+                             state.map_range(state.noise(&[self.y_offset]),
+                                             0.0,
+                                             1.0,
+                                             -MAX_ACCELERATION,
+                                             MAX_ACCELERATION)];
         self.velocity = vec2_limit(vec2_add(self.velocity, self.acceleration),
                                    MAX_VELOCITY);
         self.location = vec2_add(self.location, self.velocity);
         self.check_edges(state);
         let hue = state.map_range(vec2_len(self.velocity), 0.0, MAX_VELOCITY, 0.0, 120.0);
         self.color = state.color_from_hsv(hue, 1.0, 2.0 / 3.0, 1.0);
+        self.x_offset += 0.01;
+        self.y_offset += 0.01;
     }
 
     fn check_edges(&mut self, state: &PistonAppState) {
