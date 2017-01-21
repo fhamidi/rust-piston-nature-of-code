@@ -21,7 +21,7 @@ impl Mover {
         Mover {
             color: state.random_color(Some(2.0 / 3.0)),
             location: [rng.gen_range(0.0, state.width()),
-                       rng.gen_range(state.height() * 0.75, state.height())],
+                       rng.gen_range(state.height() * 4.0 / 5.0, state.height())],
             velocity: [0.0, 0.0],
             acceleration: [0.0, 0.0],
         }
@@ -36,7 +36,23 @@ impl Mover {
                   gfx);
     }
 
-    fn update(&mut self) {
+    fn apply_force(&mut self, force: Vec2d) {
+        self.acceleration = vec2_add(self.acceleration, force);
+    }
+
+    fn update(&mut self, state: &PistonAppState) {
+        const BOUNCE_FACTOR: Scalar = -1.75;
+        const REVERSE_GRAVITY: Scalar = -0.1;
+        let (x, y) = (self.location[0], self.location[1]);
+        let velocity = [self.velocity[0] + self.velocity[0].signum(),
+                        self.velocity[1] + self.velocity[1].signum()];
+        if x > state.width() || x < 0.0 {
+            self.apply_force([velocity[0] * BOUNCE_FACTOR, 0.0]);
+        }
+        if y > state.height() || y < 0.0 {
+            self.apply_force([0.0, velocity[1] * BOUNCE_FACTOR]);
+        }
+        self.apply_force([0.0, REVERSE_GRAVITY]);
         self.velocity = vec2_add(self.velocity, self.acceleration);
         self.location = vec2_add(self.location, self.velocity);
         self.acceleration = [0.0, 0.0];
@@ -62,7 +78,7 @@ impl PistonApp for App {
 
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
         for mover in &mut self.movers {
-            mover.update();
+            mover.update(state);
         }
         window.draw_2d(state.event(), |context, gfx| {
             clear(color::WHITE, gfx);
