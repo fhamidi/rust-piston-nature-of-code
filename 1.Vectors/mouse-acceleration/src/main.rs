@@ -19,7 +19,7 @@ impl Mover {
     fn new(state: &PistonAppState) -> Self {
         let mut rng = rand::thread_rng();
         Mover {
-            color: color::TRANSPARENT,
+            color: state.random_color(Some(2.0 / 3.0)),
             location: [rng.gen_range(0.0, state.width()),
                        rng.gen_range(0.0, state.height())],
             velocity: [0.0, 0.0],
@@ -43,8 +43,6 @@ impl Mover {
         self.velocity = vec2_limit(vec2_add(self.velocity, self.acceleration),
                                    MAX_VELOCITY);
         self.location = vec2_add(self.location, self.velocity);
-        let hue = state.map_range(vec2_len(self.velocity), 0.0, MAX_VELOCITY, 0.0, 120.0);
-        self.color = state.color_from_hsv(hue, 1.0, 2.0 / 3.0, 1.0);
     }
 }
 
@@ -62,10 +60,7 @@ impl App {
 impl PistonApp for App {
     fn setup(&mut self, _: &mut PistonAppWindow, state: &PistonAppState) {
         const MAX_MOVERS: usize = 20;
-        self.movers.reserve(MAX_MOVERS);
-        for _ in 0..MAX_MOVERS {
-            self.movers.push(Mover::new(state));
-        }
+        self.movers = (0..MAX_MOVERS).map(|_| Mover::new(state)).collect();
     }
 
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
