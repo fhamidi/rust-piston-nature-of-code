@@ -50,7 +50,17 @@ impl Mover {
                                      vec2_scale(force, 1.0 / self.mass));
     }
 
-    fn update(&mut self) {
+    fn update(&mut self, state: &PistonAppState) {
+        let (x, y) = (self.location[0], self.location[1]);
+        let (width, height) = (state.width(), state.height());
+        if x > width || x < 0.0 {
+            self.location[0] = x.max(0.0).min(width);
+            self.velocity[0] *= -1.0;
+        }
+        if y > height || y < 0.0 {
+            self.location[1] = y.max(0.0).min(height);
+            self.velocity[1] *= -1.0;
+        }
         self.velocity = vec2_add(self.velocity, self.acceleration);
         self.location = vec2_add(self.location, self.velocity);
         self.acceleration = [0.0, 0.0];
@@ -71,7 +81,7 @@ impl App {
 impl PistonApp for App {
     fn setup(&mut self, _: &mut PistonAppWindow, state: &PistonAppState) {
         const MAX_G: Scalar = 0.8;
-        const MAX_MOVERS: usize = 16;
+        const MAX_MOVERS: usize = 12;
         let mut rng = rand::thread_rng();
         let (width, height) = (state.width(), state.height());
         self.movers = (0..MAX_MOVERS)
@@ -93,7 +103,7 @@ impl PistonApp for App {
                     self.movers[i].apply_force(force);
                 }
             }
-            self.movers[i].update();
+            self.movers[i].update(state);
         }
         window.draw_2d(state.event(), |context, gfx| {
             clear(color::WHITE, gfx);
