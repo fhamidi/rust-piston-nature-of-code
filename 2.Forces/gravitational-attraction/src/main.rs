@@ -25,9 +25,9 @@ impl Attractor {
         }
     }
 
-    fn draw(&self, context: Context, gfx: &mut G2d) {
-        Ellipse::new_border(color::BLACK, 2.0 + 4.0 * self.g)
-            .color(self.color)
+    fn draw(&self, context: Context, gfx: &mut G2d, alpha: ColorComponent) {
+        Ellipse::new_border([0.0, 0.0, 0.0, alpha], 2.0 + 4.0 * self.g)
+            .color([self.color[0], self.color[1], self.color[2], alpha])
             .draw(ellipse::circle(self.location[0], self.location[1], self.mass * 2.0),
                   &context.draw_state,
                   context.transform,
@@ -95,6 +95,7 @@ impl Mover {
 
 #[derive(Debug)]
 struct App {
+    attractors_alpha: ColorComponent,
     attractors: Vec<Attractor>,
     movers: Vec<Mover>,
 }
@@ -102,9 +103,18 @@ struct App {
 impl App {
     fn new() -> Self {
         App {
+            attractors_alpha: 0.0,
             attractors: vec![],
             movers: vec![],
         }
+    }
+
+    fn handle_mouse(&mut self, state: &PistonAppState) {
+        let mut delta = -0.1;
+        if state.mouse_pressed() {
+            delta = -delta;
+        }
+        self.attractors_alpha = (self.attractors_alpha + delta).max(0.0).min(1.0);
     }
 }
 
@@ -135,6 +145,7 @@ impl PistonApp for App {
     }
 
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
+        self.handle_mouse(state);
         for mover in &mut self.movers {
             for attractor in &self.attractors {
                 let force = attractor.attract(mover);
@@ -145,7 +156,7 @@ impl PistonApp for App {
         window.draw_2d(state.event(), |context, gfx| {
             clear(color::WHITE, gfx);
             for attractor in &self.attractors {
-                attractor.draw(context, gfx);
+                attractor.draw(context, gfx, self.attractors_alpha);
             }
             for mover in &self.movers {
                 mover.draw(context, gfx);
