@@ -40,7 +40,7 @@ impl Mover {
 
     fn attract(&self, other: &Self) -> Vec2d {
         let force = vec2_sub(self.location, other.location);
-        let distance = vec2_len(force).max(4.2).min(27.0);
+        let distance = vec2_len(force).max(1.0).min(27.0);
         vec2_scale(vec2_normalized(force),
                    (self.g * self.mass * other.mass) / (distance * distance))
     }
@@ -55,11 +55,11 @@ impl Mover {
         let (width, height) = (state.width(), state.height());
         if x > width || x < 0.0 {
             self.location[0] = x.max(0.0).min(width);
-            self.velocity[0] *= -0.1;
+            self.velocity[0] *= -0.42;
         }
         if y > height || y < 0.0 {
             self.location[1] = y.max(0.0).min(height);
-            self.velocity[1] *= -0.1;
+            self.velocity[1] *= -0.42;
         }
         self.velocity = vec2_add(self.velocity, self.acceleration);
         self.location = vec2_add(self.location, self.velocity);
