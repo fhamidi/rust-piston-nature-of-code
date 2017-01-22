@@ -26,7 +26,7 @@ impl Attractor {
     }
 
     fn draw(&self, context: Context, gfx: &mut G2d) {
-        Ellipse::new_border(color::BLACK, 3.0)
+        Ellipse::new_border(color::BLACK, 2.0 + 4.0 * self.g)
             .color(self.color)
             .draw(ellipse::circle(self.location[0], self.location[1], self.mass * 2.0),
                   &context.draw_state,
@@ -111,14 +111,19 @@ impl App {
 impl PistonApp for App {
     fn setup(&mut self, _: &mut PistonAppWindow, state: &PistonAppState) {
         const MAX_G: Scalar = 0.8;
-        const MAX_MOVERS: usize = 16;
+        const MAX_ATTRACTORS: usize = 4;
+        const MAX_MOVERS: usize = 32;
         let mut rng = rand::thread_rng();
         let (width, height) = (state.width(), state.height());
-        self.attractors.push(Attractor::new(width / 2.0,
-                                            height / 2.0,
-                                            20.0,
-                                            MAX_G / 2.0,
-                                            state.random_color(Some(1.0))));
+        self.attractors = (0..MAX_ATTRACTORS)
+            .map(|_| {
+                Attractor::new(rng.gen_range(width / 6.0, width * 5.0 / 6.0),
+                               rng.gen_range(height / 6.0, height * 5.0 / 6.0),
+                               rng.gen_range(10.0, 30.0),
+                               rng.gen_range(MAX_G / 4.0, MAX_G),
+                               state.random_color(Some(1.0)))
+            })
+            .collect();
         self.movers = (0..MAX_MOVERS)
             .map(|_| {
                 Mover::new(rng.gen_range(0.0, width),
