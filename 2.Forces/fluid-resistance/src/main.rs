@@ -32,7 +32,10 @@ impl Liquid {
     }
 
     fn draw(&self, context: Context, gfx: &mut G2d) {
-        rectangle([0.0, 0.0, 1.0 / 3.0, 1.0], self.rect, context.transform, gfx);
+        rectangle([0.0, 0.0, 1.0 / 3.0, 1.0],
+                  self.rect,
+                  context.transform,
+                  gfx);
     }
 }
 
@@ -125,7 +128,7 @@ impl PistonApp for App {
         self.movers = (0..MAX_MOVERS)
             .map(|i| {
                 Mover::new(i as Scalar * gap + gap / 2.0,
-                           0.0,
+                           rng.gen_range(0.0, height / 4.0),
                            rng.gen_range(0.1, 5.0),
                            state.random_color(Some(1.0)))
             })
