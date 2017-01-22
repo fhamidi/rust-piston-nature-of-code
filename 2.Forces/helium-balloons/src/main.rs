@@ -41,21 +41,17 @@ impl Mover {
     }
 
     fn update(&mut self, state: &PistonAppState) {
-        const BOUNCE_FACTOR: Scalar = -1.8;
-        const REVERSE_GRAVITY: Scalar = -0.1;
         let (x, y) = (self.location[0], self.location[1]);
         let (width, height) = (state.width(), state.height());
-        let velocity = [self.velocity[0] + self.velocity[0].signum(),
-                        self.velocity[1] + self.velocity[1].signum()];
         if x > width || x < 0.0 {
             self.location[0] = x.max(0.0).min(width);
-            self.apply_force([velocity[0] * BOUNCE_FACTOR, 0.0]);
+            self.velocity[0] *= -1.0;
         }
         if y > height || y < 0.0 {
             self.location[1] = y.max(0.0).min(height);
-            self.apply_force([0.0, velocity[1] * BOUNCE_FACTOR]);
+            self.velocity[1] *= -1.0;
         }
-        self.apply_force([0.0, REVERSE_GRAVITY]);
+        self.apply_force([0.0, -0.1]);
         self.velocity = vec2_add(self.velocity, self.acceleration);
         self.location = vec2_add(self.location, self.velocity);
         self.acceleration = [0.0, 0.0];
