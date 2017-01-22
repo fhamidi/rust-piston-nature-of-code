@@ -71,7 +71,7 @@ impl App {
 
 impl PistonApp for App {
     fn setup(&mut self, _: &mut PistonAppWindow, state: &PistonAppState) {
-        const MAX_MOVERS: usize = 32;
+        const MAX_MOVERS: usize = 16;
         let mut rng = rand::thread_rng();
         self.movers = (0..MAX_MOVERS)
             .map(|_| {
@@ -85,8 +85,10 @@ impl PistonApp for App {
 
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
         for mover in &mut self.movers {
-            mover.apply_force([0.0, 0.1]);
-            mover.apply_force([0.01, 0.0]);
+            let gravity = [0.0, 0.1 * mover.mass];
+            let wind = [0.01, 0.0];
+            mover.apply_force(gravity);
+            mover.apply_force(wind);
             mover.update(state);
         }
         window.draw_2d(state.event(), |context, gfx| {
