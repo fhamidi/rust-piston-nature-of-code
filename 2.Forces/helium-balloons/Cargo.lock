@@ -1,6 +1,6 @@
 [root]
-name = "helium-balloon"
-version = "0.2.0"
+name = "helium-balloons"
+version = "0.3.0"
 dependencies = [
  "piston-app 1.1.0",
 ]
