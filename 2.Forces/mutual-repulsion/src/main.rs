@@ -55,11 +55,11 @@ impl Mover {
         let (width, height) = (state.width(), state.height());
         if x > width || x < 0.0 {
             self.location[0] = x.max(0.0).min(width);
-            self.velocity[0] *= -1.0;
+            self.velocity[0] *= -0.1;
         }
         if y > height || y < 0.0 {
             self.location[1] = y.max(0.0).min(height);
-            self.velocity[1] *= -1.0;
+            self.velocity[1] *= -0.1;
         }
         self.velocity = vec2_add(self.velocity, self.acceleration);
         self.location = vec2_add(self.location, self.velocity);
