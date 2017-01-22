@@ -49,7 +49,7 @@ struct Mover {
 }
 
 impl Mover {
-    fn new(x: Scalar, y: Scalar, mass: Scalar, color: Color) -> Self {
+    fn new(color: Color, x: Scalar, y: Scalar, mass: Scalar) -> Self {
         Mover {
             color: color,
             location: [x, y],
@@ -57,6 +57,10 @@ impl Mover {
             acceleration: [0.0, 0.0],
             mass: mass,
         }
+    }
+
+    fn mass(&self) -> Scalar {
+        self.mass
     }
 
     fn is_inside(&self, liquid: &Liquid) -> bool {
@@ -127,17 +131,17 @@ impl PistonApp for App {
         let mut rng = rand::thread_rng();
         self.movers = (0..MAX_MOVERS)
             .map(|i| {
-                Mover::new(i as Scalar * gap + gap / 2.0,
+                Mover::new(state.random_color(Some(1.0)),
+                           i as Scalar * gap + gap / 2.0,
                            rng.gen_range(0.0, height / 4.0),
-                           rng.gen_range(0.1, 5.0),
-                           state.random_color(Some(1.0)))
+                           rng.gen_range(0.1, 5.0))
             })
             .collect();
     }
 
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
         for mover in &mut self.movers {
-            let gravity = [0.0, 0.1 * mover.mass];
+            let gravity = [0.0, 0.1 * mover.mass()];
             mover.apply_force(gravity);
             for liquid in &self.liquids {
                 if mover.is_inside(liquid) {

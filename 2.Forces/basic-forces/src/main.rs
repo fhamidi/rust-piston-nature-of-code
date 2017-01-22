@@ -17,7 +17,7 @@ struct Mover {
 }
 
 impl Mover {
-    fn new(x: Scalar, y: Scalar, mass: Scalar, color: Color) -> Self {
+    fn new(color: Color, x: Scalar, y: Scalar, mass: Scalar) -> Self {
         Mover {
             color: color,
             location: [x, y],
@@ -25,6 +25,16 @@ impl Mover {
             acceleration: [0.0, 0.0],
             mass: mass,
         }
+    }
+
+    #[inline]
+    fn velocity(&self) -> Vec2d {
+        self.velocity
+    }
+
+    #[inline]
+    fn mass(&self) -> Scalar {
+        self.mass
     }
 
     fn draw(&self, context: Context, gfx: &mut G2d) {
@@ -75,23 +85,23 @@ impl PistonApp for App {
         let mut rng = rand::thread_rng();
         self.movers = (0..MAX_MOVERS)
             .map(|_| {
-                Mover::new(0.0,
+                Mover::new(state.random_color(Some(2.0 / 3.0)),
                            0.0,
-                           rng.gen_range(0.1, 5.0),
-                           state.random_color(Some(2.0 / 3.0)))
+                           0.0,
+                           rng.gen_range(0.1, 5.0))
             })
             .collect();
     }
 
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
         for mover in &mut self.movers {
-            let gravity = [0.0, 0.1 * mover.mass];
+            let gravity = [0.0, 0.1 * mover.mass()];
             let wind = [0.01, 0.0];
             mover.apply_force(gravity);
             mover.apply_force(wind);
             if state.mouse_pressed() {
                 const MU: Scalar = 0.1;
-                let friction = vec2_scale(vec2_normalized(mover.velocity), -1.0 * MU);
+                let friction = vec2_scale(vec2_normalized(mover.velocity()), -1.0 * MU);
                 mover.apply_force(friction);
             }
             mover.update(state);

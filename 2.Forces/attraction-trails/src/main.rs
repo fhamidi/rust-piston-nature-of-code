@@ -41,7 +41,7 @@ struct Mover {
 }
 
 impl Mover {
-    fn new(x: Scalar, y: Scalar, mass: Scalar, color: Color) -> Self {
+    fn new(color: Color, x: Scalar, y: Scalar, mass: Scalar) -> Self {
         Mover {
             color: color,
             location: [x, y],
@@ -114,10 +114,10 @@ impl PistonApp for App {
             .collect();
         self.movers = (0..MAX_MOVERS)
             .map(|_| {
-                Mover::new(rng.gen_range(0.0, width),
+                Mover::new(state.random_color(None),
+                           rng.gen_range(0.0, width),
                            rng.gen_range(0.0, height),
-                           rng.gen_range(0.1, 4.2),
-                           state.random_color(None))
+                           rng.gen_range(0.1, 4.2))
             })
             .collect();
         window.draw_2d(state.event(), |_, gfx| {
