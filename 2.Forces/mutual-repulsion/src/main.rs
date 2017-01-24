@@ -69,26 +69,47 @@ impl Mover {
 
 #[derive(Debug)]
 struct App {
+    attractor_color: Color,
+    attractor_intensity: Scalar,
     movers: Vec<Mover>,
 }
 
 impl App {
     fn new() -> Self {
-        App { movers: vec![] }
+        App {
+            attractor_color: color::TRANSPARENT,
+            attractor_intensity: 0.0,
+            movers: vec![],
+        }
+    }
+
+    fn handle_mouse(&mut self, state: &PistonAppState) {
+        let delta = if state.mouse_pressed() {
+            0.0042
+        } else {
+            -0.01
+        };
+        self.attractor_intensity = (self.attractor_intensity + delta).max(0.0).min(1.0);
+        self.attractor_color = [self.attractor_color[0],
+                                self.attractor_color[1],
+                                self.attractor_color[2],
+                                self.attractor_intensity as ColorComponent];
     }
 }
 
+const MAX_G: Scalar = 0.8;
+const MAX_MOVERS: usize = 12;
+
 impl PistonApp for App {
     fn setup(&mut self, _: &mut PistonAppWindow, state: &PistonAppState) {
-        const MAX_G: Scalar = 0.8;
-        const MAX_MOVERS: usize = 12;
         let mut rng = rand::thread_rng();
-        let (width, height) = (state.width(), state.height());
+        self.attractor_color =
+            state.color_from_hsv(rng.gen_range(30.0, 90.0), 1.0, 1.0, 0.0);
         self.movers = (0..MAX_MOVERS)
             .map(|_| {
                 Mover::new(state.random_color(None),
-                           rng.gen_range(0.0, width),
-                           rng.gen_range(0.0, height),
+                           rng.gen_range(0.0, state.width()),
+                           rng.gen_range(0.0, state.height()),
                            rng.gen_range(3.0, 6.0),
                            rng.gen_range(MAX_G / 4.2, MAX_G))
             })
@@ -96,17 +117,28 @@ impl PistonApp for App {
     }
 
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
+        self.handle_mouse(state);
+        let attractor = Mover::new(self.attractor_color,
+                                   state.mouse_x(),
+                                   state.mouse_y(),
+                                   16.0 * self.attractor_intensity,
+                                   MAX_G);
         for i in 0..self.movers.len() {
             for j in 0..self.movers.len() {
                 if i != j {
                     let force = self.movers[j].attract(&self.movers[i]);
                     self.movers[i].apply_force(vec2_scale(force, -1.0));
                 }
+                let force = attractor.attract(&self.movers[i]);
+                self.movers[i].apply_force(force);
             }
             self.movers[i].update(state);
         }
         window.draw_2d(state.event(), |context, gfx| {
             clear(color::WHITE, gfx);
+            if self.attractor_intensity > 0.01 {
+                attractor.draw(context, gfx);
+            }
             for mover in &self.movers {
                 mover.draw(context, gfx);
             }
