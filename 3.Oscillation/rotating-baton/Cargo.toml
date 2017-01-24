@@ -1,0 +1,8 @@
+[package]
+name = "rotating-baton"
+version = "0.1.0"
+authors = ["ko"]
+
+[dependencies]
+piston-app = { path = "../../piston-app" }
+
