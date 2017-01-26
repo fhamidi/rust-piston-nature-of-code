@@ -297,12 +297,11 @@ impl TextureCanvas {
     }
 }
 
-use std::ops::{Add, Sub, Mul, Div};
+pub fn vec2_heading(vec: Vec2d) -> Scalar {
+    vec[1].atan2(vec[0])
+}
 
-pub fn vec2_limit<T>(vec: Vector2<T>, max: T) -> Vector2<T>
-    where T: Copy + PartialOrd + traits::One + traits::Sqrt +
-             Add<T, Output = T> + Mul<T, Output = T> + Div<T, Output = T>
-{
+pub fn vec2_limit(vec: Vec2d, max: Scalar) -> Vec2d {
     if vec2_len(vec) > max {
         vec2_scale(vec2_normalized(vec), max)
     } else {
@@ -310,13 +309,7 @@ pub fn vec2_limit<T>(vec: Vector2<T>, max: T) -> Vector2<T>
     }
 }
 
-pub fn vec2_random<T>() -> Vector2<T>
-    where T: Copy + PartialOrd + rand::distributions::range::SampleRange +
-             traits::Zero + traits::One + traits::Sqrt +
-             Add<T, Output = T> + Sub<T, Output = T> +
-             Mul<T, Output = T> + Div<T, Output = T>
-{
+pub fn vec2_random() -> Vec2d {
     let mut rng = rand::thread_rng();
-    vec2_normalized([rng.gen_range(T::zero(), T::one() + T::one()) - T::one(),
-                     rng.gen_range(T::zero(), T::one() + T::one()) - T::one()])
+    vec2_normalized([rng.gen_range(-1.0, 1.0), rng.gen_range(-1.0, 1.0)])
 }
