@@ -75,7 +75,7 @@ pub trait PistonApp {
 }
 
 pub struct PistonAppState {
-    event: Event,
+    event: Input,
     width: Scalar,
     height: Scalar,
     key: Key,
@@ -90,7 +90,7 @@ pub struct PistonAppState {
 impl PistonAppState {
     fn new() -> Self {
         PistonAppState {
-            event: Event::Render(RenderArgs {
+            event: Input::Render(RenderArgs {
                 ext_dt: 0.0,
                 width: 0,
                 height: 0,
@@ -110,7 +110,7 @@ impl PistonAppState {
     }
 
     #[inline]
-    pub fn event(&self) -> &Event {
+    pub fn event(&self) -> &Input {
         &self.event
     }
 
