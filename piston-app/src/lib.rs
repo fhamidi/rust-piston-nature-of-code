@@ -12,6 +12,8 @@ extern crate piston_window;
 extern crate sdl2_window;
 extern crate vecmath;
 
+pub use std::f64::consts;
+
 pub use math::{Scalar, Vec2d};
 pub use piston_window::*;
 pub use rand::Rng;
