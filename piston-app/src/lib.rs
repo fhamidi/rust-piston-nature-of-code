@@ -72,6 +72,7 @@ pub trait PistonApp {
                 }
                 _ => (),
             }
+            state.frame_count += 1;
         }
     }
 }
@@ -80,6 +81,7 @@ pub struct PistonAppState {
     event: Input,
     width: Scalar,
     height: Scalar,
+    frame_count: u64,
     key: Key,
     key_pressed: u8,
     mouse_button: MouseButton,
@@ -101,6 +103,7 @@ impl PistonAppState {
             }),
             width: 0.0,
             height: 0.0,
+            frame_count: 0,
             key: Key::Unknown,
             key_pressed: 0,
             mouse_button: MouseButton::Unknown,
@@ -124,6 +127,11 @@ impl PistonAppState {
     #[inline]
     pub fn height(&self) -> Scalar {
         self.height
+    }
+
+    #[inline]
+    pub fn frame_count(&self) -> u64 {
+        self.frame_count
     }
 
     #[inline]

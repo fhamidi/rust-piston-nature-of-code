@@ -2,7 +2,7 @@
 name = "piston-app-template"
 version = "0.1.0"
 dependencies = [
- "piston-app 1.2.1",
+ "piston-app 1.2.2",
 ]
 
 [[package]]
@@ -575,7 +575,7 @@ dependencies = [
 
 [[package]]
 name = "piston-app"
-version = "1.2.1"
+version = "1.2.2"
 dependencies = [
  "image 0.12.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "noise 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
