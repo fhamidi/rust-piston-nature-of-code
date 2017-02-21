@@ -14,7 +14,7 @@ extern crate vecmath;
 
 pub use std::f64::consts;
 
-pub use math::{Scalar, Vec2d};
+pub use math::{Scalar, Vec2d, Matrix2d};
 pub use piston_window::*;
 pub use rand::Rng;
 pub use rand::distributions::normal::StandardNormal;
