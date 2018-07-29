@@ -569,7 +569,7 @@ dependencies = [
 
 [[package]]
 name = "pendulum"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "piston-app 1.2.3",
 ]
