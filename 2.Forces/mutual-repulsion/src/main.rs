@@ -102,7 +102,7 @@ const MAX_MOVERS: usize = 12;
 
 impl PistonApp for App {
     fn setup(&mut self, _: &mut PistonAppWindow, state: &PistonAppState) {
-        let mut rng = rand::thread_rng();
+        let mut rng = SmallRng::from_entropy();
         self.attractor_color =
             state.color_from_hsv(rng.gen_range(30.0, 90.0), 1.0, 1.0, 0.0);
         self.movers = (0..MAX_MOVERS)

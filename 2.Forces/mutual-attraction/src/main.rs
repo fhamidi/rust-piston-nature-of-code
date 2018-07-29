@@ -82,7 +82,7 @@ impl PistonApp for App {
     fn setup(&mut self, _: &mut PistonAppWindow, state: &PistonAppState) {
         const MAX_G: Scalar = 0.8;
         const MAX_MOVERS: usize = 12;
-        let mut rng = rand::thread_rng();
+        let mut rng = SmallRng::from_entropy();
         let (width, height) = (state.width(), state.height());
         self.movers = (0..MAX_MOVERS)
             .map(|_| {

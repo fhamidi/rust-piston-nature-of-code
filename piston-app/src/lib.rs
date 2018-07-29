@@ -5,10 +5,10 @@
 //! used in the book.
 
 pub extern crate image as img;
-pub extern crate rand;
 
 extern crate noise;
 extern crate piston_window;
+extern crate rand;
 extern crate sdl2_window;
 extern crate vecmath;
 
@@ -16,8 +16,8 @@ pub use std::f64::consts;
 
 pub use math::{Scalar, Vec2d, Matrix2d};
 pub use piston_window::*;
-pub use rand::Rng;
 pub use rand::distributions::normal::StandardNormal;
+pub use rand::prelude::*;
 pub use types::{Color, ColorComponent};
 pub use vecmath::*;
 
@@ -77,8 +77,10 @@ pub trait PistonApp {
     }
 }
 
+use noise::{NoiseFn, Perlin, Seedable};
+
 pub struct PistonAppState {
-    event: Input,
+    event: Event,
     width: Scalar,
     height: Scalar,
     frame_count: u64,
@@ -88,19 +90,19 @@ pub struct PistonAppState {
     mouse_pressed: u8,
     mouse_x: Scalar,
     mouse_y: Scalar,
-    noise_seed: noise::Seed,
+    noise: Perlin,
 }
 
 impl PistonAppState {
     fn new() -> Self {
         PistonAppState {
-            event: Input::Render(RenderArgs {
-                ext_dt: 0.0,
-                width: 0,
-                height: 0,
-                draw_width: 0,
-                draw_height: 0,
-            }),
+            event: Event::Loop(Loop::Render(RenderArgs {
+                                                ext_dt: 0.0,
+                                                width: 0,
+                                                height: 0,
+                                                draw_width: 0,
+                                                draw_height: 0,
+                                            })),
             width: 0.0,
             height: 0.0,
             frame_count: 0,
@@ -110,12 +112,12 @@ impl PistonAppState {
             mouse_pressed: 0,
             mouse_x: 0.0,
             mouse_y: 0.0,
-            noise_seed: rand::random(),
+            noise: Perlin::new().set_seed(SmallRng::from_entropy().gen()),
         }
     }
 
     #[inline]
-    pub fn event(&self) -> &Input {
+    pub fn event(&self) -> &Event {
         &self.event
     }
 
@@ -188,20 +190,17 @@ impl PistonAppState {
     pub fn noise(&self, input: &[Scalar]) -> Scalar {
         let result = match input.len() {
             0 => 0.0,
-            1 => noise::perlin2(&self.noise_seed, &[input[0], 0.0]),
-            2 => noise::perlin2(&self.noise_seed, &[input[0], input[1]]),
-            3 => noise::perlin3(&self.noise_seed, &[input[0], input[1], input[2]]),
-            _ => {
-                noise::perlin4(&self.noise_seed,
-                               &[input[0], input[1], input[2], input[3]])
-            }
+            1 => self.noise.get([input[0], 0.0]),
+            2 => self.noise.get([input[0], input[1]]),
+            3 => self.noise.get([input[0], input[1], input[2]]),
+            _ => self.noise.get([input[0], input[1], input[2], input[3]]),
         };
         ((result + 1.0) / 2.0).max(0.0).min(1.0)
     }
 
     pub fn random_color(&self, alpha: Option<ColorComponent>) -> Color {
         const MIN_COLOR_COMPONENT: ColorComponent = 1.0 / 3.0;
-        let mut rng = rand::thread_rng();
+        let mut rng = SmallRng::from_entropy();
         [rng.gen_range(MIN_COLOR_COMPONENT, 1.0),
          rng.gen_range(MIN_COLOR_COMPONENT, 1.0),
          rng.gen_range(MIN_COLOR_COMPONENT, 1.0),
@@ -213,12 +212,13 @@ impl PistonAppState {
         const MIN_SATURATION: Scalar = 1.0 / 2.0;
         const MIN_VALUE: Scalar = 2.0 / 3.0;
         let alpha = alpha.unwrap_or_else(|| {
-            self.map_range(self.noise(&[input]),
-                           0.0,
-                           1.0,
-                           MIN_ALPHA,
-                           1.0) as ColorComponent
-        });
+                                             self.map_range(self.noise(&[input]),
+                                                            0.0,
+                                                            1.0,
+                                                            MIN_ALPHA,
+                                                            1.0) as
+                                             ColorComponent
+                                         });
         self.color_from_hsv(self.map_range(self.noise(&[input + 25.0]),
                                            0.0,
                                            1.0,
@@ -248,11 +248,11 @@ impl PistonAppState {
         let x = c * (1.0 - (h % 2.0 - 1.0).abs());
         let m = value - c;
         let (r, g, b) = match h {
-            0.0...1.0 => (c, x, 0.0),
-            1.0...2.0 => (x, c, 0.0),
-            2.0...3.0 => (0.0, c, x),
-            3.0...4.0 => (0.0, x, c),
-            4.0...5.0 => (x, 0.0, c),
+            h if h >= 0.0 && h <= 1.0 => (c, x, 0.0),
+            h if h >= 1.0 && h <= 2.0 => (x, c, 0.0),
+            h if h >= 2.0 && h <= 3.0 => (0.0, c, x),
+            h if h >= 3.0 && h <= 4.0 => (0.0, x, c),
+            h if h >= 4.0 && h <= 5.0 => (x, 0.0, c),
             _ => (c, 0.0, x),
         };
         [(r + m) as ColorComponent,
@@ -303,7 +303,9 @@ impl TextureCanvas {
         where F: FnOnce(&mut img::RgbaImage)
     {
         f(&mut self.canvas);
-        self.texture.update(&mut window.encoder, &self.canvas).unwrap();
+        self.texture
+            .update(&mut window.encoder, &self.canvas)
+            .unwrap();
     }
 }
 
@@ -320,6 +322,6 @@ pub fn vec2_limit(vec: Vec2d, max: Scalar) -> Vec2d {
 }
 
 pub fn vec2_random() -> Vec2d {
-    let mut rng = rand::thread_rng();
+    let mut rng = SmallRng::from_entropy();
     vec2_normalized([rng.gen_range(-1.0, 1.0), rng.gen_range(-1.0, 1.0)])
 }

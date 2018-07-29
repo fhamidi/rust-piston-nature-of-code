@@ -38,7 +38,7 @@ impl Mover {
         const MAX_VELOCITY: Scalar = 9.0;
         const MAX_ACCELERATION: Scalar = 2.0;
         self.acceleration = vec2_scale(vec2_random(),
-                                       rand::thread_rng()
+                                       SmallRng::from_entropy()
                                            .gen_range(0.0, MAX_ACCELERATION));
         self.velocity = vec2_limit(vec2_add(self.velocity, self.acceleration),
                                    MAX_VELOCITY);

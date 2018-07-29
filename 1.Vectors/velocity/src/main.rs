@@ -17,7 +17,7 @@ struct Mover {
 impl Mover {
     fn new(state: &PistonAppState) -> Self {
         const MAX_VELOCITY: Scalar = 6.0;
-        let mut rng = rand::thread_rng();
+        let mut rng = SmallRng::from_entropy();
         Mover {
             color: state.random_color(Some(1.0)),
             location: [rng.gen_range(0.0, state.width()),

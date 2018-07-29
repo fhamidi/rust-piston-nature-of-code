@@ -128,7 +128,7 @@ impl PistonApp for App {
         let (width, height) = (state.width(), state.height());
         self.liquids.push(Liquid::new([0.0, height / 2.0, width, height / 2.0], 0.1));
         let gap = width / MAX_MOVERS as Scalar;
-        let mut rng = rand::thread_rng();
+        let mut rng = SmallRng::from_entropy();
         self.movers = (0..MAX_MOVERS)
             .map(|i| {
                 Mover::new(state.random_color(Some(1.0)),

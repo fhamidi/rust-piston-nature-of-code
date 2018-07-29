@@ -31,7 +31,7 @@ impl PistonApp for App {
 
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
         let length = self.random_counts.len();
-        let index = rand::thread_rng().gen_range(0, length);
+        let index = SmallRng::from_entropy().gen_range(0, length);
         self.random_counts[index] += 1;
         let width = state.width() / length as Scalar;
         window.draw_2d(state.event(), |context, gfx| {

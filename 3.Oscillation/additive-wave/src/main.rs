@@ -34,7 +34,7 @@ struct App {
 impl App {
     fn new() -> Self {
         const MAX_WAVES: usize = 6;
-        let mut rng = rand::thread_rng();
+        let mut rng = SmallRng::from_entropy();
         App {
             theta: 0.0,
             waves: (0..MAX_WAVES).map(|_| {

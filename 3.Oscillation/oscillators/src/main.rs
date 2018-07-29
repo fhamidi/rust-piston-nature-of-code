@@ -17,7 +17,7 @@ struct Oscillator {
 
 impl Oscillator {
     fn new(state: &PistonAppState) -> Self {
-        let mut rng = rand::thread_rng();
+        let mut rng = SmallRng::from_entropy();
         Oscillator {
             color: state.random_color(Some(2.0 / 3.0)),
             angle: [0.0, 0.0],
