@@ -41,23 +41,21 @@ impl Pendulum {
 
     fn setup(&mut self, state: &PistonAppState) {
         self.anchor_color = state.random_color(Some(1.0));
-        self.bob_color = state.random_color(Some(1.0));
         self.anchor_position = [state.width() / 2.0, state.height() / 24.0];
+        self.bob_color = state.random_color(Some(1.0));
         self.length = state.height() * 0.84;
     }
 
     fn draw(&self, context: Context, gfx: &mut G2d) {
-        let (x, y) = (self.bob_position[0], self.bob_position[1]);
-        Line::new(color::BLACK, 1.0)
-            .draw([self.anchor_position[0], self.anchor_position[1], x, y],
-                  &context.draw_state,
-                  context.transform,
-                  gfx);
+        let (anchor_x, anchor_y) = (self.anchor_position[0], self.anchor_position[1]);
+        let (bob_x, bob_y) = (self.bob_position[0], self.bob_position[1]);
+        Line::new(color::BLACK, 1.0).draw([anchor_x, anchor_y, bob_x, bob_y],
+                                          &context.draw_state,
+                                          context.transform,
+                                          gfx);
         Rectangle::new_border(color::BLACK, 1.0)
             .color(self.anchor_color)
-            .draw(rectangle::centered_square(self.anchor_position[0],
-                                             self.anchor_position[1],
-                                             8.0),
+            .draw(rectangle::centered_square(anchor_x, anchor_y, 8.0),
                   &context.draw_state,
                   context.transform,
                   gfx);
@@ -67,7 +65,7 @@ impl Pendulum {
                    } else {
                        self.bob_color
                    })
-            .draw(ellipse::circle(x, y, self.bob_radius),
+            .draw(ellipse::circle(bob_x, bob_y, self.bob_radius),
                   &context.draw_state,
                   context.transform,
                   gfx);
