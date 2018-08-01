@@ -1,9 +1,10 @@
 [package]
 name = "piston-app"
-version = "1.2.3"
+version = "1.2.4"
 authors = ["ko"]
 
 [dependencies]
+fps_counter = "*"
 image = "*"
 noise = "*"
 piston_window = "*"

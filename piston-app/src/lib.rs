@@ -6,6 +6,7 @@
 
 pub extern crate image as img;
 
+extern crate fps_counter;
 extern crate noise;
 extern crate piston_window;
 extern crate rand;
@@ -21,6 +22,9 @@ pub use rand::prelude::*;
 pub use types::{Color, ColorComponent};
 pub use vecmath::*;
 
+use fps_counter::*;
+use noise::{NoiseFn, Perlin, Seedable};
+
 pub type PistonAppWindow = PistonWindow<sdl2_window::Sdl2Window>;
 
 pub trait PistonApp {
@@ -29,14 +33,16 @@ pub trait PistonApp {
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState);
 
     fn run<T: Into<String>>(title: T, app: &mut Self) {
+        let title = title.into();
         let mut first = true;
         let mut state = PistonAppState::new();
-        let mut window: PistonAppWindow = WindowSettings::new(title, [640, 480])
+        let mut window: PistonAppWindow = WindowSettings::new(title.clone(), [640, 480])
             .exit_on_esc(true)
             .resizable(false)
             .vsync(true)
             .build()
             .unwrap();
+        let mut fps = FPSCounter::new();
         while let Some(e) = window.next() {
             if let Some(args) = e.render_args() {
                 state.event = e.clone();
@@ -47,6 +53,8 @@ pub trait PistonApp {
                     app.setup(&mut window, &state);
                 }
                 app.draw(&mut window, &state);
+                state.frame_count += 1;
+                window.set_title(format!("{} ({} FPS)", title, fps.tick()));
             }
             if let Some(position) = e.mouse_cursor_args() {
                 state.mouse_x = position[0];
@@ -72,18 +80,15 @@ pub trait PistonApp {
                 }
                 _ => (),
             }
-            state.frame_count += 1;
         }
     }
 }
-
-use noise::{NoiseFn, Perlin, Seedable};
 
 pub struct PistonAppState {
     event: Event,
     width: Scalar,
     height: Scalar,
-    frame_count: u64,
+    frame_count: usize,
     key: Key,
     key_pressed: u8,
     mouse_button: MouseButton,
@@ -132,7 +137,7 @@ impl PistonAppState {
     }
 
     #[inline]
-    pub fn frame_count(&self) -> u64 {
+    pub fn frame_count(&self) -> usize {
         self.frame_count
     }
 
