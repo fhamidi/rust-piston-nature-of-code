@@ -6,6 +6,3 @@ authors = ["ko"]
 [dependencies]
 piston-app = { path = "../../piston-app" }
 
-[profile.release]
-debug = true
-
