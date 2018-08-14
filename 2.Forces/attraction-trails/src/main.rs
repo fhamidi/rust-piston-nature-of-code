@@ -106,23 +106,21 @@ impl PistonApp for App {
         let (width, height) = (state.width(), state.height());
         self.attractors = (0..MAX_ATTRACTORS)
             .map(|_| {
-                Attractor::new(rng.gen_range(0.0, width),
-                               rng.gen_range(0.0, height),
-                               rng.gen_range(8.0, 32.0),
-                               rng.gen_range(MAX_G / 4.2, MAX_G))
-            })
+                     Attractor::new(rng.gen_range(0.0, width),
+                                    rng.gen_range(0.0, height),
+                                    rng.gen_range(8.0, 32.0),
+                                    rng.gen_range(MAX_G / 4.2, MAX_G))
+                 })
             .collect();
         self.movers = (0..MAX_MOVERS)
             .map(|_| {
-                Mover::new(state.random_color(None),
-                           rng.gen_range(0.0, width),
-                           rng.gen_range(0.0, height),
-                           rng.gen_range(0.1, 4.2))
-            })
+                     Mover::new(state.random_color(None),
+                                rng.gen_range(0.0, width),
+                                rng.gen_range(0.0, height),
+                                rng.gen_range(0.1, 4.2))
+                 })
             .collect();
-        window.draw_2d(state.event(), |_, gfx| {
-            clear(color::WHITE, gfx);
-        });
+        window.draw_2d(state.event(), |_, gfx| { clear(color::WHITE, gfx); });
     }
 
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
@@ -133,10 +131,8 @@ impl PistonApp for App {
             }
             mover.update();
         }
-        window.draw_2d(state.event(), |context, gfx| {
-            for mover in &self.movers {
-                mover.draw(context, gfx);
-            }
+        window.draw_2d(state.event(), |context, gfx| for mover in &self.movers {
+            mover.draw(context, gfx);
         });
     }
 }

@@ -129,20 +129,20 @@ impl PistonApp for App {
         let (width, height) = (state.width(), state.height());
         self.attractors = (0..MAX_ATTRACTORS)
             .map(|_| {
-                Attractor::new(state.random_color(Some(1.0)),
-                               rng.gen_range(width / 6.0, width * 5.0 / 6.0),
-                               rng.gen_range(height / 6.0, height * 5.0 / 6.0),
-                               rng.gen_range(10.0, 30.0),
-                               rng.gen_range(MAX_G / 4.0, MAX_G))
-            })
+                     Attractor::new(state.random_color(Some(1.0)),
+                                    rng.gen_range(width / 6.0, width * 5.0 / 6.0),
+                                    rng.gen_range(height / 6.0, height * 5.0 / 6.0),
+                                    rng.gen_range(10.0, 30.0),
+                                    rng.gen_range(MAX_G / 4.0, MAX_G))
+                 })
             .collect();
         self.movers = (0..MAX_MOVERS)
             .map(|_| {
-                Mover::new(state.random_color(Some(2.0 / 3.0)),
-                           rng.gen_range(0.0, width),
-                           rng.gen_range(0.0, height),
-                           rng.gen_range(0.1, 4.2))
-            })
+                     Mover::new(state.random_color(Some(2.0 / 3.0)),
+                                rng.gen_range(0.0, width),
+                                rng.gen_range(0.0, height),
+                                rng.gen_range(0.1, 4.2))
+                 })
             .collect();
     }
 

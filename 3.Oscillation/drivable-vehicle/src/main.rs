@@ -26,7 +26,8 @@ impl Mover {
     }
 
     fn draw(&self, context: Context, gfx: &mut G2d) {
-        let transform = context.transform
+        let transform = context
+            .transform
             .trans(self.location[0], self.location[1])
             .rot_rad(vec2_heading(self.velocity));
         Rectangle::new_border(color::BLACK, 1.0)

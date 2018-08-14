@@ -86,11 +86,11 @@ impl PistonApp for App {
         let mut rng = SmallRng::from_entropy();
         self.movers = (0..MAX_MOVERS)
             .map(|_| {
-                Mover::new(state.random_color(Some(2.0 / 3.0)),
-                           0.0,
-                           0.0,
-                           rng.gen_range(0.1, 5.0))
-            })
+                     Mover::new(state.random_color(Some(2.0 / 3.0)),
+                                0.0,
+                                0.0,
+                                rng.gen_range(0.1, 5.0))
+                 })
             .collect();
     }
 

@@ -87,12 +87,12 @@ impl PistonApp for App {
         let (width, height) = (state.width(), state.height());
         self.movers = (0..MAX_MOVERS)
             .map(|_| {
-                Mover::new(state.random_color(None),
-                           rng.gen_range(0.0, width),
-                           rng.gen_range(0.0, height),
-                           rng.gen_range(3.0, 6.0),
-                           rng.gen_range(MAX_G / 4.2, MAX_G))
-            })
+                     Mover::new(state.random_color(None),
+                                rng.gen_range(0.0, width),
+                                rng.gen_range(0.0, height),
+                                rng.gen_range(3.0, 6.0),
+                                rng.gen_range(MAX_G / 4.2, MAX_G))
+                 })
             .collect();
     }
 

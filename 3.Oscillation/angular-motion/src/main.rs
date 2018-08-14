@@ -81,7 +81,8 @@ impl Mover {
     }
 
     fn draw(&self, context: Context, gfx: &mut G2d) {
-        let transform = context.transform
+        let transform = context
+            .transform
             .trans(self.location[0], self.location[1])
             .rot_rad(self.angle);
         Rectangle::new_border(color::BLACK, 1.0)
@@ -101,8 +102,9 @@ impl Mover {
         self.velocity = vec2_add(self.velocity, self.acceleration);
         self.location = vec2_add(self.location, self.velocity);
         self.angular_acceleration = self.acceleration[0] / 10.0;
-        self.angular_velocity =
-            (self.angular_velocity + self.angular_acceleration).max(-0.1).min(0.1);
+        self.angular_velocity = (self.angular_velocity + self.angular_acceleration)
+            .max(-0.1)
+            .min(0.1);
         self.angle += self.angular_velocity;
         self.acceleration = [0.0, 0.0];
     }
@@ -128,16 +130,17 @@ impl PistonApp for App {
         const MAX_MOVERS: usize = 16;
         let mut rng = SmallRng::from_entropy();
         let (width, height) = (state.width(), state.height());
-        self.attractors.push(Attractor::new(state.random_color(Some(1.0)),
-                                            width / 2.0,
-                                            height / 2.0));
+        self.attractors
+            .push(Attractor::new(state.random_color(Some(1.0)),
+                                 width / 2.0,
+                                 height / 2.0));
         self.movers = (0..MAX_MOVERS)
             .map(|_| {
-                Mover::new(state.random_color(Some(2.0 / 3.0)),
-                           rng.gen_range(0.0, width),
-                           rng.gen_range(0.0, height),
-                           rng.gen_range(0.1, 2.0))
-            })
+                     Mover::new(state.random_color(Some(2.0 / 3.0)),
+                                rng.gen_range(0.0, width),
+                                rng.gen_range(0.0, height),
+                                rng.gen_range(0.1, 2.0))
+                 })
             .collect();
     }
 

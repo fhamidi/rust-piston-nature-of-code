@@ -67,7 +67,8 @@ impl App {
 
 impl PistonApp for App {
     fn setup(&mut self, _: &mut PistonAppWindow, state: &PistonAppState) {
-        self.walker.set_position(state.width() / 2.0, state.height() / 2.0);
+        self.walker
+            .set_position(state.width() / 2.0, state.height() / 2.0);
     }
 
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {

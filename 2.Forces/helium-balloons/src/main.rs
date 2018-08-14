@@ -88,7 +88,8 @@ impl App {
                  0.0,
                  state.map_range(self.wind[0], -MAX_WIND, MAX_WIND, -wind_len, wind_len),
                  0.0];
-            let transform = context.transform
+            let transform = context
+                .transform
                 .trans(state.width() / 2.0, state.height() - 32.0);
             Line::new_round(color, 2.0)
                 .draw_arrow(arrow, 4.2, &context.draw_state, transform, gfx);
@@ -104,8 +105,9 @@ impl PistonApp for App {
 
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
         if state.mouse_pressed() {
-            let mut wind = state.map_range(
-                state.noise(&[self.wind_offset]), 0.0, 1.0, 0.0, MAX_WIND);
+            let mut wind =
+                state
+                    .map_range(state.noise(&[self.wind_offset]), 0.0, 1.0, 0.0, MAX_WIND);
             if state.mouse_x() < state.width() / 2.0 {
                 wind = -wind;
             }

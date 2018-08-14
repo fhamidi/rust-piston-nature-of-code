@@ -35,8 +35,8 @@ impl Background {
             for y in 0..height {
                 let mut x_offset = 0.0;
                 for x in 0..width {
-                    let value = state.noise(&[x_offset, y_offset,
-                                 time]) as ColorComponent;
+                    let value = state.noise(&[x_offset, y_offset, time]) as
+                                ColorComponent;
                     let rgba = img::Rgba([(color[0] * value * 256.0) as u8,
                                           (color[1] * value * 256.0) as u8,
                                           (color[2] * value * 256.0) as u8,

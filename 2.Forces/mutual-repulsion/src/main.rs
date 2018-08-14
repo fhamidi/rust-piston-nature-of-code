@@ -85,11 +85,7 @@ impl App {
     }
 
     fn handle_mouse(&mut self, state: &PistonAppState) {
-        let delta = if state.mouse_pressed() {
-            0.0042
-        } else {
-            -0.01
-        };
+        let delta = if state.mouse_pressed() { 0.0042 } else { -0.01 };
         self.attractor_intensity = (self.attractor_intensity + delta).max(0.0).min(1.0);
         self.attractor_color = [self.attractor_color[0],
                                 self.attractor_color[1],
@@ -108,12 +104,12 @@ impl PistonApp for App {
             state.color_from_hsv(rng.gen_range(30.0, 90.0), 1.0, 1.0, 0.0);
         self.movers = (0..MAX_MOVERS)
             .map(|_| {
-                Mover::new(state.random_color(None),
-                           rng.gen_range(0.0, state.width()),
-                           rng.gen_range(0.0, state.height()),
-                           rng.gen_range(3.0, 6.0),
-                           rng.gen_range(MAX_G / 4.2, MAX_G))
-            })
+                     Mover::new(state.random_color(None),
+                                rng.gen_range(0.0, state.width()),
+                                rng.gen_range(0.0, state.height()),
+                                rng.gen_range(3.0, 6.0),
+                                rng.gen_range(MAX_G / 4.2, MAX_G))
+                 })
             .collect();
     }
 

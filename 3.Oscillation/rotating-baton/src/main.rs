@@ -37,7 +37,8 @@ impl PistonApp for App {
         self.angle += self.angular_velocity;
         window.draw_2d(state.event(), |context, gfx| {
             clear(color::WHITE, gfx);
-            let transform = context.transform
+            let transform = context
+                .transform
                 .trans(state.width() / 2.0, state.height() / 2.0)
                 .rot_rad(self.angle);
             line(color::BLACK, 2.0, [-96.0, 0.0, 96.0, 0.0], transform, gfx);

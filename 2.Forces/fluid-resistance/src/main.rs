@@ -127,16 +127,17 @@ impl PistonApp for App {
     fn setup(&mut self, _: &mut PistonAppWindow, state: &PistonAppState) {
         const MAX_MOVERS: usize = 16;
         let (width, height) = (state.width(), state.height());
-        self.liquids.push(Liquid::new([0.0, height / 2.0, width, height / 2.0], 0.1));
+        self.liquids
+            .push(Liquid::new([0.0, height / 2.0, width, height / 2.0], 0.1));
         let gap = width / MAX_MOVERS as Scalar;
         let mut rng = SmallRng::from_entropy();
         self.movers = (0..MAX_MOVERS)
             .map(|i| {
-                Mover::new(state.random_color(Some(1.0)),
-                           i as Scalar * gap + gap / 2.0,
-                           rng.gen_range(0.0, height / 4.0),
-                           rng.gen_range(0.1, 5.0))
-            })
+                     Mover::new(state.random_color(Some(1.0)),
+                                i as Scalar * gap + gap / 2.0,
+                                rng.gen_range(0.0, height / 4.0),
+                                rng.gen_range(0.1, 5.0))
+                 })
             .collect();
     }
 

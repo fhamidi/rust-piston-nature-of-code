@@ -33,7 +33,8 @@ impl PistonApp for App {
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
         window.draw_2d(state.event(), |context, gfx| {
             clear(color::WHITE, gfx);
-            let transform = context.transform
+            let transform = context
+                .transform
                 .trans(state.width() / 2.0, state.height() / 2.0);
             let frame_count = state.frame_count() as Scalar;
             let x = self.amplitude *

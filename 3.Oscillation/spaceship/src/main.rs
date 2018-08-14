@@ -41,7 +41,8 @@ impl Spaceship {
     }
 
     fn draw(&mut self, context: Context, gfx: &mut G2d) {
-        let transform = context.transform
+        let transform = context
+            .transform
             .trans(self.location[0], self.location[1] + self.radius)
             .rot_rad(self.heading);
         let thruster_color = if self.thrusting {
@@ -69,15 +70,24 @@ impl Spaceship {
                         [self.radius, self.radius]];
         let border = Line::new_round(color::BLACK, 1.0);
         polygon(self.color, &vertices, transform, gfx);
-        border.draw([vertices[0][0], vertices[0][1], vertices[1][0], vertices[1][1]],
+        border.draw([vertices[0][0],
+                     vertices[0][1],
+                     vertices[1][0],
+                     vertices[1][1]],
                     &context.draw_state,
                     transform,
                     gfx);
-        border.draw([vertices[1][0], vertices[1][1], vertices[2][0], vertices[2][1]],
+        border.draw([vertices[1][0],
+                     vertices[1][1],
+                     vertices[2][0],
+                     vertices[2][1]],
                     &context.draw_state,
                     transform,
                     gfx);
-        border.draw([vertices[2][0], vertices[2][1], vertices[0][0], vertices[0][1]],
+        border.draw([vertices[2][0],
+                     vertices[2][1],
+                     vertices[0][0],
+                     vertices[0][1]],
                     &context.draw_state,
                     transform,
                     gfx);
