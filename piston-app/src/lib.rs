@@ -19,7 +19,7 @@ pub use math::{Scalar, Vec2d, Matrix2d};
 pub use piston_window::*;
 pub use rand::distributions::normal::StandardNormal;
 pub use rand::prelude::*;
-pub use types::{Color, ColorComponent};
+pub use types::{Color, ColorComponent, Resolution};
 pub use vecmath::*;
 
 use fps_counter::*;

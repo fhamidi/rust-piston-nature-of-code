@@ -1,8 +1,11 @@
 [package]
 name = "perlin-noise-wave"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["ko"]
 
 [dependencies]
 piston-app = { path = "../../piston-app" }
+
+[profile.release]
+debug = true
 

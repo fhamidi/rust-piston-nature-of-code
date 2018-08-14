@@ -27,6 +27,7 @@ impl Attractor {
 
     fn draw(&self, context: Context, gfx: &mut G2d, alpha: ColorComponent) {
         Ellipse::new_border([0.0, 0.0, 0.0, alpha], 2.0 + 4.0 * self.g)
+            .resolution(self.mass as Resolution)
             .color([self.color[0], self.color[1], self.color[2], alpha])
             .draw(ellipse::circle(self.location[0], self.location[1], self.mass * 2.0),
                   &context.draw_state,
@@ -74,6 +75,7 @@ impl Mover {
 
     fn draw(&self, context: Context, gfx: &mut G2d) {
         Ellipse::new_border(color::BLACK, 1.0)
+            .resolution(self.mass as Resolution * 12)
             .color(self.color)
             .draw(ellipse::circle(self.location[0], self.location[1], self.mass * 8.0),
                   &context.draw_state,

@@ -71,6 +71,7 @@ impl Mover {
 
     fn draw(&self, context: Context, gfx: &mut G2d) {
         Ellipse::new_border(color::BLACK, 1.0)
+            .resolution(self.mass as Resolution * 16)
             .color(self.color)
             .draw(ellipse::circle(self.location[0], self.location[1], self.mass * 8.0),
                   &context.draw_state,
@@ -124,7 +125,7 @@ impl App {
 
 impl PistonApp for App {
     fn setup(&mut self, _: &mut PistonAppWindow, state: &PistonAppState) {
-        const MAX_MOVERS: usize = 8;
+        const MAX_MOVERS: usize = 16;
         let (width, height) = (state.width(), state.height());
         self.liquids.push(Liquid::new([0.0, height / 2.0, width, height / 2.0], 0.1));
         let gap = width / MAX_MOVERS as Scalar;

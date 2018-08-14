@@ -39,6 +39,7 @@ impl Mover {
 
     fn draw(&self, context: Context, gfx: &mut G2d) {
         Ellipse::new_border(color::BLACK, 1.0)
+            .resolution(self.mass as Resolution * 16)
             .color(self.color)
             .draw(ellipse::circle(self.location[0], self.location[1], self.mass * 8.0),
                   &context.draw_state,

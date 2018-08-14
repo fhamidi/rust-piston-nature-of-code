@@ -41,6 +41,7 @@ impl PistonApp for App {
             Line::new(color::BLACK, 1.0)
                 .draw([0.0, 0.0, x, 0.0], &context.draw_state, transform, gfx);
             Ellipse::new_border(color::BLACK, 1.0)
+                .resolution(32)
                 .color(self.bob_color)
                 .draw(ellipse::circle(x, 0.0, 20.0),
                       &context.draw_state,

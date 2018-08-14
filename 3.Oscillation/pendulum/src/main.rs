@@ -60,6 +60,7 @@ impl Pendulum {
                   context.transform,
                   gfx);
         Ellipse::new_border(color::BLACK, 1.0)
+            .resolution(32)
             .color(if self.dragging {
                        color::BLACK
                    } else {

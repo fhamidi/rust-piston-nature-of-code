@@ -33,6 +33,7 @@ impl Oscillator {
         Line::new(color::BLACK, 1.0)
             .draw([0.0, 0.0, x, y], &context.draw_state, transform, gfx);
         Ellipse::new_border(color::BLACK, 1.0)
+            .resolution(24)
             .color(self.color)
             .draw(ellipse::circle(x, y, 20.0),
                   &context.draw_state,
@@ -58,7 +59,7 @@ impl App {
 
 impl PistonApp for App {
     fn setup(&mut self, _: &mut PistonAppWindow, state: &PistonAppState) {
-        const MAX_OSCILLATORS: usize = 16;
+        const MAX_OSCILLATORS: usize = 24;
         self.oscillators = (0..MAX_OSCILLATORS)
             .map(|_| Oscillator::new(state))
             .collect();
@@ -70,7 +71,8 @@ impl PistonApp for App {
         }
         window.draw_2d(state.event(), |context, gfx| {
             clear(color::WHITE, gfx);
-            let transform = context.transform
+            let transform = context
+                .transform
                 .trans(state.width() / 2.0, state.height() / 2.0);
             for oscillator in &self.oscillators {
                 oscillator.draw(context, transform, gfx);

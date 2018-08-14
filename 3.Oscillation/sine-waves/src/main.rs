@@ -33,16 +33,14 @@ impl Wave {
         }
     }
 
-    fn draw(&self, context: Context, gfx: &mut G2d) {
+    fn draw(&self, node_texture: &G2dTexture, context: Context, gfx: &mut G2d) {
         for (x, y) in self.y_values.iter().enumerate() {
-            Ellipse::new_border(color::BLACK, 1.0)
-                .color([0.0, 0.0, 0.0, 1.0 / 3.0])
-                .draw(ellipse::circle(self.origin[0] + x as Scalar * SPACING,
-                                      self.origin[1] + y,
-                                      24.0),
-                      &context.draw_state,
-                      context.transform,
-                      gfx);
+            const NODE_RADIUS: Scalar = 24.0;
+            let transform = context
+                .transform
+                .trans(self.origin[0] + x as Scalar * SPACING - NODE_RADIUS,
+                       self.origin[1] + y - NODE_RADIUS);
+            image(node_texture, transform, gfx);
         }
     }
 
@@ -58,12 +56,14 @@ impl Wave {
 
 #[derive(Debug)]
 struct App {
+    node_texture: Option<G2dTexture>,
     waves: Vec<Wave>,
 }
 
 impl App {
     fn new() -> Self {
         App {
+            node_texture: None,
             waves: vec![Wave::new([50.0, 180.0], 100.0, 20.0, 500.0),
                         Wave::new([300.0, 240.0], 300.0, 40.0, 220.0)],
         }
@@ -71,14 +71,23 @@ impl App {
 }
 
 impl PistonApp for App {
+    fn setup(&mut self, window: &mut PistonAppWindow, _: &PistonAppState) {
+        self.node_texture = Some(Texture::from_path(&mut window.factory,
+                                                    "assets/node.png",
+                                                    Flip::None,
+                                                    &TextureSettings::new())
+                                     .unwrap());
+    }
+
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
         for wave in &mut self.waves {
             wave.update();
         }
         window.draw_2d(state.event(), |context, gfx| {
             clear(color::WHITE, gfx);
+            let node_texture = self.node_texture.as_ref().unwrap();
             for wave in &self.waves {
-                wave.draw(context, gfx);
+                wave.draw(node_texture, context, gfx);
             }
         });
     }
