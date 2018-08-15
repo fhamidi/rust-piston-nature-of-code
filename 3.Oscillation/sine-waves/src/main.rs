@@ -72,6 +72,10 @@ impl App {
                         Wave::new([300.0, 240.0], 300.0, 40.0, 220.0)],
         }
     }
+
+    fn node_texture(&self) -> &G2dTexture {
+        self.node_texture.as_ref().unwrap()
+    }
 }
 
 impl PistonApp for App {
@@ -89,7 +93,7 @@ impl PistonApp for App {
         }
         window.draw_2d(state.event(), |context, gfx| {
             clear(color::WHITE, gfx);
-            let node_texture = self.node_texture.as_ref().unwrap();
+            let node_texture = self.node_texture();
             for wave in &self.waves {
                 wave.draw(node_texture, state, context, gfx);
             }

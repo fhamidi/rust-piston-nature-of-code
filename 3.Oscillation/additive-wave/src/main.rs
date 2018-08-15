@@ -47,6 +47,10 @@ impl App {
             y_values: vec![],
         }
     }
+
+    fn node_texture(&self) -> &G2dTexture {
+        self.node_texture.as_ref().unwrap()
+    }
 }
 
 impl PistonApp for App {
@@ -74,7 +78,7 @@ impl PistonApp for App {
         }
         window.draw_2d(state.event(), |context, gfx| {
             clear(color::WHITE, gfx);
-            let node_texture = self.node_texture.as_ref().unwrap();
+            let node_texture = self.node_texture();
             for (x, y) in self.y_values.iter().enumerate() {
                 state.draw_centered_texture(node_texture,
                                             x as Scalar * SPACING,

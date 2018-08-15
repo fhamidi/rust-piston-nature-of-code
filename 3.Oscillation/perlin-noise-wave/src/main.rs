@@ -22,6 +22,10 @@ impl App {
             velocity: 0.05,
         }
     }
+
+    fn node_texture(&self) -> &G2dTexture {
+        self.node_texture.as_ref().unwrap()
+    }
 }
 
 impl PistonApp for App {
@@ -36,9 +40,9 @@ impl PistonApp for App {
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
         window.draw_2d(state.event(), |context, gfx| {
             clear(color::WHITE, gfx);
-            let node_texture = self.node_texture.as_ref().unwrap();
             let mut angle = self.start_angle;
             self.start_angle += 0.02;
+            let node_texture = self.node_texture();
             let mut x = 0.0;
             while x <= state.width() {
                 let y =
