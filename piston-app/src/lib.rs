@@ -265,6 +265,23 @@ impl PistonAppState {
          (b + m) as ColorComponent,
          alpha]
     }
+
+    pub fn draw_centered_texture<G>(&self,
+                                    texture: &G::Texture,
+                                    x: Scalar,
+                                    y: Scalar,
+                                    draw_state: &DrawState,
+                                    transform: Matrix2d,
+                                    gfx: &mut G)
+        where G: Graphics
+    {
+        let (width, height) = texture.get_size();
+        let half_width = width as Scalar / 2.0;
+        let half_height = height as Scalar / 2.0;
+        Image::new()
+            .rect(rectangle::centered([x, y, half_width, half_height]))
+            .draw(texture, draw_state, transform, gfx);
+    }
 }
 
 pub struct TextureCanvas {

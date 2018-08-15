@@ -592,7 +592,7 @@ dependencies = [
 
 [[package]]
 name = "piston-app"
-version = "1.2.5"
+version = "1.2.6"
 dependencies = [
  "fps_counter 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "image 0.19.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1000,7 +1000,7 @@ dependencies = [
 name = "vector-subtraction"
 version = "0.2.0"
 dependencies = [
- "piston-app 1.2.5",
+ "piston-app 1.2.6",
 ]
 
 [[package]]

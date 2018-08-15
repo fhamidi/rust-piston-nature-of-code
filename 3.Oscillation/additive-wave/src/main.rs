@@ -73,14 +73,15 @@ impl PistonApp for App {
             }
         }
         window.draw_2d(state.event(), |context, gfx| {
-            const NODE_RADIUS: Scalar = 24.0;
             clear(color::WHITE, gfx);
             let node_texture = self.node_texture.as_ref().unwrap();
             for (x, y) in self.y_values.iter().enumerate() {
-                let transform =
-                    context.transform.trans(x as Scalar * SPACING - NODE_RADIUS,
-                                            state.height() / 2.0 + y - NODE_RADIUS);
-                image(node_texture, transform, gfx);
+                state.draw_centered_texture(node_texture,
+                                            x as Scalar * SPACING,
+                                            state.height() / 2.0 + y,
+                                            &context.draw_state,
+                                            context.transform,
+                                            gfx);
             }
         });
     }

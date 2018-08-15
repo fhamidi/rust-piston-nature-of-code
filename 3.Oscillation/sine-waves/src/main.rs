@@ -33,14 +33,18 @@ impl Wave {
         }
     }
 
-    fn draw(&self, node_texture: &G2dTexture, context: Context, gfx: &mut G2d) {
+    fn draw(&self,
+            node_texture: &G2dTexture,
+            state: &PistonAppState,
+            context: Context,
+            gfx: &mut G2d) {
         for (x, y) in self.y_values.iter().enumerate() {
-            const NODE_RADIUS: Scalar = 24.0;
-            let transform = context
-                .transform
-                .trans(self.origin[0] + x as Scalar * SPACING - NODE_RADIUS,
-                       self.origin[1] + y - NODE_RADIUS);
-            image(node_texture, transform, gfx);
+            state.draw_centered_texture(node_texture,
+                                        self.origin[0] + x as Scalar * SPACING,
+                                        self.origin[1] + y,
+                                        &context.draw_state,
+                                        context.transform,
+                                        gfx);
         }
     }
 
@@ -87,7 +91,7 @@ impl PistonApp for App {
             clear(color::WHITE, gfx);
             let node_texture = self.node_texture.as_ref().unwrap();
             for wave in &self.waves {
-                wave.draw(node_texture, context, gfx);
+                wave.draw(node_texture, state, context, gfx);
             }
         });
     }

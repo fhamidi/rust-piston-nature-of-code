@@ -35,7 +35,6 @@ impl PistonApp for App {
 
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
         window.draw_2d(state.event(), |context, gfx| {
-            const NODE_RADIUS: Scalar = 24.0;
             clear(color::WHITE, gfx);
             let node_texture = self.node_texture.as_ref().unwrap();
             let mut angle = self.start_angle;
@@ -44,8 +43,12 @@ impl PistonApp for App {
             while x <= state.width() {
                 let y =
                     state.map_range(state.noise(&[angle]), 0.0, 1.0, 0.0, state.height());
-                let transform = context.transform.trans(x - NODE_RADIUS, y - NODE_RADIUS);
-                image(node_texture, transform, gfx);
+                state.draw_centered_texture(node_texture,
+                                            x,
+                                            y,
+                                            &context.draw_state,
+                                            context.transform,
+                                            gfx);
                 angle += self.velocity;
                 x += 8.0;
             }
