@@ -1,7 +1,7 @@
 [package]
 name = "keyboard-acceleration"
 version = "0.1.1"
-authors = ["ko"]
+authors = ["Frédéric Hamidi <frederic.hamidi@gmail.com>"]
 
 [dependencies]
 piston-app = { path = "../../piston-app" }
