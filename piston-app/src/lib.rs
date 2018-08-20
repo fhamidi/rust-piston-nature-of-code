@@ -4,8 +4,6 @@
 //! Simple application framework, similar to the Processing environment
 //! used in the book.
 
-pub extern crate image as img;
-
 extern crate fps_counter;
 extern crate noise;
 extern crate piston_window;
@@ -46,8 +44,7 @@ pub trait PistonApp {
         while let Some(e) = window.next() {
             if let Some(args) = e.render_args() {
                 state.event = e.clone();
-                state.width = args.width as Scalar;
-                state.height = args.height as Scalar;
+                state.viewport = args.viewport();
                 if first {
                     first = false;
                     app.setup(&mut window, &state);
@@ -86,8 +83,7 @@ pub trait PistonApp {
 
 pub struct PistonAppState {
     event: Event,
-    width: Scalar,
-    height: Scalar,
+    viewport: Viewport,
     frame_count: usize,
     key: Key,
     key_pressed: u8,
@@ -108,8 +104,11 @@ impl PistonAppState {
                                                 draw_width: 0,
                                                 draw_height: 0,
                                             })),
-            width: 0.0,
-            height: 0.0,
+            viewport: Viewport {
+                rect: [0, 0, 0, 0],
+                draw_size: [0, 0],
+                window_size: [0, 0],
+            },
             frame_count: 0,
             key: Key::Unknown,
             key_pressed: 0,
@@ -127,13 +126,18 @@ impl PistonAppState {
     }
 
     #[inline]
+    pub fn viewport(&self) -> Viewport {
+        self.viewport
+    }
+
+    #[inline]
     pub fn width(&self) -> Scalar {
-        self.width
+        self.viewport.draw_size[0] as Scalar
     }
 
     #[inline]
     pub fn height(&self) -> Scalar {
-        self.height
+        self.viewport.draw_size[1] as Scalar
     }
 
     #[inline]
@@ -172,16 +176,6 @@ impl PistonAppState {
     }
 
     #[inline]
-    pub fn map_x(&self, x: Scalar) -> Scalar {
-        self.map_range(x, 0.0, 1.0, 0.0, self.width())
-    }
-
-    #[inline]
-    pub fn map_y(&self, y: Scalar) -> Scalar {
-        self.map_range(y, 0.0, 1.0, 0.0, self.height())
-    }
-
-    #[inline]
     pub fn map_range(&self,
                      value: Scalar,
                      in_min: Scalar,
@@ -192,15 +186,57 @@ impl PistonAppState {
         (value - in_min) / (in_max - in_min) * (out_max - out_min) + out_min
     }
 
+    #[inline]
+    pub fn map_x(&self, x: Scalar) -> Scalar {
+        self.map_range(x, 0.0, 1.0, 0.0, self.width())
+    }
+
+    #[inline]
+    pub fn map_y(&self, y: Scalar) -> Scalar {
+        self.map_range(y, 0.0, 1.0, 0.0, self.height())
+    }
+
     pub fn noise(&self, input: &[Scalar]) -> Scalar {
-        let result = match input.len() {
-            0 => 0.0,
-            1 => self.noise.get([input[0], 0.0]),
-            2 => self.noise.get([input[0], input[1]]),
-            3 => self.noise.get([input[0], input[1], input[2]]),
-            _ => self.noise.get([input[0], input[1], input[2], input[3]]),
-        };
-        ((result + 1.0) / 2.0).max(0.0).min(1.0)
+        self.map_range(match input.len() {
+                           0 => 0.0,
+                           1 => self.noise.get([input[0], 0.0]),
+                           2 => self.noise.get([input[0], input[1]]),
+                           3 => self.noise.get([input[0], input[1], input[2]]),
+                           _ => self.noise.get([input[0], input[1], input[2], input[3]]),
+                       },
+                       -1.0,
+                       1.0,
+                       0.0,
+                       1.0)
+    }
+
+    pub fn noise_color(&self, input: Scalar, alpha: Option<ColorComponent>) -> Color {
+        const MIN_ALPHA: Scalar = 1.0 / 3.0;
+        const MIN_SATURATION: Scalar = 0.5;
+        const MIN_VALUE: Scalar = 0.5;
+        let alpha = alpha.unwrap_or_else(|| {
+            self.map_range(self.noise.get([input - 29.0, 0.0]).abs(),
+                           0.0,
+                           1.0,
+                           MIN_ALPHA,
+                           1.0) as ColorComponent
+        });
+        self.color_from_hsv(self.map_range(self.noise.get([input, 0.0]).abs(),
+                                           0.0,
+                                           1.0,
+                                           0.0,
+                                           360.0),
+                            self.map_range(self.noise.get([input + 17.0, 0.0]).abs(),
+                                           0.0,
+                                           1.0,
+                                           MIN_SATURATION,
+                                           1.0),
+                            self.map_range(self.noise.get([input - 43.0, 0.0]).abs(),
+                                           0.0,
+                                           1.0,
+                                           MIN_VALUE,
+                                           1.0),
+                            alpha)
     }
 
     pub fn random_color(&self, alpha: Option<ColorComponent>) -> Color {
@@ -210,36 +246,6 @@ impl PistonAppState {
          rng.gen_range(MIN_COLOR_COMPONENT, 1.0),
          rng.gen_range(MIN_COLOR_COMPONENT, 1.0),
          alpha.unwrap_or_else(|| rng.gen_range(MIN_COLOR_COMPONENT, 1.0))]
-    }
-
-    pub fn noise_color(&self, input: Scalar, alpha: Option<ColorComponent>) -> Color {
-        const MIN_ALPHA: Scalar = 1.0 / 3.0;
-        const MIN_SATURATION: Scalar = 1.0 / 2.0;
-        const MIN_VALUE: Scalar = 2.0 / 3.0;
-        let alpha = alpha.unwrap_or_else(|| {
-                                             self.map_range(self.noise(&[input]),
-                                                            0.0,
-                                                            1.0,
-                                                            MIN_ALPHA,
-                                                            1.0) as
-                                             ColorComponent
-                                         });
-        self.color_from_hsv(self.map_range(self.noise(&[input + 25.0]),
-                                           0.0,
-                                           1.0,
-                                           0.0,
-                                           360.0),
-                            self.map_range(self.noise(&[input + 50.0]),
-                                           0.0,
-                                           1.0,
-                                           MIN_SATURATION,
-                                           1.0),
-                            self.map_range(self.noise(&[input + 75.0]),
-                                           0.0,
-                                           1.0,
-                                           MIN_VALUE,
-                                           1.0),
-                            alpha)
     }
 
     pub fn color_from_hsv(&self,
@@ -268,6 +274,7 @@ impl PistonAppState {
 
     pub fn draw_centered_texture<G>(&self,
                                     texture: &G::Texture,
+                                    color: Option<Color>,
                                     x: Scalar,
                                     y: Scalar,
                                     draw_state: &DrawState,
@@ -279,55 +286,9 @@ impl PistonAppState {
         let half_width = width as Scalar / 2.0;
         let half_height = height as Scalar / 2.0;
         Image::new()
+            .maybe_color(color)
             .rect(rectangle::centered([x, y, half_width, half_height]))
             .draw(texture, draw_state, transform, gfx);
-    }
-}
-
-pub struct TextureCanvas {
-    canvas: img::RgbaImage,
-    texture: G2dTexture,
-}
-
-impl TextureCanvas {
-    pub fn new(window: &mut PistonAppWindow,
-               width: Scalar,
-               height: Scalar,
-               settings: Option<TextureSettings>)
-               -> Self {
-        let canvas = img::RgbaImage::new(width as u32, height as u32);
-        let texture = Texture::from_image(&mut window.factory,
-                                          &canvas,
-                                          &settings.unwrap_or(TextureSettings::new()))
-            .unwrap();
-        TextureCanvas {
-            canvas: canvas,
-            texture: texture,
-        }
-    }
-
-    #[inline]
-    pub fn canvas(&self) -> &img::RgbaImage {
-        &self.canvas
-    }
-
-    #[inline]
-    pub fn canvas_mut(&mut self) -> &mut img::RgbaImage {
-        &mut self.canvas
-    }
-
-    #[inline]
-    pub fn texture(&self) -> &G2dTexture {
-        &self.texture
-    }
-
-    pub fn update<F>(&mut self, window: &mut PistonAppWindow, f: F)
-        where F: FnOnce(&mut img::RgbaImage)
-    {
-        f(&mut self.canvas);
-        self.texture
-            .update(&mut window.encoder, &self.canvas)
-            .unwrap();
     }
 }
 

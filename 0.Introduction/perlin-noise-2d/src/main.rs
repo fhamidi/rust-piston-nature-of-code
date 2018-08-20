@@ -3,83 +3,99 @@
 //!
 //! Introduction - Two-dimensional perlin noise.
 
+#[macro_use]
+extern crate gfx;
+extern crate gfx_device_gl;
 extern crate piston_app;
 
+use gfx::traits::FactoryExt;
 use piston_app::*;
 
-struct Background {
-    canvas: TextureCanvas,
-    color_offset: Scalar,
-    time: Scalar,
+gfx_defines! {
+    vertex Vertex {
+        pos: [f32; 2] = "pos",
+    }
+
+    pipeline noise_quad {
+        vbuf: gfx::VertexBuffer<Vertex> = (),
+        color: gfx::Global<[f32; 4]> = "color",
+        time: gfx::Global<f32> = "time",
+        out: gfx::RenderTarget<gfx::format::Srgba8> = "o_Color",
+    }
 }
 
-impl Background {
-    fn new(window: &mut PistonAppWindow, state: &PistonAppState) -> Self {
-        Background {
-            canvas: TextureCanvas::new(window, state.width(), state.height(), None),
-            color_offset: 0.0,
-            time: 0.0,
+struct NoiseQuad {
+    slice: gfx::Slice<gfx_device_gl::Resources>,
+    pipeline: gfx::pso::PipelineState<gfx_device_gl::Resources, noise_quad::Meta>,
+    data: noise_quad::Data<gfx_device_gl::Resources>,
+    color_offset: Scalar,
+}
+
+impl NoiseQuad {
+    fn new(window: &mut PistonAppWindow) -> Self {
+        const VERTICES: &[Vertex] = &[Vertex { pos: [1.0, -1.0] },
+                                      Vertex { pos: [-1.0, -1.0] },
+                                      Vertex { pos: [-1.0, 1.0] },
+                                      Vertex { pos: [1.0, 1.0] }];
+        const INDICES: &[u16] = &[0, 1, 2, 2, 3, 0];
+        let factory = &mut window.factory;
+        let (vbuf, slice) = factory.create_vertex_buffer_with_slice(VERTICES, INDICES);
+        NoiseQuad {
+            slice: slice,
+            pipeline: factory
+                .create_pipeline_simple(include_bytes!("noise_150_core.glslv"),
+                                        include_bytes!("noise_150_core.glslf"),
+                                        noise_quad::new())
+                .unwrap(),
+            data: noise_quad::Data {
+                vbuf: vbuf,
+                color: color::BLACK,
+                time: 0.0,
+                out: window.output_color.clone(),
+            },
+            color_offset: SmallRng::from_entropy().gen(),
         }
     }
 
-    fn draw(&self, context: Context, gfx: &mut G2d) {
-        image(self.canvas.texture(), context.transform, gfx);
+    fn draw(&self, window: &mut PistonAppWindow) {
+        let encoder = &mut window.encoder;
+        encoder.draw(&self.slice, &self.pipeline, &self.data);
+        encoder.flush(&mut window.device);
     }
 
-    fn update(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
-        let (width, height) = (state.width() as u32, state.height() as u32);
-        let color = state.noise_color(self.color_offset, Some(1.0));
-        let time = self.time;
-        self.canvas.update(window, |canvas| {
-            let mut y_offset = 0.0;
-            for y in 0..height {
-                let mut x_offset = 0.0;
-                for x in 0..width {
-                    let value = state.noise(&[x_offset, y_offset, time]) as
-                                ColorComponent;
-                    let rgba = img::Rgba([(color[0] * value * 256.0) as u8,
-                                          (color[1] * value * 256.0) as u8,
-                                          (color[2] * value * 256.0) as u8,
-                                          255]);
-                    canvas.put_pixel(x, y, rgba);
-                    x_offset += 0.01;
-                }
-                y_offset += 0.01;
-            }
-        });
+    fn update(&mut self, state: &PistonAppState) {
         self.color_offset += 1e-3;
-        self.time += 0.01;
+        self.data.color = state.noise_color(self.color_offset, Some(1.0));
+        self.data.time += 0.00666;
     }
 }
 
 struct App {
-    background: Option<Background>,
+    noise_quad: Option<NoiseQuad>,
 }
 
 impl App {
     fn new() -> Self {
-        App { background: None }
+        App { noise_quad: None }
     }
 
-    fn background(&self) -> &Background {
-        self.background.as_ref().unwrap()
+    fn noise_quad(&self) -> &NoiseQuad {
+        self.noise_quad.as_ref().unwrap()
     }
 
-    fn background_mut(&mut self) -> &mut Background {
-        self.background.as_mut().unwrap()
+    fn noise_quad_mut(&mut self) -> &mut NoiseQuad {
+        self.noise_quad.as_mut().unwrap()
     }
 }
 
 impl PistonApp for App {
-    fn setup(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
-        self.background = Some(Background::new(window, state));
+    fn setup(&mut self, window: &mut PistonAppWindow, _: &PistonAppState) {
+        self.noise_quad = Some(NoiseQuad::new(window));
     }
 
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
-        self.background_mut().update(window, state);
-        window.draw_2d(state.event(), |context, gfx| {
-            self.background().draw(context, gfx);
-        });
+        self.noise_quad_mut().update(state);
+        self.noise_quad().draw(window);
     }
 }
 

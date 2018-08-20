@@ -19,7 +19,7 @@ impl Ball {
     fn new() -> Self {
         Ball {
             color: color::TRANSPARENT,
-            color_offset: 0.0,
+            color_offset: SmallRng::from_entropy().gen(),
             location: [128.0, 128.0],
             speed: [2.0, 10.0 / 3.0],
         }

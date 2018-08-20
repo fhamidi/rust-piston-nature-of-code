@@ -10,6 +10,7 @@ use piston_app::*;
 #[derive(Debug)]
 struct App {
     node_texture: Option<G2dTexture>,
+    color_offset: Scalar,
     start_angle: Scalar,
     velocity: Scalar,
 }
@@ -18,6 +19,7 @@ impl App {
     fn new() -> Self {
         App {
             node_texture: None,
+            color_offset: SmallRng::from_entropy().gen(),
             start_angle: 0.0,
             velocity: 0.05,
         }
@@ -38,6 +40,7 @@ impl PistonApp for App {
     }
 
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
+        let mut color_offset = self.color_offset;
         window.draw_2d(state.event(), |context, gfx| {
             clear(color::WHITE, gfx);
             let mut angle = self.start_angle;
@@ -45,9 +48,12 @@ impl PistonApp for App {
             let node_texture = self.node_texture();
             let mut x = 0.0;
             while x <= state.width() {
+                color_offset += 1e-3;
                 let y =
                     state.map_range(state.noise(&[angle]), 0.0, 1.0, 0.0, state.height());
                 state.draw_centered_texture(node_texture,
+                                            Some(state.noise_color(color_offset,
+                                                                   Some(1.0))),
                                             x,
                                             y,
                                             &context.draw_state,
@@ -57,6 +63,7 @@ impl PistonApp for App {
                 x += 8.0;
             }
         });
+        self.color_offset += 1e-3;
     }
 }
 

@@ -23,7 +23,7 @@ impl Walker {
             color: color::TRANSPARENT,
             x: 0.0,
             y: 0.0,
-            color_offset: 0.0,
+            color_offset: SmallRng::from_entropy().gen(),
             x_offset: 1e3,
             y_offset: 1e6,
         }

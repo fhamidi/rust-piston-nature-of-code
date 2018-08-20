@@ -19,7 +19,7 @@ impl Oscillator {
     fn new(state: &PistonAppState) -> Self {
         let mut rng = SmallRng::from_entropy();
         Oscillator {
-            color: state.random_color(Some(2.0 / 3.0)),
+            color: state.random_color(Some(1.0)),
             angle: [0.0, 0.0],
             velocity: [rng.gen_range(-0.05, 0.05), rng.gen_range(-0.05, 0.05)],
             amplitude: [rng.gen_range(20.0, state.width() / 2.0),
@@ -27,18 +27,23 @@ impl Oscillator {
         }
     }
 
-    fn draw(&self, context: Context, transform: Matrix2d, gfx: &mut G2d) {
+    fn draw(&self,
+            node_texture: &G2dTexture,
+            state: &PistonAppState,
+            context: Context,
+            transform: Matrix2d,
+            gfx: &mut G2d) {
         let x = self.angle[0].sin() * self.amplitude[0];
         let y = self.angle[1].sin() * self.amplitude[1];
         Line::new(color::BLACK, 1.0)
             .draw([0.0, 0.0, x, y], &context.draw_state, transform, gfx);
-        Ellipse::new_border(color::BLACK, 1.0)
-            .resolution(24)
-            .color(self.color)
-            .draw(ellipse::circle(x, y, 20.0),
-                  &context.draw_state,
-                  transform,
-                  gfx);
+        state.draw_centered_texture(node_texture,
+                                    Some(self.color),
+                                    x,
+                                    y,
+                                    &context.draw_state,
+                                    transform,
+                                    gfx);
     }
 
     fn update(&mut self) {
@@ -48,18 +53,31 @@ impl Oscillator {
 
 #[derive(Debug)]
 struct App {
+    node_texture: Option<G2dTexture>,
     oscillators: Vec<Oscillator>,
 }
 
 impl App {
     fn new() -> Self {
-        App { oscillators: vec![] }
+        App {
+            node_texture: None,
+            oscillators: vec![],
+        }
+    }
+
+    fn node_texture(&self) -> &G2dTexture {
+        self.node_texture.as_ref().unwrap()
     }
 }
 
 impl PistonApp for App {
-    fn setup(&mut self, _: &mut PistonAppWindow, state: &PistonAppState) {
-        const MAX_OSCILLATORS: usize = 24;
+    fn setup(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
+        const MAX_OSCILLATORS: usize = 32;
+        self.node_texture = Some(Texture::from_path(&mut window.factory,
+                                                    "assets/node.png",
+                                                    Flip::None,
+                                                    &TextureSettings::new())
+                                     .unwrap());
         self.oscillators = (0..MAX_OSCILLATORS)
             .map(|_| Oscillator::new(state))
             .collect();
@@ -71,11 +89,12 @@ impl PistonApp for App {
         }
         window.draw_2d(state.event(), |context, gfx| {
             clear(color::WHITE, gfx);
+            let node_texture = self.node_texture();
             let transform = context
                 .transform
                 .trans(state.width() / 2.0, state.height() / 2.0);
             for oscillator in &self.oscillators {
-                oscillator.draw(context, transform, gfx);
+                oscillator.draw(node_texture, state, context, transform, gfx);
             }
         });
     }

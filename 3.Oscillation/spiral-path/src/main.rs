@@ -19,7 +19,7 @@ impl App {
         App {
             r: 0.0,
             theta: 0.0,
-            color_offset: 0.0,
+            color_offset: SmallRng::from_entropy().gen(),
         }
     }
 }

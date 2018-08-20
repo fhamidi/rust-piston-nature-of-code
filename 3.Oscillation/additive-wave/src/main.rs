@@ -27,6 +27,7 @@ impl Wave {
 #[derive(Debug)]
 struct App {
     node_texture: Option<G2dTexture>,
+    color_offset: Scalar,
     theta: Scalar,
     waves: Vec<Wave>,
     y_values: Vec<Scalar>,
@@ -38,6 +39,7 @@ impl App {
         let mut rng = SmallRng::from_entropy();
         App {
             node_texture: None,
+            color_offset: rng.gen(),
             theta: 0.0,
             waves: (0..MAX_WAVES)
                 .map(|_| {
@@ -76,11 +78,15 @@ impl PistonApp for App {
                 theta += wave.dx;
             }
         }
+        let mut color_offset = self.color_offset;
         window.draw_2d(state.event(), |context, gfx| {
             clear(color::WHITE, gfx);
             let node_texture = self.node_texture();
             for (x, y) in self.y_values.iter().enumerate() {
+                color_offset += 0.00042;
                 state.draw_centered_texture(node_texture,
+                                            Some(state.noise_color(color_offset,
+                                                                   Some(1.0))),
                                             x as Scalar * SPACING,
                                             state.height() / 2.0 + y,
                                             &context.draw_state,
@@ -88,6 +94,7 @@ impl PistonApp for App {
                                             gfx);
             }
         });
+        self.color_offset += 0.00042;
     }
 }
 
