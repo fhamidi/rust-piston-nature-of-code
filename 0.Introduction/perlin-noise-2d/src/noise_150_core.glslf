@@ -82,7 +82,7 @@ float snoise(vec3 v) {
     vec3 p2 = vec3(a1.xy, h.z);
     vec3 p3 = vec3(a1.zw, h.w);
 
-    //Normalise gradients.
+    // Normalise gradients.
     vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));
     p0 *= norm.x;
     p1 *= norm.y;
@@ -92,7 +92,7 @@ float snoise(vec3 v) {
     // Mix final noise value.
     vec4 m = max(0.6 - vec4(dot(x0, x0), dot(x1, x1), dot(x2, x2), dot(x3, x3)), 0.0);
     m = m * m;
-    return 42.0 * dot(m*m, vec4(dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3)));
+    return 42.0 * dot(m * m, vec4(dot(p0, x0), dot(p1, x1), dot(p2, x2), dot(p3, x3)));
 }
 
 uniform vec4 color;
