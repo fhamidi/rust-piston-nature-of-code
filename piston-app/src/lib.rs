@@ -272,16 +272,14 @@ impl PistonAppState {
          alpha]
     }
 
-    pub fn draw_centered_texture<G>(&self,
-                                    texture: &G::Texture,
-                                    color: Option<Color>,
-                                    x: Scalar,
-                                    y: Scalar,
-                                    draw_state: &DrawState,
-                                    transform: Matrix2d,
-                                    gfx: &mut G)
-        where G: Graphics
-    {
+    pub fn draw_centered_texture<G: Graphics>(&self,
+                                              texture: &G::Texture,
+                                              color: Option<Color>,
+                                              x: Scalar,
+                                              y: Scalar,
+                                              draw_state: &DrawState,
+                                              transform: Matrix2d,
+                                              gfx: &mut G) {
         let (width, height) = texture.get_size();
         let half_width = width as Scalar / 2.0;
         let half_height = height as Scalar / 2.0;

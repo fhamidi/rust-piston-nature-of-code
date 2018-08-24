@@ -49,7 +49,7 @@ impl NoiseQuad {
                 .unwrap(),
             data: noise_quad::Data {
                 vbuf: vbuf,
-                color: color::BLACK,
+                color: color::TRANSPARENT,
                 time: 0.0,
                 out: window.output_color.clone(),
             },

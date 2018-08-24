@@ -22,7 +22,7 @@ vec4 mod289(vec4 x) {
 }
 
 vec4 permute(vec4 x) {
-    return mod289(((x*34.0)+1.0)*x);
+    return mod289(((x * 34.0) + 1.0) * x);
 }
 
 vec4 taylorInvSqrt(vec4 r) {
@@ -68,7 +68,7 @@ float snoise(vec3 v) {
     vec4 h = 1.0 - abs(x) - abs(y);
 
     vec4 b0 = vec4(x.xy, y.xy);
-    vec4 b1 = vec4( x.zw, y.zw );
+    vec4 b1 = vec4(x.zw, y.zw);
 
     vec4 s0 = floor(b0) * 2.0 + 1.0;
     vec4 s1 = floor(b1) * 2.0 + 1.0;
@@ -83,7 +83,7 @@ float snoise(vec3 v) {
     vec3 p3 = vec3(a1.zw, h.w);
 
     // Normalise gradients.
-    vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));
+    vec4 norm = taylorInvSqrt(vec4(dot(p0, p0), dot(p1, p1), dot(p2, p2), dot(p3, p3)));
     p0 *= norm.x;
     p1 *= norm.y;
     p2 *= norm.z;
