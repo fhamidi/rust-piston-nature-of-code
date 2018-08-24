@@ -1,0 +1,8 @@
+[package]
+name = "single-particle-system"
+version = "0.1.0"
+authors = ["Frédéric Hamidi <frederic.hamidi@gmail.com>"]
+
+[dependencies]
+piston-app = { path = "../../piston-app" }
+
