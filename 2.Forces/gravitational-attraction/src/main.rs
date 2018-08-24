@@ -113,7 +113,7 @@ impl App {
 
     fn handle_mouse(&mut self, state: &PistonAppState) {
         let mut delta = -0.1;
-        if state.mouse_pressed() {
+        if state.mouse_button_pressed(MouseButton::Left) {
             delta = -delta;
         }
         self.attractors_alpha = (self.attractors_alpha + delta).max(0.0).min(1.0);

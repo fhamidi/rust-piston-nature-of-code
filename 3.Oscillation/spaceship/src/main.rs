@@ -152,13 +152,12 @@ impl PistonApp for App {
     }
 
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
-        if state.key_pressed() {
-            match state.key() {
-                Key::Left => self.ship.turn(-0.03),
-                Key::Right => self.ship.turn(0.03),
-                Key::Up => self.ship.thrust(),
-                _ => (),
-            }
+        if state.key_pressed(Key::Left) {
+            self.ship.turn(-0.03);
+        } else if state.key_pressed(Key::Right) {
+            self.ship.turn(0.03);
+        } else if state.key_pressed(Key::Up) {
+            self.ship.thrust();
         }
         self.ship.update(state);
         window.draw_2d(state.event(), |context, gfx| {

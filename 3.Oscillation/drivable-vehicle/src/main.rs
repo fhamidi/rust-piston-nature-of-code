@@ -40,12 +40,10 @@ impl Mover {
 
     fn update(&mut self, state: &PistonAppState) {
         const MAX_VELOCITY: Scalar = 4.2;
-        if state.key_pressed() {
-            match state.key() {
-                Key::Left => self.acceleration[0] -= 0.01,
-                Key::Right => self.acceleration[0] += 0.01,
-                _ => (),
-            }
+        if state.key_pressed(Key::Left) {
+            self.acceleration[0] -= 0.01;
+        } else if state.key_pressed(Key::Right) {
+            self.acceleration[0] += 0.01;
         }
         self.velocity = vec2_limit(vec2_add(self.velocity, self.acceleration),
                                    MAX_VELOCITY);

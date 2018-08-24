@@ -104,7 +104,7 @@ impl PistonApp for App {
     }
 
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
-        if state.mouse_pressed() {
+        if state.mouse_button_pressed(MouseButton::Left) {
             let mut wind =
                 state
                     .map_range(state.noise(&[self.wind_offset]), 0.0, 1.0, 0.0, MAX_WIND);

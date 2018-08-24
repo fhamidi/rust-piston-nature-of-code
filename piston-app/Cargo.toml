@@ -1,9 +1,10 @@
 [package]
 name = "piston-app"
-version = "1.3.0"
+version = "1.4.0"
 authors = ["Frédéric Hamidi <frederic.hamidi@gmail.com>"]
 
 [dependencies]
+fnv = "*"
 fps_counter = "*"
 noise = "*"
 piston_window = "*"

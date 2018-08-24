@@ -32,7 +32,7 @@ impl Walker {
 
     fn update(&mut self, state: &PistonAppState) {
         let mut rng = SmallRng::from_entropy();
-        if state.mouse_pressed() && rng.gen() {
+        if state.mouse_button_pressed(MouseButton::Left) && rng.gen() {
             self.x += rng.gen::<Scalar>() * (state.mouse_x() - self.x).signum();
             self.y += rng.gen::<Scalar>() * (state.mouse_y() - self.y).signum();
         } else {

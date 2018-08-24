@@ -4,6 +4,7 @@
 //! Simple application framework, similar to the Processing environment
 //! used in the book.
 
+extern crate fnv;
 extern crate fps_counter;
 extern crate noise;
 extern crate piston_window;
@@ -20,6 +21,7 @@ pub use rand::prelude::*;
 pub use types::{Color, ColorComponent, Resolution};
 pub use vecmath::*;
 
+use fnv::*;
 use fps_counter::*;
 use noise::{NoiseFn, Perlin, Seedable};
 
@@ -51,6 +53,7 @@ pub trait PistonApp {
                 }
                 app.draw(&mut window, &state);
                 state.frame_count += 1;
+                state.clicked_mouse_buttons.clear();
                 window.set_title(format!("{} ({} FPS)", title, fps.tick()));
             }
             if let Some(position) = e.mouse_cursor_args() {
@@ -59,21 +62,22 @@ pub trait PistonApp {
             }
             match e.press_args() {
                 Some(Button::Keyboard(key)) => {
-                    state.key = key;
-                    state.key_pressed += 1;
+                    state.pressed_keys.insert(key);
                 }
                 Some(Button::Mouse(button)) => {
-                    state.mouse_button = button;
-                    state.mouse_pressed += 1;
+                    state.pressed_mouse_buttons.insert(button);
                 }
                 _ => (),
             }
             match e.release_args() {
-                Some(Button::Keyboard(_)) if state.key_pressed > 0 => {
-                    state.key_pressed -= 1;
+                Some(Button::Keyboard(key)) => {
+                    state.pressed_keys.remove(&key);
                 }
-                Some(Button::Mouse(_)) if state.mouse_pressed > 0 => {
-                    state.mouse_pressed -= 1;
+                Some(Button::Mouse(button)) => {
+                    if state.pressed_mouse_buttons.contains(&button) {
+                        state.pressed_mouse_buttons.remove(&button);
+                        state.clicked_mouse_buttons.insert(button);
+                    }
                 }
                 _ => (),
             }
@@ -85,10 +89,9 @@ pub struct PistonAppState {
     event: Event,
     viewport: Viewport,
     frame_count: usize,
-    key: Key,
-    key_pressed: u8,
-    mouse_button: MouseButton,
-    mouse_pressed: u8,
+    pressed_keys: FnvHashSet<Key>,
+    pressed_mouse_buttons: FnvHashSet<MouseButton>,
+    clicked_mouse_buttons: FnvHashSet<MouseButton>,
     mouse_x: Scalar,
     mouse_y: Scalar,
     noise: Perlin,
@@ -110,10 +113,9 @@ impl PistonAppState {
                 window_size: [0, 0],
             },
             frame_count: 0,
-            key: Key::Unknown,
-            key_pressed: 0,
-            mouse_button: MouseButton::Unknown,
-            mouse_pressed: 0,
+            pressed_keys: Default::default(),
+            pressed_mouse_buttons: Default::default(),
+            clicked_mouse_buttons: Default::default(),
             mouse_x: 0.0,
             mouse_y: 0.0,
             noise: Perlin::new().set_seed(SmallRng::from_entropy().gen()),
@@ -146,23 +148,18 @@ impl PistonAppState {
     }
 
     #[inline]
-    pub fn key(&self) -> Key {
-        self.key
+    pub fn key_pressed(&self, key: Key) -> bool {
+        self.pressed_keys.contains(&key)
     }
 
     #[inline]
-    pub fn key_pressed(&self) -> bool {
-        self.key_pressed > 0
+    pub fn mouse_button_pressed(&self, button: MouseButton) -> bool {
+        self.pressed_mouse_buttons.contains(&button)
     }
 
     #[inline]
-    pub fn mouse_button(&self) -> MouseButton {
-        self.mouse_button
-    }
-
-    #[inline]
-    pub fn mouse_pressed(&self) -> bool {
-        self.mouse_pressed > 0
+    pub fn mouse_button_clicked(&self, button: MouseButton) -> bool {
+        self.clicked_mouse_buttons.contains(&button)
     }
 
     #[inline]

@@ -62,12 +62,13 @@ impl Bob {
     }
 
     fn update(&mut self, state: &PistonAppState) {
+        let button_pressed = state.mouse_button_pressed(MouseButton::Left);
         if self.dragging {
-            if !state.mouse_pressed() {
+            if !button_pressed {
                 self.velocity = [0.0, 0.0];
                 self.dragging = false;
             }
-        } else if state.mouse_pressed() {
+        } else if button_pressed {
             let distance = vec2_len(vec2_sub([state.mouse_x(), state.mouse_y()],
                                              self.position));
             if distance < self.radius {

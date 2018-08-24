@@ -100,7 +100,7 @@ impl PistonApp for App {
             let wind = [0.01, 0.0];
             mover.apply_force(gravity);
             mover.apply_force(wind);
-            if state.mouse_pressed() {
+            if state.mouse_button_pressed(MouseButton::Left) {
                 const MU: Scalar = 0.1;
                 let friction = vec2_scale(vec2_normalized(mover.velocity()), -1.0 * MU);
                 mover.apply_force(friction);

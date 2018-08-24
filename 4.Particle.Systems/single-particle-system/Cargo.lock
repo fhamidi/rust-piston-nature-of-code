@@ -592,8 +592,9 @@ dependencies = [
 
 [[package]]
 name = "piston-app"
-version = "1.3.0"
+version = "1.4.0"
 dependencies = [
+ "fnv 1.0.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "fps_counter 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "noise 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "piston_window 0.80.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -929,7 +930,7 @@ dependencies = [
 name = "single-particle-system"
 version = "0.1.1"
 dependencies = [
- "piston-app 1.3.0",
+ "piston-app 1.4.0",
 ]
 
 [[package]]

@@ -1,6 +1,6 @@
 [package]
 name = "basic-forces"
-version = "0.3.3"
+version = "0.3.4"
 authors = ["Frédéric Hamidi <frederic.hamidi@gmail.com>"]
 
 [dependencies]

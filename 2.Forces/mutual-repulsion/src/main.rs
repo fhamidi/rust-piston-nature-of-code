@@ -85,7 +85,11 @@ impl App {
     }
 
     fn handle_mouse(&mut self, state: &PistonAppState) {
-        let delta = if state.mouse_pressed() { 0.0042 } else { -0.01 };
+        let delta = if state.mouse_button_pressed(MouseButton::Left) {
+            0.0042
+        } else {
+            -0.01
+        };
         self.attractor_intensity = (self.attractor_intensity + delta).max(0.0).min(1.0);
         self.attractor_color = [self.attractor_color[0],
                                 self.attractor_color[1],
