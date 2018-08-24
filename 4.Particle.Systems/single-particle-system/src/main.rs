@@ -10,18 +10,18 @@ use piston_app::*;
 #[derive(Debug)]
 struct Particle {
     color: Color,
-    location: Vec2d,
+    position: Vec2d,
     velocity: Vec2d,
     acceleration: Vec2d,
     life: Scalar,
 }
 
 impl Particle {
-    fn new(color: Color, location: Vec2d) -> Self {
+    fn new(color: Color, position: Vec2d) -> Self {
         let mut rng = SmallRng::from_entropy();
         Particle {
             color: color,
-            location: location,
+            position: position,
             velocity: [rng.gen_range(-1.0, 1.0), rng.gen_range(-2.0, 0.0)],
             acceleration: [0.0, 0.05],
             life: 1.0,
@@ -43,8 +43,8 @@ impl Particle {
                                           self.color[1],
                                           self.color[2],
                                           self.life as ColorComponent]),
-                                    self.location[0],
-                                    self.location[1],
+                                    self.position[0],
+                                    self.position[1],
                                     &context.draw_state,
                                     context.transform,
                                     gfx);
@@ -52,7 +52,7 @@ impl Particle {
 
     fn update(&mut self) {
         self.velocity = vec2_add(self.velocity, self.acceleration);
-        self.location = vec2_add(self.location, self.velocity);
+        self.position = vec2_add(self.position, self.velocity);
         self.life -= 1.0 / 128.0;
     }
 }

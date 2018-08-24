@@ -9,7 +9,7 @@ use piston_app::*;
 
 #[derive(Debug)]
 struct Attractor {
-    location: Vec2d,
+    position: Vec2d,
     mass: Scalar,
     g: Scalar,
 }
@@ -17,14 +17,14 @@ struct Attractor {
 impl Attractor {
     fn new(x: Scalar, y: Scalar, mass: Scalar, g: Scalar) -> Self {
         Attractor {
-            location: [x, y],
+            position: [x, y],
             mass: mass,
             g: g,
         }
     }
 
     fn attract(&self, mover: &Mover) -> Vec2d {
-        let force = vec2_sub(self.location, mover.location());
+        let force = vec2_sub(self.position, mover.position());
         let distance = vec2_len(force).max(5.0).min(25.0);
         vec2_scale(vec2_normalized(force),
                    (self.g * self.mass * mover.mass()) / (distance * distance))
@@ -34,7 +34,7 @@ impl Attractor {
 #[derive(Debug)]
 struct Mover {
     color: Color,
-    location: Vec2d,
+    position: Vec2d,
     velocity: Vec2d,
     acceleration: Vec2d,
     mass: Scalar,
@@ -44,7 +44,7 @@ impl Mover {
     fn new(color: Color, x: Scalar, y: Scalar, mass: Scalar) -> Self {
         Mover {
             color: color,
-            location: [x, y],
+            position: [x, y],
             velocity: [0.0, 0.0],
             acceleration: [0.0, 0.0],
             mass: mass,
@@ -52,8 +52,8 @@ impl Mover {
     }
 
     #[inline]
-    fn location(&self) -> Vec2d {
-        self.location
+    fn position(&self) -> Vec2d {
+        self.position
     }
 
     #[inline]
@@ -63,8 +63,8 @@ impl Mover {
 
     fn draw(&self, context: Context, gfx: &mut G2d) {
         rectangle(self.color,
-                  rectangle::centered_square(self.location[0],
-                                             self.location[1],
+                  rectangle::centered_square(self.position[0],
+                                             self.position[1],
                                              self.mass / 4.2),
                   context.transform,
                   gfx);
@@ -77,7 +77,7 @@ impl Mover {
 
     fn update(&mut self) {
         self.velocity = vec2_add(self.velocity, self.acceleration);
-        self.location = vec2_add(self.location, self.velocity);
+        self.position = vec2_add(self.position, self.velocity);
         self.acceleration = [0.0, 0.0];
     }
 }

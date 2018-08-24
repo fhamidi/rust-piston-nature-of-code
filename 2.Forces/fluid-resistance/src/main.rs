@@ -42,7 +42,7 @@ impl Liquid {
 #[derive(Debug)]
 struct Mover {
     color: Color,
-    location: Vec2d,
+    position: Vec2d,
     velocity: Vec2d,
     acceleration: Vec2d,
     mass: Scalar,
@@ -52,7 +52,7 @@ impl Mover {
     fn new(color: Color, x: Scalar, y: Scalar, mass: Scalar) -> Self {
         Mover {
             color: color,
-            location: [x, y],
+            position: [x, y],
             velocity: [0.0, 0.0],
             acceleration: [0.0, 0.0],
             mass: mass,
@@ -64,7 +64,7 @@ impl Mover {
     }
 
     fn is_inside(&self, liquid: &Liquid) -> bool {
-        let (x, y) = (self.location[0], self.location[1]);
+        let (x, y) = (self.position[0], self.position[1]);
         let ref rect = liquid.rect();
         x > rect[0] && x < rect[0] + rect[2] && y > rect[1] && y < rect[1] + rect[3]
     }
@@ -73,7 +73,7 @@ impl Mover {
         Ellipse::new_border(color::BLACK, 1.0)
             .resolution(self.mass as Resolution * 16)
             .color(self.color)
-            .draw(ellipse::circle(self.location[0], self.location[1], self.mass * 8.0),
+            .draw(ellipse::circle(self.position[0], self.position[1], self.mass * 8.0),
                   &context.draw_state,
                   context.transform,
                   gfx);
@@ -92,18 +92,18 @@ impl Mover {
     }
 
     fn update(&mut self, state: &PistonAppState) {
-        let (x, y) = (self.location[0], self.location[1]);
+        let (x, y) = (self.position[0], self.position[1]);
         let (width, height) = (state.width(), state.height());
         if x > width || x < 0.0 {
-            self.location[0] = x.max(0.0).min(width);
+            self.position[0] = x.max(0.0).min(width);
             self.velocity[0] *= -1.0;
         }
         if y > height || y < 0.0 {
-            self.location[1] = y.max(0.0).min(height);
+            self.position[1] = y.max(0.0).min(height);
             self.velocity[1] *= -1.0;
         }
         self.velocity = vec2_add(self.velocity, self.acceleration);
-        self.location = vec2_add(self.location, self.velocity);
+        self.position = vec2_add(self.position, self.velocity);
         self.acceleration = [0.0, 0.0];
     }
 }

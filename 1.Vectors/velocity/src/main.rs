@@ -10,7 +10,7 @@ use piston_app::*;
 #[derive(Debug)]
 struct Mover {
     color: Color,
-    location: Vec2d,
+    position: Vec2d,
     velocity: Vec2d,
 }
 
@@ -20,7 +20,7 @@ impl Mover {
         let mut rng = SmallRng::from_entropy();
         Mover {
             color: state.random_color(Some(1.0)),
-            location: [rng.gen_range(0.0, state.width()),
+            position: [rng.gen_range(0.0, state.width()),
                        rng.gen_range(0.0, state.height())],
             velocity: [rng.gen_range(-MAX_VELOCITY, MAX_VELOCITY),
                        rng.gen_range(-MAX_VELOCITY, MAX_VELOCITY)],
@@ -31,29 +31,29 @@ impl Mover {
         Ellipse::new_border(color::BLACK, 1.0)
             .resolution(32)
             .color(self.color)
-            .draw(ellipse::circle(self.location[0], self.location[1], 32.0),
+            .draw(ellipse::circle(self.position[0], self.position[1], 32.0),
                   &context.draw_state,
                   context.transform,
                   gfx);
     }
 
     fn update(&mut self, state: &PistonAppState) {
-        self.location = vec2_add(self.location, self.velocity);
+        self.position = vec2_add(self.position, self.velocity);
         self.check_edges(state);
     }
 
     fn check_edges(&mut self, state: &PistonAppState) {
-        let (x, y) = (self.location[0], self.location[1]);
+        let (x, y) = (self.position[0], self.position[1]);
         let (width, height) = (state.width(), state.height());
         if x > width {
-            self.location[0] = 0.0;
+            self.position[0] = 0.0;
         } else if x < 0.0 {
-            self.location[0] = width;
+            self.position[0] = width;
         }
         if y > height {
-            self.location[1] = 0.0;
+            self.position[1] = 0.0;
         } else if y < 0.0 {
-            self.location[1] = height;
+            self.position[1] = height;
         }
     }
 }

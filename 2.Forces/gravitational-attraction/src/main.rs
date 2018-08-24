@@ -10,7 +10,7 @@ use piston_app::*;
 #[derive(Debug)]
 struct Attractor {
     color: Color,
-    location: Vec2d,
+    position: Vec2d,
     mass: Scalar,
     g: Scalar,
 }
@@ -19,7 +19,7 @@ impl Attractor {
     fn new(color: Color, x: Scalar, y: Scalar, mass: Scalar, g: Scalar) -> Self {
         Attractor {
             color: color,
-            location: [x, y],
+            position: [x, y],
             mass: mass,
             g: g,
         }
@@ -29,14 +29,14 @@ impl Attractor {
         Ellipse::new_border([0.0, 0.0, 0.0, alpha], 2.0 + 4.0 * self.g)
             .resolution(self.mass as Resolution)
             .color([self.color[0], self.color[1], self.color[2], alpha])
-            .draw(ellipse::circle(self.location[0], self.location[1], self.mass * 2.0),
+            .draw(ellipse::circle(self.position[0], self.position[1], self.mass * 2.0),
                   &context.draw_state,
                   context.transform,
                   gfx);
     }
 
     fn attract(&self, mover: &Mover) -> Vec2d {
-        let force = vec2_sub(self.location, mover.location());
+        let force = vec2_sub(self.position, mover.position());
         let distance = vec2_len(force).max(5.0).min(25.0);
         vec2_scale(vec2_normalized(force),
                    (self.g * self.mass * mover.mass()) / (distance * distance))
@@ -46,7 +46,7 @@ impl Attractor {
 #[derive(Debug)]
 struct Mover {
     color: Color,
-    location: Vec2d,
+    position: Vec2d,
     velocity: Vec2d,
     acceleration: Vec2d,
     mass: Scalar,
@@ -56,7 +56,7 @@ impl Mover {
     fn new(color: Color, x: Scalar, y: Scalar, mass: Scalar) -> Self {
         Mover {
             color: color,
-            location: [x, y],
+            position: [x, y],
             velocity: [0.0, 0.0],
             acceleration: [0.0, 0.0],
             mass: mass,
@@ -64,8 +64,8 @@ impl Mover {
     }
 
     #[inline]
-    fn location(&self) -> Vec2d {
-        self.location
+    fn position(&self) -> Vec2d {
+        self.position
     }
 
     #[inline]
@@ -77,7 +77,7 @@ impl Mover {
         Ellipse::new_border(color::BLACK, 1.0)
             .resolution(self.mass as Resolution * 12)
             .color(self.color)
-            .draw(ellipse::circle(self.location[0], self.location[1], self.mass * 8.0),
+            .draw(ellipse::circle(self.position[0], self.position[1], self.mass * 8.0),
                   &context.draw_state,
                   context.transform,
                   gfx);
@@ -90,7 +90,7 @@ impl Mover {
 
     fn update(&mut self) {
         self.velocity = vec2_add(self.velocity, self.acceleration);
-        self.location = vec2_add(self.location, self.velocity);
+        self.position = vec2_add(self.position, self.velocity);
         self.acceleration = [0.0, 0.0];
     }
 }

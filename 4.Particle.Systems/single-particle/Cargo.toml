@@ -1,6 +1,6 @@
 [package]
 name = "single-particle"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Frédéric Hamidi <frederic.hamidi@gmail.com>"]
 
 [dependencies]

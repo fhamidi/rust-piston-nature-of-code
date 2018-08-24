@@ -33,7 +33,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "bouncing-ball"
-version = "0.3.2"
+version = "0.3.3"
 dependencies = [
  "piston-app 1.3.0",
 ]

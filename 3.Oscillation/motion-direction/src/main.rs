@@ -10,7 +10,7 @@ use piston_app::*;
 #[derive(Debug)]
 struct Mover {
     color: Color,
-    location: Vec2d,
+    position: Vec2d,
     velocity: Vec2d,
     acceleration: Vec2d,
 }
@@ -20,7 +20,7 @@ impl Mover {
         let mut rng = SmallRng::from_entropy();
         Mover {
             color: state.random_color(Some(2.0 / 3.0)),
-            location: [rng.gen_range(0.0, state.width()),
+            position: [rng.gen_range(0.0, state.width()),
                        rng.gen_range(0.0, state.height())],
             velocity: [0.0, 0.0],
             acceleration: [0.0, 0.0],
@@ -30,7 +30,7 @@ impl Mover {
     fn draw(&self, context: Context, gfx: &mut G2d) {
         let transform = context
             .transform
-            .trans(self.location[0], self.location[1])
+            .trans(self.position[0], self.position[1])
             .rot_rad(vec2_heading(self.velocity));
         Rectangle::new_border(color::BLACK, 1.0)
             .color(self.color)
@@ -42,11 +42,11 @@ impl Mover {
 
     fn update(&mut self, state: &PistonAppState) {
         const MAX_VELOCITY: Scalar = 4.2;
-        let direction = vec2_sub([state.mouse_x(), state.mouse_y()], self.location);
+        let direction = vec2_sub([state.mouse_x(), state.mouse_y()], self.position);
         self.acceleration = vec2_scale(vec2_normalized(direction), 0.5);
         self.velocity = vec2_limit(vec2_add(self.velocity, self.acceleration),
                                    MAX_VELOCITY);
-        self.location = vec2_add(self.location, self.velocity);
+        self.position = vec2_add(self.position, self.velocity);
     }
 }
 

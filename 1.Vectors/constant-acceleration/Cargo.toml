@@ -1,6 +1,6 @@
 [package]
 name = "constant-acceleration"
-version = "0.2.1"
+version = "0.2.2"
 authors = ["Frédéric Hamidi <frederic.hamidi@gmail.com>"]
 
 [dependencies]

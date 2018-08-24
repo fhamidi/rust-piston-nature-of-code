@@ -10,7 +10,7 @@ use piston_app::*;
 #[derive(Debug)]
 struct Mover {
     color: Color,
-    location: Vec2d,
+    position: Vec2d,
     velocity: Vec2d,
     acceleration: Vec2d,
 }
@@ -20,7 +20,7 @@ impl Mover {
         let mut rng = SmallRng::from_entropy();
         Mover {
             color: state.random_color(Some(2.0 / 3.0)),
-            location: [rng.gen_range(0.0, state.width()),
+            position: [rng.gen_range(0.0, state.width()),
                        rng.gen_range(state.height() * 4.0 / 5.0, state.height())],
             velocity: [0.0, 0.0],
             acceleration: [0.0, 0.0],
@@ -31,7 +31,7 @@ impl Mover {
         Ellipse::new_border(color::BLACK, 1.0)
             .resolution(20)
             .color(self.color)
-            .draw(ellipse::circle(self.location[0], self.location[1], 32.0),
+            .draw(ellipse::circle(self.position[0], self.position[1], 32.0),
                   &context.draw_state,
                   context.transform,
                   gfx);
@@ -42,19 +42,19 @@ impl Mover {
     }
 
     fn update(&mut self, state: &PistonAppState) {
-        let (x, y) = (self.location[0], self.location[1]);
+        let (x, y) = (self.position[0], self.position[1]);
         let (width, height) = (state.width(), state.height());
         if x > width || x < 0.0 {
-            self.location[0] = x.max(0.0).min(width);
+            self.position[0] = x.max(0.0).min(width);
             self.velocity[0] *= -1.0;
         }
         if y > height || y < 0.0 {
-            self.location[1] = y.max(0.0).min(height);
+            self.position[1] = y.max(0.0).min(height);
             self.velocity[1] *= -1.0;
         }
         self.apply_force([0.0, -0.1]);
         self.velocity = vec2_add(self.velocity, self.acceleration);
-        self.location = vec2_add(self.location, self.velocity);
+        self.position = vec2_add(self.position, self.velocity);
         self.acceleration = [0.0, 0.0];
     }
 }

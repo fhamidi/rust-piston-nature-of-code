@@ -11,7 +11,7 @@ use piston_app::*;
 struct Ball {
     color: Color,
     color_offset: Scalar,
-    location: Vec2d,
+    position: Vec2d,
     speed: Vec2d,
 }
 
@@ -20,7 +20,7 @@ impl Ball {
         Ball {
             color: color::TRANSPARENT,
             color_offset: SmallRng::from_entropy().gen(),
-            location: [128.0, 128.0],
+            position: [128.0, 128.0],
             speed: [2.0, 10.0 / 3.0],
         }
     }
@@ -29,7 +29,7 @@ impl Ball {
         Ellipse::new_border(color::BLACK, 1.0)
             .resolution(32)
             .color(self.color)
-            .draw(ellipse::circle(self.location[0], self.location[1], 32.0),
+            .draw(ellipse::circle(self.position[0], self.position[1], 32.0),
                   &context.draw_state,
                   context.transform,
                   gfx);
@@ -38,8 +38,8 @@ impl Ball {
     fn update(&mut self, state: &PistonAppState) {
         self.color = state.noise_color(self.color_offset, Some(1.0));
         self.color_offset += 1e-3;
-        self.location = vec2_add(self.location, self.speed);
-        let (x, y) = (self.location[0], self.location[1]);
+        self.position = vec2_add(self.position, self.speed);
+        let (x, y) = (self.position[0], self.position[1]);
         if x > state.width() || x < 0.0 {
             self.speed[0] *= -1.0;
         }

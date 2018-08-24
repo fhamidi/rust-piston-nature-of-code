@@ -10,7 +10,7 @@ use piston_app::*;
 #[derive(Debug)]
 struct Mover {
     color: Color,
-    location: Vec2d,
+    position: Vec2d,
     velocity: Vec2d,
     acceleration: Vec2d,
 }
@@ -19,7 +19,7 @@ impl Mover {
     fn new(state: &PistonAppState) -> Self {
         Mover {
             color: color::TRANSPARENT,
-            location: [state.width() / 2.0, state.height() / 2.0],
+            position: [state.width() / 2.0, state.height() / 2.0],
             velocity: [0.0, 0.0],
             acceleration: [0.0, 0.0],
         }
@@ -28,7 +28,7 @@ impl Mover {
     fn draw(&self, context: Context, gfx: &mut G2d) {
         Ellipse::new_border(color::BLACK, 1.0)
             .color(self.color)
-            .draw(ellipse::circle(self.location[0], self.location[1], 32.0),
+            .draw(ellipse::circle(self.position[0], self.position[1], 32.0),
                   &context.draw_state,
                   context.transform,
                   gfx);
@@ -42,24 +42,24 @@ impl Mover {
                                            .gen_range(0.0, MAX_ACCELERATION));
         self.velocity = vec2_limit(vec2_add(self.velocity, self.acceleration),
                                    MAX_VELOCITY);
-        self.location = vec2_add(self.location, self.velocity);
+        self.position = vec2_add(self.position, self.velocity);
         self.check_edges(state);
         let hue = state.map_range(vec2_len(self.velocity), 0.0, MAX_VELOCITY, 0.0, 120.0);
         self.color = state.color_from_hsv(hue, 1.0, 2.0 / 3.0, 1.0);
     }
 
     fn check_edges(&mut self, state: &PistonAppState) {
-        let (x, y) = (self.location[0], self.location[1]);
+        let (x, y) = (self.position[0], self.position[1]);
         let (width, height) = (state.width(), state.height());
         if x > width {
-            self.location[0] = 0.0;
+            self.position[0] = 0.0;
         } else if x < 0.0 {
-            self.location[0] = width;
+            self.position[0] = width;
         }
         if y > height {
-            self.location[1] = 0.0;
+            self.position[1] = 0.0;
         } else if y < 0.0 {
-            self.location[1] = height;
+            self.position[1] = height;
         }
     }
 }

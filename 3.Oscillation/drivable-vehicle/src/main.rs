@@ -10,7 +10,7 @@ use piston_app::*;
 #[derive(Debug)]
 struct Mover {
     color: Color,
-    location: Vec2d,
+    position: Vec2d,
     velocity: Vec2d,
     acceleration: Vec2d,
 }
@@ -19,7 +19,7 @@ impl Mover {
     fn new(state: &PistonAppState) -> Self {
         Mover {
             color: state.random_color(Some(1.0)),
-            location: [state.width() / 2.0, state.height() / 2.0],
+            position: [state.width() / 2.0, state.height() / 2.0],
             velocity: [0.0, 0.0],
             acceleration: [0.0, 0.0],
         }
@@ -28,7 +28,7 @@ impl Mover {
     fn draw(&self, context: Context, gfx: &mut G2d) {
         let transform = context
             .transform
-            .trans(self.location[0], self.location[1])
+            .trans(self.position[0], self.position[1])
             .rot_rad(vec2_heading(self.velocity));
         Rectangle::new_border(color::BLACK, 1.0)
             .color(self.color)
@@ -50,22 +50,22 @@ impl Mover {
         self.velocity = vec2_limit(vec2_add(self.velocity, self.acceleration),
                                    MAX_VELOCITY);
         self.velocity[1] += 0.42;
-        self.location = vec2_add(self.location, self.velocity);
+        self.position = vec2_add(self.position, self.velocity);
         self.check_edges(state);
     }
 
     fn check_edges(&mut self, state: &PistonAppState) {
-        let (x, y) = (self.location[0], self.location[1]);
+        let (x, y) = (self.position[0], self.position[1]);
         let (width, height) = (state.width(), state.height());
         if x > width {
-            self.location[0] = 0.0;
+            self.position[0] = 0.0;
         } else if x < 0.0 {
-            self.location[0] = width;
+            self.position[0] = width;
         }
         if y > height {
-            self.location[1] = 0.0;
+            self.position[1] = 0.0;
         } else if y < 0.0 {
-            self.location[1] = height;
+            self.position[1] = height;
         }
     }
 }

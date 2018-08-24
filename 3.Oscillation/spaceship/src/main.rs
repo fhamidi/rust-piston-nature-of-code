@@ -11,7 +11,7 @@ use piston_app::*;
 struct Spaceship {
     color: Color,
     radius: Scalar,
-    location: Vec2d,
+    position: Vec2d,
     velocity: Vec2d,
     acceleration: Vec2d,
     heading: Scalar,
@@ -25,7 +25,7 @@ impl Spaceship {
         Spaceship {
             color: color::TRANSPARENT,
             radius: 16.0,
-            location: [0.0, 0.0],
+            position: [0.0, 0.0],
             velocity: [0.0, 0.0],
             acceleration: [0.0, 0.0],
             heading: 0.0,
@@ -37,13 +37,13 @@ impl Spaceship {
 
     fn setup(&mut self, state: &PistonAppState) {
         self.color = state.random_color(Some(1.0));
-        self.location = [state.width() / 2.0, state.height() / 2.0];
+        self.position = [state.width() / 2.0, state.height() / 2.0];
     }
 
     fn draw(&mut self, context: Context, gfx: &mut G2d) {
         let transform = context
             .transform
-            .trans(self.location[0], self.location[1] + self.radius)
+            .trans(self.position[0], self.position[1] + self.radius)
             .rot_rad(self.heading);
         let thruster_color = if self.thrusting {
             [1.0, 0.0, 0.0, 1.0]
@@ -98,24 +98,24 @@ impl Spaceship {
         let velocity = vec2_scale(vec2_add(self.velocity, self.acceleration),
                                   self.damping);
         self.velocity = vec2_limit(velocity, self.top_speed);
-        self.location = vec2_add(self.location, self.velocity);
+        self.position = vec2_add(self.position, self.velocity);
         self.acceleration = [0.0, 0.0];
         self.check_edges(state);
     }
 
     fn check_edges(&mut self, state: &PistonAppState) {
         let buffer = self.radius * 2.0;
-        let (x, y) = (self.location[0], self.location[1]);
+        let (x, y) = (self.position[0], self.position[1]);
         let (width, height) = (state.width(), state.height());
         if x > width + buffer {
-            self.location[0] = -buffer;
+            self.position[0] = -buffer;
         } else if x < -buffer {
-            self.location[0] = width + buffer;
+            self.position[0] = width + buffer;
         }
         if y > height + buffer {
-            self.location[1] = -buffer;
+            self.position[1] = -buffer;
         } else if y < -buffer {
-            self.location[1] = height + buffer;
+            self.position[1] = height + buffer;
         }
     }
 
