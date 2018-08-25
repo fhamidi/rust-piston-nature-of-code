@@ -18,7 +18,7 @@ struct Particle {
 
 impl Particle {
     fn new(color: Color, position: Vec2d) -> Self {
-        let mut rng = SmallRng::from_entropy();
+        let mut rng = thread_rng();
         Particle {
             color: color,
             position: position,
@@ -59,6 +59,7 @@ impl Particle {
 
 #[derive(Debug)]
 struct ParticleSystem {
+    base_hue: Scalar,
     color_offset: Scalar,
     origin: Vec2d,
     particles: Vec<Particle>,
@@ -66,8 +67,10 @@ struct ParticleSystem {
 
 impl ParticleSystem {
     fn new(x: Scalar, y: Scalar) -> Self {
+        let mut rng = thread_rng();
         ParticleSystem {
-            color_offset: SmallRng::from_entropy().gen(),
+            base_hue: rng.gen(),
+            color_offset: rng.gen(),
             origin: [x, y],
             particles: vec![],
         }
@@ -86,7 +89,9 @@ impl ParticleSystem {
     fn spawn_particle(&mut self, state: &PistonAppState) {
         self.color_offset += 0.00042;
         self.particles
-            .push(Particle::new(state.noise_color(self.color_offset, Some(1.0)),
+            .push(Particle::new(state.noise_color(self.base_hue,
+                                                  self.color_offset,
+                                                  Some(1.0)),
                                 self.origin));
     }
 
@@ -131,7 +136,7 @@ impl PistonApp for App {
                                                         Flip::None,
                                                         &TextureSettings::new())
                                          .unwrap());
-        let mut rng = SmallRng::from_entropy();
+        let mut rng = thread_rng();
         self.particle_systems = (0..MAX_INITIAL_SYSTEMS)
             .map(|_| {
                      ParticleSystem::new(rng.gen_range(42.0, state.width() - 42.0),

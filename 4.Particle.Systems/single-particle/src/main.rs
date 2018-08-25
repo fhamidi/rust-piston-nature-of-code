@@ -18,7 +18,7 @@ struct Particle {
 
 impl Particle {
     fn new(color: Color, x: Scalar, y: Scalar) -> Self {
-        let mut rng = SmallRng::from_entropy();
+        let mut rng = thread_rng();
         Particle {
             color: color,
             position: [x, y],

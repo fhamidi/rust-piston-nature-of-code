@@ -31,13 +31,14 @@ impl Walker {
     }
 
     fn update(&mut self, state: &PistonAppState) {
-        let mut rng = SmallRng::from_entropy();
+        let mut rng = thread_rng();
         if state.mouse_button_pressed(MouseButton::Left) && rng.gen() {
             self.x += rng.gen::<Scalar>() * (state.mouse_x() - self.x).signum();
             self.y += rng.gen::<Scalar>() * (state.mouse_y() - self.y).signum();
         } else {
-            self.x += rng.gen_range(-1.0, 1.0);
-            self.y += rng.gen_range(-1.0, 1.0);
+            let uniform = Uniform::new_inclusive(-1.0, 1.0);
+            self.x += rng.sample(uniform);
+            self.y += rng.sample(uniform);
         }
     }
 }

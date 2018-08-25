@@ -17,13 +17,13 @@ struct Mover {
 impl Mover {
     fn new(state: &PistonAppState) -> Self {
         const MAX_VELOCITY: Scalar = 6.0;
-        let mut rng = SmallRng::from_entropy();
+        let mut rng = thread_rng();
+        let uniform = Uniform::new_inclusive(-MAX_VELOCITY, MAX_VELOCITY);
         Mover {
             color: state.random_color(Some(1.0)),
             position: [rng.gen_range(0.0, state.width()),
                        rng.gen_range(0.0, state.height())],
-            velocity: [rng.gen_range(-MAX_VELOCITY, MAX_VELOCITY),
-                       rng.gen_range(-MAX_VELOCITY, MAX_VELOCITY)],
+            velocity: [rng.sample(uniform), rng.sample(uniform)],
         }
     }
 

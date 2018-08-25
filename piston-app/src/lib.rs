@@ -17,6 +17,7 @@ pub use std::f64::consts;
 pub use math::{Scalar, Vec2d, Matrix2d};
 pub use piston_window::*;
 pub use rand::distributions::normal::StandardNormal;
+pub use rand::distributions::uniform::Uniform;
 pub use rand::prelude::*;
 pub use types::{Color, ColorComponent, Resolution};
 pub use vecmath::*;
@@ -118,7 +119,7 @@ impl PistonAppState {
             clicked_mouse_buttons: Default::default(),
             mouse_x: 0.0,
             mouse_y: 0.0,
-            noise: Perlin::new().set_seed(SmallRng::from_entropy().gen()),
+            noise: Perlin::new().set_seed(thread_rng().gen()),
         }
     }
 
@@ -207,28 +208,34 @@ impl PistonAppState {
                        1.0)
     }
 
-    pub fn noise_color(&self, input: Scalar, alpha: Option<ColorComponent>) -> Color {
+    pub fn noise_color(&self,
+                       base_hue: Scalar,
+                       offset: Scalar,
+                       alpha: Option<ColorComponent>)
+                       -> Color {
         const MIN_ALPHA: Scalar = 1.0 / 3.0;
         const MIN_SATURATION: Scalar = 0.5;
         const MIN_VALUE: Scalar = 0.5;
         let alpha = alpha.unwrap_or_else(|| {
-            self.map_range(self.noise.get([input - 29.0, 0.0]).abs(),
+            self.map_range(self.noise.get([offset - 29.0, 0.0]).abs(),
                            0.0,
                            1.0,
                            MIN_ALPHA,
                            1.0) as ColorComponent
         });
-        self.color_from_hsv(self.map_range(self.noise.get([input, 0.0]).abs(),
+        let base_hue = base_hue * 360.0;
+        self.color_from_hsv(self.map_range(self.noise.get([offset, 0.0]).abs(),
                                            0.0,
                                            1.0,
-                                           0.0,
-                                           360.0),
-                            self.map_range(self.noise.get([input + 17.0, 0.0]).abs(),
+                                           base_hue,
+                                           base_hue + 360.0) %
+                            360.0,
+                            self.map_range(self.noise.get([offset + 17.0, 0.0]).abs(),
                                            0.0,
                                            1.0,
                                            MIN_SATURATION,
                                            1.0),
-                            self.map_range(self.noise.get([input - 43.0, 0.0]).abs(),
+                            self.map_range(self.noise.get([offset - 43.0, 0.0]).abs(),
                                            0.0,
                                            1.0,
                                            MIN_VALUE,
@@ -238,11 +245,12 @@ impl PistonAppState {
 
     pub fn random_color(&self, alpha: Option<ColorComponent>) -> Color {
         const MIN_COLOR_COMPONENT: ColorComponent = 1.0 / 3.0;
-        let mut rng = SmallRng::from_entropy();
-        [rng.gen_range(MIN_COLOR_COMPONENT, 1.0),
-         rng.gen_range(MIN_COLOR_COMPONENT, 1.0),
-         rng.gen_range(MIN_COLOR_COMPONENT, 1.0),
-         alpha.unwrap_or_else(|| rng.gen_range(MIN_COLOR_COMPONENT, 1.0))]
+        let mut rng = thread_rng();
+        let uniform = Uniform::new_inclusive(MIN_COLOR_COMPONENT, 1.0);
+        [rng.sample(uniform),
+         rng.sample(uniform),
+         rng.sample(uniform),
+         alpha.unwrap_or_else(|| rng.sample(uniform))]
     }
 
     pub fn color_from_hsv(&self,
@@ -300,6 +308,7 @@ pub fn vec2_limit(vec: Vec2d, max: Scalar) -> Vec2d {
 }
 
 pub fn vec2_random() -> Vec2d {
-    let mut rng = SmallRng::from_entropy();
-    vec2_normalized([rng.gen_range(-1.0, 1.0), rng.gen_range(-1.0, 1.0)])
+    let mut rng = thread_rng();
+    let uniform = Uniform::new_inclusive(-1.0, 1.0);
+    vec2_normalized([rng.sample(uniform), rng.sample(uniform)])
 }

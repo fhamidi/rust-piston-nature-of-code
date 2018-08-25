@@ -83,13 +83,14 @@ impl App {
 impl PistonApp for App {
     fn setup(&mut self, _: &mut PistonAppWindow, state: &PistonAppState) {
         const MAX_MOVERS: usize = 16;
-        let mut rng = SmallRng::from_entropy();
+        let mut rng = thread_rng();
+        let uniform = Uniform::new(0.1, 5.0);
         self.movers = (0..MAX_MOVERS)
             .map(|_| {
                      Mover::new(state.random_color(Some(2.0 / 3.0)),
                                 0.0,
                                 0.0,
-                                rng.gen_range(0.1, 5.0))
+                                rng.sample(uniform))
                  })
             .collect();
     }

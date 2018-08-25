@@ -17,11 +17,12 @@ struct Oscillator {
 
 impl Oscillator {
     fn new(state: &PistonAppState) -> Self {
-        let mut rng = SmallRng::from_entropy();
+        let mut rng = thread_rng();
+        let uniform = Uniform::new_inclusive(-0.05, 0.05);
         Oscillator {
             color: state.random_color(Some(1.0)),
             angle: [0.0, 0.0],
-            velocity: [rng.gen_range(-0.05, 0.05), rng.gen_range(-0.05, 0.05)],
+            velocity: [rng.sample(uniform), rng.sample(uniform)],
             amplitude: [rng.gen_range(20.0, state.width() / 2.0),
                         rng.gen_range(20.0, state.height() / 2.0)],
         }

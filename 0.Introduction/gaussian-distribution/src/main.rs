@@ -24,7 +24,7 @@ impl PistonApp for App {
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
         let sd = 66.6;
         let mean = state.width() / 2.0;
-        let x = SmallRng::from_entropy().sample(StandardNormal) * sd + mean;
+        let x = thread_rng().sample(StandardNormal) * sd + mean;
         window.draw_2d(state.event(), |context, gfx| {
             Ellipse::new([0.0, 0.0, 0.0, 0.1])
                 .resolution(32)

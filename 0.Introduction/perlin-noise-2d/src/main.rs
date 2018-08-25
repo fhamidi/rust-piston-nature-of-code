@@ -25,10 +25,11 @@ gfx_defines! {
 }
 
 struct NoiseQuad {
+    base_hue: Scalar,
+    color_offset: Scalar,
     slice: gfx::Slice<gfx_device_gl::Resources>,
     pipeline: gfx::pso::PipelineState<gfx_device_gl::Resources, noise_quad::Meta>,
     data: noise_quad::Data<gfx_device_gl::Resources>,
-    color_offset: Scalar,
 }
 
 impl NoiseQuad {
@@ -38,9 +39,12 @@ impl NoiseQuad {
                                       Vertex { pos: [-1.0, 1.0] },
                                       Vertex { pos: [1.0, 1.0] }];
         const INDICES: &[u16] = &[0, 1, 2, 2, 3, 0];
+        let mut rng = thread_rng();
         let factory = &mut window.factory;
         let (vbuf, slice) = factory.create_vertex_buffer_with_slice(VERTICES, INDICES);
         NoiseQuad {
+            base_hue: rng.gen(),
+            color_offset: rng.gen(),
             slice: slice,
             pipeline: factory
                 .create_pipeline_simple(include_bytes!("noise_150_core.glslv"),
@@ -53,7 +57,6 @@ impl NoiseQuad {
                 time: 0.0,
                 out: window.output_color.clone(),
             },
-            color_offset: SmallRng::from_entropy().gen(),
         }
     }
 
@@ -65,7 +68,7 @@ impl NoiseQuad {
 
     fn update(&mut self, state: &PistonAppState) {
         self.color_offset += 1e-3;
-        self.data.color = state.noise_color(self.color_offset, Some(1.0));
+        self.data.color = state.noise_color(self.base_hue, self.color_offset, Some(1.0));
         self.data.time += 0.00666;
     }
 }

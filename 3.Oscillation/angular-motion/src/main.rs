@@ -57,11 +57,12 @@ struct Mover {
 
 impl Mover {
     fn new(color: Color, x: Scalar, y: Scalar, mass: Scalar) -> Self {
-        let mut rng = SmallRng::from_entropy();
+        let mut rng = thread_rng();
+        let uniform = Uniform::new_inclusive(-1.0, 1.0);
         Mover {
             color: color,
             position: [x, y],
-            velocity: [rng.gen_range(-1.0, 1.0), rng.gen_range(-1.0, 1.0)],
+            velocity: [rng.sample(uniform), rng.sample(uniform)],
             acceleration: [0.0, 0.0],
             angle: 0.0,
             angular_velocity: 0.0,
@@ -128,7 +129,7 @@ impl App {
 impl PistonApp for App {
     fn setup(&mut self, _: &mut PistonAppWindow, state: &PistonAppState) {
         const MAX_MOVERS: usize = 16;
-        let mut rng = SmallRng::from_entropy();
+        let mut rng = thread_rng();
         let (width, height) = (state.width(), state.height());
         self.attractors
             .push(Attractor::new(state.random_color(Some(1.0)),

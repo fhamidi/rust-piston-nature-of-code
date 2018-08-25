@@ -27,6 +27,7 @@ impl Wave {
 #[derive(Debug)]
 struct App {
     node_texture: Option<G2dTexture>,
+    base_hue: Scalar,
     color_offset: Scalar,
     theta: Scalar,
     waves: Vec<Wave>,
@@ -36,9 +37,10 @@ struct App {
 impl App {
     fn new() -> Self {
         const MAX_WAVES: usize = 6;
-        let mut rng = SmallRng::from_entropy();
+        let mut rng = thread_rng();
         App {
             node_texture: None,
+            base_hue: rng.gen(),
             color_offset: rng.gen(),
             theta: 0.0,
             waves: (0..MAX_WAVES)
@@ -85,7 +87,8 @@ impl PistonApp for App {
             for (x, y) in self.y_values.iter().enumerate() {
                 color_offset += 0.00042;
                 state.draw_centered_texture(node_texture,
-                                            Some(state.noise_color(color_offset,
+                                            Some(state.noise_color(self.base_hue,
+                                                                   color_offset,
                                                                    Some(1.0))),
                                             x as Scalar * SPACING,
                                             state.height() / 2.0 + y,

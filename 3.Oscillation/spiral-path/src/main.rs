@@ -9,17 +9,20 @@ use piston_app::*;
 
 #[derive(Debug)]
 struct App {
+    base_hue: Scalar,
+    color_offset: Scalar,
     r: Scalar,
     theta: Scalar,
-    color_offset: Scalar,
 }
 
 impl App {
     fn new() -> Self {
+        let mut rng = thread_rng();
         App {
+            base_hue: rng.gen(),
+            color_offset: rng.gen(),
             r: 0.0,
             theta: 0.0,
-            color_offset: SmallRng::from_entropy().gen(),
         }
     }
 }
@@ -32,7 +35,7 @@ impl PistonApp for App {
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
         let (x, y) = (self.r * self.theta.cos(), self.r * self.theta.sin());
         window.draw_2d(state.event(), |context, gfx| {
-            Ellipse::new(state.noise_color(self.color_offset, Some(1.0)))
+            Ellipse::new(state.noise_color(self.base_hue, self.color_offset, Some(1.0)))
                 .resolution(8)
                 .draw(ellipse::circle(x + state.width() / 2.0,
                                       y + state.height() / 2.0,

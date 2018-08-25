@@ -9,7 +9,7 @@ use piston_app::*;
 
 #[derive(Debug)]
 struct Ball {
-    color: Color,
+    base_hue: Scalar,
     color_offset: Scalar,
     position: Vec2d,
     speed: Vec2d,
@@ -17,18 +17,19 @@ struct Ball {
 
 impl Ball {
     fn new() -> Self {
+        let mut rng = thread_rng();
         Ball {
-            color: color::TRANSPARENT,
-            color_offset: SmallRng::from_entropy().gen(),
+            base_hue: rng.gen(),
+            color_offset: rng.gen(),
             position: [128.0, 128.0],
             speed: [2.0, 10.0 / 3.0],
         }
     }
 
-    fn draw(&self, context: Context, gfx: &mut G2d) {
+    fn draw(&self, state: &PistonAppState, context: Context, gfx: &mut G2d) {
         Ellipse::new_border(color::BLACK, 1.0)
             .resolution(32)
-            .color(self.color)
+            .color(state.noise_color(self.base_hue, self.color_offset, Some(1.0)))
             .draw(ellipse::circle(self.position[0], self.position[1], 32.0),
                   &context.draw_state,
                   context.transform,
@@ -36,7 +37,6 @@ impl Ball {
     }
 
     fn update(&mut self, state: &PistonAppState) {
-        self.color = state.noise_color(self.color_offset, Some(1.0));
         self.color_offset += 1e-3;
         self.position = vec2_add(self.position, self.speed);
         let (x, y) = (self.position[0], self.position[1]);
@@ -65,7 +65,7 @@ impl PistonApp for App {
         self.ball.update(state);
         window.draw_2d(state.event(), |context, gfx| {
             clear(color::WHITE, gfx);
-            self.ball.draw(context, gfx);
+            self.ball.draw(state, context, gfx);
         });
     }
 }

@@ -1,6 +1,6 @@
 [package]
 name = "gaussian-distribution"
-version = "1.0.2"
+version = "1.0.3"
 authors = ["Frédéric Hamidi <frederic.hamidi@gmail.com>"]
 
 [dependencies]

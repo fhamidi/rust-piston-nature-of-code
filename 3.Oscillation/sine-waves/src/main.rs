@@ -11,6 +11,7 @@ const SPACING: Scalar = 8.0;
 
 #[derive(Debug)]
 struct Wave {
+    base_hue: Scalar,
     color_offset: Scalar,
     origin: Vec2d,
     width: Scalar,
@@ -23,8 +24,10 @@ struct Wave {
 
 impl Wave {
     fn new(origin: Vec2d, width: Scalar, amplitude: Scalar, period: Scalar) -> Self {
+        let mut rng = thread_rng();
         Wave {
-            color_offset: SmallRng::from_entropy().gen(),
+            base_hue: rng.gen(),
+            color_offset: rng.gen(),
             origin: origin,
             width: width,
             theta: 0.0,
@@ -43,7 +46,9 @@ impl Wave {
         let mut color_offset = self.color_offset;
         for (x, y) in self.y_values.iter().enumerate() {
             state.draw_centered_texture(node_texture,
-                                        Some(state.noise_color(color_offset, Some(1.0))),
+                                        Some(state.noise_color(self.base_hue,
+                                                               color_offset,
+                                                               Some(1.0))),
                                         self.origin[0] + x as Scalar * SPACING,
                                         self.origin[1] + y,
                                         &context.draw_state,

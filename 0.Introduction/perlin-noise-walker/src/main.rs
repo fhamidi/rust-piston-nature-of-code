@@ -9,9 +9,7 @@ use piston_app::*;
 
 #[derive(Debug)]
 struct Walker {
-    color: Color,
-    x: Scalar,
-    y: Scalar,
+    base_hue: Scalar,
     color_offset: Scalar,
     x_offset: Scalar,
     y_offset: Scalar,
@@ -19,35 +17,28 @@ struct Walker {
 
 impl Walker {
     fn new() -> Self {
+        let mut rng = thread_rng();
         Walker {
-            color: color::TRANSPARENT,
-            x: 0.0,
-            y: 0.0,
-            color_offset: SmallRng::from_entropy().gen(),
+            base_hue: rng.gen(),
+            color_offset: rng.gen(),
             x_offset: 1e3,
             y_offset: 1e6,
         }
     }
 
-    fn set_position(&mut self, x: Scalar, y: Scalar) {
-        self.x = x;
-        self.y = y;
-    }
-
-    fn draw(&self, context: Context, gfx: &mut G2d) {
+    fn draw(&self, state: &PistonAppState, context: Context, gfx: &mut G2d) {
         Ellipse::new_border(color::BLACK, 1.0)
             .resolution(32)
-            .color(self.color)
-            .draw(ellipse::circle(self.x, self.y, 32.0),
+            .color(state.noise_color(self.base_hue, self.color_offset, Some(1.0)))
+            .draw(ellipse::circle(state.map_x(state.noise(&[self.x_offset])),
+                                  state.map_y(state.noise(&[self.y_offset])),
+                                  32.0),
                   &context.draw_state,
                   context.transform,
                   gfx);
     }
 
-    fn update(&mut self, state: &PistonAppState) {
-        self.color = state.noise_color(self.color_offset, Some(1.0));
-        self.x = state.map_x(state.noise(&[self.x_offset]));
-        self.y = state.map_y(state.noise(&[self.y_offset]));
+    fn update(&mut self) {
         self.color_offset += 1e-3;
         self.x_offset += 0.01;
         self.y_offset += 0.01;
@@ -66,16 +57,11 @@ impl App {
 }
 
 impl PistonApp for App {
-    fn setup(&mut self, _: &mut PistonAppWindow, state: &PistonAppState) {
-        self.walker
-            .set_position(state.width() / 2.0, state.height() / 2.0);
-    }
-
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
-        self.walker.update(state);
+        self.walker.update();
         window.draw_2d(state.event(), |context, gfx| {
             clear(color::WHITE, gfx);
-            self.walker.draw(context, gfx);
+            self.walker.draw(state, context, gfx);
         });
     }
 }

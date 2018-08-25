@@ -125,7 +125,7 @@ impl PistonApp for App {
         const MAX_G: Scalar = 0.8;
         const MAX_ATTRACTORS: usize = 4;
         const MAX_MOVERS: usize = 32;
-        let mut rng = SmallRng::from_entropy();
+        let mut rng = thread_rng();
         let (width, height) = (state.width(), state.height());
         self.attractors = (0..MAX_ATTRACTORS)
             .map(|_| {
