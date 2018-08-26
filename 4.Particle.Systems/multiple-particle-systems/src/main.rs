@@ -86,6 +86,11 @@ impl ParticleSystem {
         }
     }
 
+    #[inline]
+    fn particle_count(&self) -> usize {
+        self.particles.len()
+    }
+
     fn spawn_particle(&mut self, state: &PistonAppState) {
         self.color_offset += 0.00042;
         self.particles
@@ -146,6 +151,15 @@ impl PistonApp for App {
     }
 
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
+        if state.key_hit(Key::D) {
+            println!("Frame {} | Particle systems: {} | Total particles: {}",
+                     state.frame_count(),
+                     self.particle_systems.len(),
+                     self.particle_systems
+                         .iter()
+                         .map(|ps| ps.particle_count())
+                         .sum::<usize>());
+        }
         if state.mouse_button_clicked(MouseButton::Left) {
             self.spawn_particle_system(state);
         }

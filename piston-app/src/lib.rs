@@ -22,6 +22,8 @@ pub use rand::prelude::*;
 pub use types::{Color, ColorComponent, Resolution};
 pub use vecmath::*;
 
+use std::collections::hash_set;
+
 use fnv::*;
 use fps_counter::*;
 use noise::{NoiseFn, Perlin, Seedable};
@@ -54,6 +56,7 @@ pub trait PistonApp {
                 }
                 app.draw(&mut window, &state);
                 state.frame_count += 1;
+                state.hit_keys.clear();
                 state.clicked_mouse_buttons.clear();
                 window.set_title(format!("{} ({} FPS)", title, fps.tick()));
             }
@@ -72,7 +75,10 @@ pub trait PistonApp {
             }
             match e.release_args() {
                 Some(Button::Keyboard(key)) => {
-                    state.pressed_keys.remove(&key);
+                    if state.pressed_keys.contains(&key) {
+                        state.pressed_keys.remove(&key);
+                        state.hit_keys.insert(key);
+                    }
                 }
                 Some(Button::Mouse(button)) => {
                     if state.pressed_mouse_buttons.contains(&button) {
@@ -91,6 +97,7 @@ pub struct PistonAppState {
     viewport: Viewport,
     frame_count: usize,
     pressed_keys: FnvHashSet<Key>,
+    hit_keys: FnvHashSet<Key>,
     pressed_mouse_buttons: FnvHashSet<MouseButton>,
     clicked_mouse_buttons: FnvHashSet<MouseButton>,
     mouse_x: Scalar,
@@ -115,6 +122,7 @@ impl PistonAppState {
             },
             frame_count: 0,
             pressed_keys: Default::default(),
+            hit_keys: Default::default(),
             pressed_mouse_buttons: Default::default(),
             clicked_mouse_buttons: Default::default(),
             mouse_x: 0.0,
@@ -149,8 +157,38 @@ impl PistonAppState {
     }
 
     #[inline]
+    pub fn any_key_pressed(&self) -> bool {
+        self.pressed_keys.len() > 0
+    }
+
+    #[inline]
     pub fn key_pressed(&self, key: Key) -> bool {
         self.pressed_keys.contains(&key)
+    }
+
+    #[inline]
+    pub fn pressed_keys(&self) -> hash_set::Iter<Key> {
+        self.pressed_keys.iter()
+    }
+
+    #[inline]
+    pub fn any_key_hit(&self) -> bool {
+        self.hit_keys.len() > 0
+    }
+
+    #[inline]
+    pub fn key_hit(&self, key: Key) -> bool {
+        self.hit_keys.contains(&key)
+    }
+
+    #[inline]
+    pub fn hit_keys(&self) -> hash_set::Iter<Key> {
+        self.hit_keys.iter()
+    }
+
+    #[inline]
+    pub fn any_mouse_button_pressed(&self) -> bool {
+        self.pressed_mouse_buttons.len() > 0
     }
 
     #[inline]
@@ -159,8 +197,23 @@ impl PistonAppState {
     }
 
     #[inline]
+    pub fn pressed_mouse_buttons(&self) -> hash_set::Iter<MouseButton> {
+        self.pressed_mouse_buttons.iter()
+    }
+
+    #[inline]
+    pub fn any_mouse_button_clicked(&self) -> bool {
+        self.clicked_mouse_buttons.len() > 0
+    }
+
+    #[inline]
     pub fn mouse_button_clicked(&self, button: MouseButton) -> bool {
         self.clicked_mouse_buttons.contains(&button)
+    }
+
+    #[inline]
+    pub fn clicked_mouse_buttons(&self) -> hash_set::Iter<MouseButton> {
+        self.clicked_mouse_buttons.iter()
     }
 
     #[inline]

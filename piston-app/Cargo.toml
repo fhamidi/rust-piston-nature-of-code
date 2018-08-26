@@ -1,6 +1,6 @@
 [package]
 name = "piston-app"
-version = "1.4.1"
+version = "1.4.2"
 authors = ["Frédéric Hamidi <frederic.hamidi@gmail.com>"]
 
 [dependencies]
