@@ -1,8 +1,10 @@
 [package]
 name = "multiple-particle-systems"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["Frédéric Hamidi <frederic.hamidi@gmail.com>"]
 
 [dependencies]
+gfx = "*"
+gfx_device_gl = "*"
 piston-app = { path = "../../piston-app" }
 

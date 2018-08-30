@@ -470,8 +470,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "multiple-particle-systems"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
+ "gfx 0.17.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "gfx_device_gl 0.15.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "piston-app 1.4.2",
 ]
 
