@@ -4,16 +4,22 @@
 //! Simple application framework, similar to the Processing environment
 //! used in the book.
 
+pub extern crate gfx;
+
 extern crate fnv;
 extern crate fps_counter;
+extern crate gfx_device_gl;
 extern crate noise;
 extern crate piston_window;
 extern crate rand;
 extern crate sdl2_window;
+extern crate serde_json;
+extern crate shaders_graphics2d;
 extern crate vecmath;
 
 pub use std::f64::consts;
 
+pub use gfx::*;
 pub use math::{Scalar, Vec2d, Matrix2d};
 pub use piston_window::*;
 pub use rand::distributions::normal::StandardNormal;
@@ -23,10 +29,17 @@ pub use types::{Color, ColorComponent, Resolution};
 pub use vecmath::*;
 
 use std::collections::hash_set;
+use std::error::Error;
+use std::io::{BufRead, BufReader};
+use std::fs::File;
+use std::path::Path;
 
 use fnv::*;
 use fps_counter::*;
+use gfx::traits::FactoryExt;
+use gfx_device_gl::Resources;
 use noise::{NoiseFn, Perlin, Seedable};
+use shaders_graphics2d::{colored, textured};
 
 pub type PistonAppWindow = PistonWindow<sdl2_window::Sdl2Window>;
 
@@ -247,6 +260,16 @@ impl PistonAppState {
         self.map_range(y, 0.0, 1.0, 0.0, self.height())
     }
 
+    #[inline]
+    pub fn normalize_x(&self, x: Scalar) -> Scalar {
+        self.map_range(x, 0.0, self.width(), -1.0, 1.0)
+    }
+
+    #[inline]
+    pub fn normalize_y(&self, y: Scalar) -> Scalar {
+        -self.map_range(y, 0.0, self.height(), -1.0, 1.0)
+    }
+
     pub fn noise(&self, input: &[Scalar]) -> Scalar {
         self.map_range(match input.len() {
                            0 => 0.0,
@@ -330,14 +353,14 @@ impl PistonAppState {
          alpha]
     }
 
-    pub fn draw_centered_texture<G: Graphics>(&self,
-                                              texture: &G::Texture,
-                                              color: Option<Color>,
-                                              x: Scalar,
-                                              y: Scalar,
-                                              draw_state: &DrawState,
-                                              transform: Matrix2d,
-                                              gfx: &mut G) {
+    pub fn draw_centered_texture(&self,
+                                 texture: &G2dTexture,
+                                 color: Option<Color>,
+                                 x: Scalar,
+                                 y: Scalar,
+                                 draw_state: &DrawState,
+                                 transform: Matrix2d,
+                                 gfx: &mut G2d) {
         let (width, height) = texture.get_size();
         let half_width = width as Scalar / 2.0;
         let half_height = height as Scalar / 2.0;
@@ -345,6 +368,200 @@ impl PistonAppState {
             .maybe_color(color)
             .rect(rectangle::centered([x, y, half_width, half_height]))
             .draw(texture, draw_state, transform, gfx);
+    }
+}
+
+pub type PistonPipeline<M> = pso::PipelineState<Resources, M>;
+
+pub type PistonPipelineSampler = (gfx::handle::ShaderResourceView<Resources, [f32; 4]>,
+                                  gfx::handle::Sampler<Resources>);
+
+#[derive(Debug)]
+pub struct PistonPipelineBuilder {
+    texture_atlas: Option<TextureAtlas>,
+    vertex_shader: Option<&'static [u8]>,
+    fragment_shader: Option<&'static [u8]>,
+}
+
+impl PistonPipelineBuilder {
+    pub fn new() -> Self {
+        PistonPipelineBuilder {
+            texture_atlas: None,
+            vertex_shader: None,
+            fragment_shader: None,
+        }
+    }
+
+    pub fn texture_atlas(mut self, texture_atlas: TextureAtlas) -> Self {
+        self.texture_atlas = Some(texture_atlas);
+        self
+    }
+
+    pub fn vertex_shader(mut self, bytes: &'static [u8]) -> Self {
+        self.vertex_shader = Some(bytes);
+        self
+    }
+
+    pub fn fragment_shader(mut self, bytes: &'static [u8]) -> Self {
+        self.fragment_shader = Some(bytes);
+        self
+    }
+
+    pub fn build<I: pso::PipelineInit>
+        (self,
+         window: &mut PistonAppWindow,
+         init: I)
+         -> Result<(PistonPipeline<I::Meta>, PistonRenderer), Box<Error>> {
+        let factory = &mut window.factory;
+        let mut default_vertex_shader = colored::VERTEX_GLSL_150_CORE;
+        let mut default_fragment_shader = colored::FRAGMENT_GLSL_150_CORE;
+        if self.texture_atlas.is_some() {
+            default_vertex_shader = textured::VERTEX_GLSL_150_CORE;
+            default_fragment_shader = textured::FRAGMENT_GLSL_150_CORE;
+        }
+        Ok((factory
+                .create_pipeline_simple(self.vertex_shader
+                                            .unwrap_or(default_vertex_shader),
+                                        self.fragment_shader
+                                            .unwrap_or(default_fragment_shader),
+                                        init)?,
+            PistonRenderer { texture_atlas: self.texture_atlas }))
+    }
+}
+
+#[derive(Debug)]
+pub struct PistonRenderer {
+    texture_atlas: Option<TextureAtlas>,
+}
+
+impl PistonRenderer {
+    #[inline]
+    pub fn texture_atlas(&self) -> Option<&TextureAtlas> {
+        self.texture_atlas.as_ref()
+    }
+
+    pub fn clear(&self, window: &mut PistonAppWindow, color: Color) {
+        window.encoder.clear(&window.output_color, color);
+    }
+
+    pub fn draw<B, D, F, V>(&self,
+                            window: &mut PistonAppWindow,
+                            pipeline: &PistonPipeline<D::Meta>,
+                            vertices: &[V],
+                            indices: B,
+                            f: F)
+        where B: IntoIndexBuffer<Resources>,
+              D: pso::PipelineData<Resources>,
+              F: FnOnce(gfx::handle::Buffer<Resources, V>,
+                        gfx::handle::RenderTargetView<Resources, gfx::format::Srgba8>)
+                        -> D,
+              V: gfx::traits::Pod + pso::buffer::Structure<gfx::format::Format>
+    {
+        let (vbuf, slice) = window
+            .factory
+            .create_vertex_buffer_with_slice(vertices, indices);
+        let data = f(vbuf, window.output_color.clone());
+        let encoder = &mut window.encoder;
+        encoder.draw(&slice, pipeline, &data);
+        encoder.flush(&mut window.device);
+    }
+}
+
+#[derive(Debug)]
+pub struct TextureAtlas {
+    texture: G2dTexture,
+    atlas: Vec<[Scalar; 4]>,
+    normalized_atlas: Vec<[f32; 4]>,
+}
+
+impl TextureAtlas {
+    pub fn from_path<P: AsRef<Path>>(window: &mut PistonAppWindow,
+                                     texture_path: P)
+                                     -> Result<Self, Box<Error>> {
+        Self::from_maybe_paths(window, texture_path, None)
+    }
+
+    pub fn from_paths<P: AsRef<Path>>(window: &mut PistonAppWindow,
+                                      texture_path: P,
+                                      atlas_path: P)
+                                      -> Result<Self, Box<Error>> {
+        Self::from_maybe_paths(window, texture_path, Some(atlas_path))
+    }
+
+    pub fn from_maybe_paths<P: AsRef<Path>>(window: &mut PistonAppWindow,
+                                            texture_path: P,
+                                            atlas_path: Option<P>)
+                                            -> Result<Self, Box<Error>> {
+        let texture = Texture::from_path(&mut window.factory,
+                                         texture_path,
+                                         Flip::None,
+                                         &TextureSettings::new())?;
+        let (width, height) = (texture.get_width() as Scalar,
+                               texture.get_height() as Scalar);
+        let mut atlas = vec![[0.0, 0.0, width, height]];
+        let mut normalized_atlas = vec![[0.0, 0.0, 1.0, 1.0]];
+        if let Some(atlas_path) = atlas_path {
+            let parsed_atlas = Self::parse_atlas(atlas_path)?;
+            if parsed_atlas.len() > 0 {
+                atlas = parsed_atlas;
+                normalized_atlas = Self::normalize_atlas(&atlas, width, height);
+            }
+        }
+        Ok(TextureAtlas {
+               texture: texture,
+               atlas: atlas,
+               normalized_atlas: normalized_atlas,
+           })
+    }
+
+    #[inline]
+    pub fn texture_view_sampler(&self) -> PistonPipelineSampler {
+        (self.texture.view.clone(), self.texture.sampler.clone())
+    }
+
+    #[inline]
+    pub fn texture_extents(&self, index: usize) -> [Scalar; 4] {
+        self.atlas[index]
+    }
+
+    #[inline]
+    pub fn texture_offsets(&self, index: usize) -> (Scalar, Scalar) {
+        let extents = &self.atlas[index];
+        (extents[2] / 2.0, extents[3] / 2.0)
+    }
+
+    #[inline]
+    pub fn texture_uv_extents(&self, index: usize) -> (f32, f32, f32, f32) {
+        let extents = &self.normalized_atlas[index];
+        (extents[0], extents[1], extents[2], extents[3])
+    }
+
+    fn parse_atlas<P: AsRef<Path>>(path: P) -> Result<Vec<[Scalar; 4]>, Box<Error>> {
+        let mut atlas = vec![];
+        let file = File::open(path)?;
+        for line in BufReader::new(file).lines() {
+            let line = line?;
+            let line = line.trim();
+            if line.len() > 0 && !line.starts_with('#') {
+                atlas.push(serde_json::from_str(line)?);
+            }
+        }
+        Ok(atlas)
+    }
+
+    fn normalize_atlas(atlas: &[[Scalar; 4]],
+                       width: Scalar,
+                       height: Scalar)
+                       -> Vec<[f32; 4]> {
+        atlas
+            .iter()
+            .map(|extents| {
+                     [(extents[0] / width) as f32,
+                      (extents[1] / height) as f32,
+                      (extents[2] / width) as f32,
+                      (extents[3] / height) as f32]
+                 })
+            .collect()
     }
 }
 

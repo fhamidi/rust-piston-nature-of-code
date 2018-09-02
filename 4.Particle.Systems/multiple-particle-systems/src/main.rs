@@ -3,14 +3,8 @@
 //!
 //! Particle systems - Multiple particle systems.
 
-#[macro_use]
-extern crate gfx;
-extern crate gfx_device_gl;
 extern crate piston_app;
 
-use gfx::preset;
-use gfx::state::ColorMask;
-use gfx::traits::FactoryExt;
 use piston_app::*;
 
 gfx_defines! {
@@ -21,11 +15,11 @@ gfx_defines! {
     }
 
     pipeline particles {
-        vbuf: gfx::VertexBuffer<Vertex> = (),
-        texture: gfx::TextureSampler<[f32; 4]> = "tex",
-        out: gfx::BlendTarget<gfx::format::Srgba8> = ("o_Color",
-                                                      ColorMask::all(),
-                                                      preset::blend::ALPHA),
+        vbuf: VertexBuffer<Vertex> = (),
+        sampler: TextureSampler<[f32; 4]> = "sampler",
+        out: BlendTarget<gfx::format::Srgba8> = ("o_Color",
+                                                 gfx::state::ColorMask::all(),
+                                                 gfx::preset::blend::ALPHA),
     }
 }
 
@@ -55,48 +49,39 @@ impl Particle {
         self.life > 0.0
     }
 
-    #[inline]
-    fn normalize_x(&self, state: &PistonAppState, x: Scalar) -> f32 {
-        state.map_range(x, 0.0, state.width(), -1.0, 1.0) as f32
-    }
-
-    #[inline]
-    fn normalize_y(&self, state: &PistonAppState, y: Scalar) -> f32 {
-        -state.map_range(y, 0.0, state.height(), -1.0, 1.0) as f32
-    }
-
     fn extend_vertex_buffer(&self,
                             state: &PistonAppState,
+                            texture_atlas: &TextureAtlas,
                             vertices: &mut Vec<Vertex>,
                             indices: &mut Vec<u32>) {
-        const HALF_SIDE: Scalar = 8.0;
         let start = vertices.len() as u32;
         let color = [self.color[0],
                      self.color[1],
                      self.color[2],
                      self.life as ColorComponent];
         let (x, y) = (self.position[0], self.position[1]);
+        let (w, h) = texture_atlas.texture_offsets(0);
         vertices.extend(&[Vertex {
-                              pos: [self.normalize_x(state, x + HALF_SIDE),
-                                    self.normalize_y(state, y + HALF_SIDE)],
+                              pos: [state.normalize_x(x + w) as f32,
+                                    state.normalize_y(y + h) as f32],
                               uv: [1.0, 1.0],
                               color: color,
                           },
                           Vertex {
-                              pos: [self.normalize_x(state, x - HALF_SIDE),
-                                    self.normalize_y(state, y + HALF_SIDE)],
+                              pos: [state.normalize_x(x - w) as f32,
+                                    state.normalize_y(y + h) as f32],
                               uv: [0.0, 1.0],
                               color: color,
                           },
                           Vertex {
-                              pos: [self.normalize_x(state, x - HALF_SIDE),
-                                    self.normalize_y(state, y - HALF_SIDE)],
+                              pos: [state.normalize_x(x - w) as f32,
+                                    state.normalize_y(y - h) as f32],
                               uv: [0.0, 0.0],
                               color: color,
                           },
                           Vertex {
-                              pos: [self.normalize_x(state, x + HALF_SIDE),
-                                    self.normalize_y(state, y - HALF_SIDE)],
+                              pos: [state.normalize_x(x + w) as f32,
+                                    state.normalize_y(y - h) as f32],
                               uv: [1.0, 0.0],
                               color: color,
                           }]);
@@ -136,10 +121,11 @@ impl ParticleSystem {
 
     fn extend_vertex_buffer(&self,
                             state: &PistonAppState,
+                            texture_atlas: &TextureAtlas,
                             vertices: &mut Vec<Vertex>,
                             indices: &mut Vec<u32>) {
         for particle in &self.particles {
-            particle.extend_vertex_buffer(state, vertices, indices);
+            particle.extend_vertex_buffer(state, texture_atlas, vertices, indices);
         }
     }
 
@@ -163,31 +149,25 @@ impl ParticleSystem {
 
 #[derive(Debug)]
 struct App {
-    particle_texture: Option<G2dTexture>,
-    pipeline: Option<gfx::pso::PipelineState<gfx_device_gl::Resources, particles::Meta>>,
     particle_systems: Vec<ParticleSystem>,
     vertices: Vec<Vertex>,
     indices: Vec<u32>,
+    pipeline: Option<PistonPipeline<particles::Meta>>,
+    renderer: Option<PistonRenderer>,
 }
 
 impl App {
     fn new() -> Self {
         App {
-            particle_texture: None,
-            pipeline: None,
             particle_systems: vec![],
             vertices: Vec::with_capacity(4 * 4096),
             indices: Vec::with_capacity(6 * 4096),
+            pipeline: None,
+            renderer: None,
         }
     }
 
-    fn particle_texture(&self) -> &G2dTexture {
-        self.particle_texture.as_ref().unwrap()
-    }
-
-    fn pipeline
-        (&self)
-         -> &gfx::pso::PipelineState<gfx_device_gl::Resources, particles::Meta> {
+    fn pipeline(&self) -> &PistonPipeline<particles::Meta> {
         self.pipeline.as_ref().unwrap()
     }
 
@@ -200,18 +180,6 @@ impl App {
 impl PistonApp for App {
     fn setup(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
         const MAX_INITIAL_PARTICLE_SYSTEMS: usize = 9;
-        let factory = &mut window.factory;
-        self.particle_texture = Some(Texture::from_path(factory,
-                                                        "assets/particle.png",
-                                                        Flip::None,
-                                                        &TextureSettings::new())
-                                         .unwrap());
-        self.pipeline =
-            Some(factory
-                     .create_pipeline_simple(include_bytes!("particle_150_core.glslv"),
-                                             include_bytes!("particle_150_core.glslf"),
-                                             particles::new())
-                     .unwrap());
         let mut rng = thread_rng();
         self.particle_systems = (0..MAX_INITIAL_PARTICLE_SYSTEMS)
             .map(|_| {
@@ -219,6 +187,15 @@ impl PistonApp for App {
                                          rng.gen_range(42.0, state.height() - 42.0))
                  })
             .collect();
+        let (pipeline, renderer) = PistonPipelineBuilder::new()
+            .texture_atlas(TextureAtlas::from_path(window, "assets/particle.png")
+                               .unwrap())
+            .vertex_shader(include_bytes!("particles_150_core.glslv"))
+            .fragment_shader(include_bytes!("particles_150_core.glslf"))
+            .build(window, particles::new())
+            .unwrap();
+        self.pipeline = Some(pipeline);
+        self.renderer = Some(renderer);
     }
 
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
@@ -237,26 +214,27 @@ impl PistonApp for App {
         }
         self.vertices.clear();
         self.indices.clear();
+        let renderer = self.renderer.as_ref().unwrap();
+        let texture_atlas = renderer.texture_atlas().unwrap();
         for particle_system in &mut self.particle_systems {
             particle_system.update(state);
-            particle_system
-                .extend_vertex_buffer(state, &mut self.vertices, &mut self.indices);
+            particle_system.extend_vertex_buffer(state,
+                                                 texture_atlas,
+                                                 &mut self.vertices,
+                                                 &mut self.indices);
         }
-        let (vbuf, slice) =
-            window
-                .factory
-                .create_vertex_buffer_with_slice(&self.vertices[..], &self.indices[..]);
-        let texture = self.particle_texture();
-        let encoder = &mut window.encoder;
-        encoder.clear(&window.output_color, color::WHITE);
-        encoder.draw(&slice,
-                     self.pipeline(),
-                     &particles::Data {
-                         vbuf: vbuf,
-                         texture: (texture.view.clone(), texture.sampler.clone()),
-                         out: window.output_color.clone(),
-                     });
-        encoder.flush(&mut window.device);
+        renderer.clear(window, color::WHITE);
+        renderer.draw(window,
+                      self.pipeline(),
+                      &self.vertices[..],
+                      &self.indices[..],
+                      |vbuf, out| {
+                          particles::Data {
+                              vbuf: vbuf,
+                              sampler: texture_atlas.texture_view_sampler(),
+                              out: out,
+                          }
+                      });
     }
 }
 

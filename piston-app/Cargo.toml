@@ -1,14 +1,18 @@
 [package]
 name = "piston-app"
-version = "1.4.2"
+version = "1.5.0"
 authors = ["Frédéric Hamidi <frederic.hamidi@gmail.com>"]
 
 [dependencies]
 fnv = "*"
 fps_counter = "*"
+gfx = "*"
+gfx_device_gl = "*"
 noise = "*"
+piston-shaders_graphics2d = "*"
 piston_window = "*"
 pistoncore-sdl2_window = "*"
 rand = "*"
+serde_json = "*"
 vecmath = "*"
 
