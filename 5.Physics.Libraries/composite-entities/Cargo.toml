@@ -1,0 +1,9 @@
+[package]
+name = "composite-entities"
+version = "0.1.0"
+authors = ["Frédéric Hamidi <frederic.hamidi@gmail.com>"]
+
+[dependencies]
+piston-app = { path = "../../piston-app" }
+wrapped2d = "*"
+
