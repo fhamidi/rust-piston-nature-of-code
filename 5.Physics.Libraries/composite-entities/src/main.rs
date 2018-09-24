@@ -140,52 +140,44 @@ impl Brick {
         let (w, h) = (self.half_width + BODY_SKIN_DEPTH,
                       self.half_height + BODY_SKIN_DEPTH);
         let (iw, ih) = (w - THICKNESS, h - THICKNESS);
-        let coords = [transform * b2::Vec2 { x: w, y: h },
-                      transform * b2::Vec2 { x: -w, y: h },
-                      transform * b2::Vec2 { x: -w, y: -h },
-                      transform * b2::Vec2 { x: w, y: -h },
-                      transform * b2::Vec2 { x: iw, y: ih },
-                      transform * b2::Vec2 { x: -iw, y: ih },
-                      transform * b2::Vec2 { x: -iw, y: -ih },
-                      transform * b2::Vec2 { x: iw, y: -ih }];
         let (u, v, tw, th) = texture_atlas.texture_uv_extents(0);
         vertices.extend(&[Vertex {
-                              pos: [coords[0].x, coords[0].y],
+                              pos: *(transform * b2::Vec2 { x: w, y: h }).as_array(),
                               uv: [u + tw, v],
                               color: color::BLACK,
                           },
                           Vertex {
-                              pos: [coords[1].x, coords[1].y],
+                              pos: *(transform * b2::Vec2 { x: -w, y: h }).as_array(),
                               uv: [u, v],
                               color: color::BLACK,
                           },
                           Vertex {
-                              pos: [coords[2].x, coords[2].y],
+                              pos: *(transform * b2::Vec2 { x: -w, y: -h }).as_array(),
                               uv: [u, v + th],
                               color: color::BLACK,
                           },
                           Vertex {
-                              pos: [coords[3].x, coords[3].y],
+                              pos: *(transform * b2::Vec2 { x: w, y: -h }).as_array(),
                               uv: [u + tw, v + th],
                               color: color::BLACK,
                           },
                           Vertex {
-                              pos: [coords[4].x, coords[4].y],
+                              pos: *(transform * b2::Vec2 { x: iw, y: ih }).as_array(),
                               uv: [u + tw, v],
                               color: self.color,
                           },
                           Vertex {
-                              pos: [coords[5].x, coords[5].y],
+                              pos: *(transform * b2::Vec2 { x: -iw, y: ih }).as_array(),
                               uv: [u, v],
                               color: self.color,
                           },
                           Vertex {
-                              pos: [coords[6].x, coords[6].y],
+                              pos: *(transform * b2::Vec2 { x: -iw, y: -ih }).as_array(),
                               uv: [u, v + th],
                               color: self.color,
                           },
                           Vertex {
-                              pos: [coords[7].x, coords[7].y],
+                              pos: *(transform * b2::Vec2 { x: iw, y: -ih }).as_array(),
                               uv: [u + tw, v + th],
                               color: self.color,
                           }]);
@@ -212,7 +204,12 @@ impl Token {
         let mut body = world.body_mut(handle);
         let mut shape = b2::CircleShape::new();
         shape.set_radius(radius);
-        body.create_fast_fixture(&shape, 1.0);
+        body.create_fixture(&shape,
+                            &mut b2::FixtureDef {
+                                density: 1.0,
+                                restitution: 0.42,
+                                ..b2::FixtureDef::new()
+                            });
         Token {
             body_handle: handle,
             radius: radius,
@@ -235,125 +232,112 @@ impl Token {
         let transform = body.transform();
         let radius = self.radius + BODY_SKIN_DEPTH;
         let inner_radius = self.radius - THICKNESS * 2.0;
-        let coords = [transform *
-                      b2::Vec2 {
-                          x: radius,
-                          y: radius,
-                      },
-                      transform *
-                      b2::Vec2 {
-                          x: -radius,
-                          y: radius,
-                      },
-                      transform *
-                      b2::Vec2 {
-                          x: -radius,
-                          y: -radius,
-                      },
-                      transform *
-                      b2::Vec2 {
-                          x: radius,
-                          y: -radius,
-                      },
-                      transform *
-                      b2::Vec2 {
-                          x: inner_radius,
-                          y: inner_radius,
-                      },
-                      transform *
-                      b2::Vec2 {
-                          x: -inner_radius,
-                          y: inner_radius,
-                      },
-                      transform *
-                      b2::Vec2 {
-                          x: -inner_radius,
-                          y: -inner_radius,
-                      },
-                      transform *
-                      b2::Vec2 {
-                          x: inner_radius,
-                          y: -inner_radius,
-                      },
-
-                      transform *
-                      b2::Vec2 {
-                          x: THICKNESS,
-                          y: self.radius,
-                      },
-                      transform *
-                      b2::Vec2 {
-                          x: -THICKNESS,
-                          y: self.radius,
-                      },
-                      transform *
-                      b2::Vec2 {
-                          x: -THICKNESS,
-                          y: -THICKNESS,
-                      },
-                      transform *
-                      b2::Vec2 {
-                          x: THICKNESS,
-                          y: -THICKNESS,
-                      }];
         let (u, v, tw, th) = texture_atlas.texture_uv_extents(1);
         vertices.extend(&[Vertex {
-                              pos: [coords[0].x, coords[0].y],
+                              pos: *(transform *
+                                     b2::Vec2 {
+                                         x: radius,
+                                         y: radius,
+                                     }).as_array(),
                               uv: [u + tw, v],
                               color: color::BLACK,
                           },
                           Vertex {
-                              pos: [coords[1].x, coords[1].y],
+                              pos: *(transform *
+                                     b2::Vec2 {
+                                         x: -radius,
+                                         y: radius,
+                                     }).as_array(),
                               uv: [u, v],
                               color: color::BLACK,
                           },
                           Vertex {
-                              pos: [coords[2].x, coords[2].y],
+                              pos: *(transform *
+                                     b2::Vec2 {
+                                         x: -radius,
+                                         y: -radius,
+                                     }).as_array(),
                               uv: [u, v + th],
                               color: color::BLACK,
                           },
                           Vertex {
-                              pos: [coords[3].x, coords[3].y],
+                              pos: *(transform *
+                                     b2::Vec2 {
+                                         x: radius,
+                                         y: -radius,
+                                     }).as_array(),
                               uv: [u + tw, v + th],
                               color: color::BLACK,
                           },
                           Vertex {
-                              pos: [coords[4].x, coords[4].y],
+                              pos: *(transform *
+                                     b2::Vec2 {
+                                         x: inner_radius,
+                                         y: inner_radius,
+                                     }).as_array(),
                               uv: [u + tw, v],
                               color: self.color,
                           },
                           Vertex {
-                              pos: [coords[5].x, coords[5].y],
+                              pos: *(transform *
+                                     b2::Vec2 {
+                                         x: -inner_radius,
+                                         y: inner_radius,
+                                     }).as_array(),
                               uv: [u, v],
                               color: self.color,
                           },
                           Vertex {
-                              pos: [coords[6].x, coords[6].y],
+                              pos: *(transform *
+                                     b2::Vec2 {
+                                         x: -inner_radius,
+                                         y: -inner_radius,
+                                     }).as_array(),
                               uv: [u, v + th],
                               color: self.color,
                           },
                           Vertex {
-                              pos: [coords[7].x, coords[7].y],
+                              pos: *(transform *
+                                     b2::Vec2 {
+                                         x: inner_radius,
+                                         y: -inner_radius,
+                                     }).as_array(),
                               uv: [u + tw, v + th],
                               color: self.color,
                           },
                           Vertex {
-                              pos: [coords[8].x, coords[8].y],
+                              pos: *(transform *
+                                     b2::Vec2 {
+                                         x: THICKNESS,
+                                         y: self.radius,
+                                     }).as_array(),
                               uv: [u + tw / 2.0, v + th / 2.0],
                               color: color::BLACK,
                           },
                           Vertex {
-                              pos: [coords[9].x, coords[9].y],
+                              pos: *(transform *
+                                     b2::Vec2 {
+                                         x: -THICKNESS,
+                                         y: self.radius,
+                                     }).as_array(),
                               uv: [u + tw / 2.0, v + th / 2.0],
                               color: color::BLACK,
                           },
                           Vertex {
-                              pos: [coords[10].x, coords[10].y],
+                              pos: *(transform *
+                                     b2::Vec2 {
+                                         x: -THICKNESS,
+                                         y: -THICKNESS,
+                                     }).as_array(),
                               uv: [u + tw / 2.0, v + th / 2.0],
                               color: color::BLACK,
                           },
                           Vertex {
-                              pos: [coords[11].x, coords[11].y],
+                              pos: *(transform *
+                                     b2::Vec2 {
+                                         x: THICKNESS,
+                                         y: -THICKNESS,
+                                     }).as_array(),
                               uv: [u + tw / 2.0, v + th / 2.0],
                               color: color::BLACK,
                           }]);
@@ -457,42 +441,42 @@ impl Entity {
         let uv = [u + tw / 2.0, v + th / 2.0];
         let color = color::grey(0.25);
         vertices.extend(&[Vertex {
-                              pos: [coords[0].x, coords[0].y],
+                              pos: *coords[0].as_array(),
                               uv: uv,
                               color: color,
                           },
                           Vertex {
-                              pos: [coords[1].x, coords[1].y],
+                              pos: *coords[1].as_array(),
                               uv: uv,
                               color: color,
                           },
                           Vertex {
-                              pos: [coords[2].x, coords[2].y],
+                              pos: *coords[2].as_array(),
                               uv: uv,
                               color: color,
                           },
                           Vertex {
-                              pos: [coords[3].x, coords[3].y],
+                              pos: *coords[3].as_array(),
                               uv: uv,
                               color: color,
                           },
                           Vertex {
-                              pos: [coords[4].x, coords[4].y],
+                              pos: *coords[4].as_array(),
                               uv: uv,
                               color: color,
                           },
                           Vertex {
-                              pos: [coords[5].x, coords[5].y],
+                              pos: *coords[5].as_array(),
                               uv: uv,
                               color: color,
                           },
                           Vertex {
-                              pos: [coords[6].x, coords[6].y],
+                              pos: *coords[6].as_array(),
                               uv: uv,
                               color: color,
                           },
                           Vertex {
-                              pos: [coords[7].x, coords[7].y],
+                              pos: *coords[7].as_array(),
                               uv: uv,
                               color: color,
                           }]);

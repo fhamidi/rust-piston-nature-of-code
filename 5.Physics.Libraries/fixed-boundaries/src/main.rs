@@ -130,51 +130,43 @@ impl Brick {
         let transform = body.transform();
         let (w, h) = (self.half_width + 0.02, self.half_height + 0.02);
         let (iw, ih) = (w - 0.075, h - 0.075);
-        let coords = [transform * b2::Vec2 { x: w, y: h },
-                      transform * b2::Vec2 { x: -w, y: h },
-                      transform * b2::Vec2 { x: -w, y: -h },
-                      transform * b2::Vec2 { x: w, y: -h },
-                      transform * b2::Vec2 { x: iw, y: ih },
-                      transform * b2::Vec2 { x: -iw, y: ih },
-                      transform * b2::Vec2 { x: -iw, y: -ih },
-                      transform * b2::Vec2 { x: iw, y: -ih }];
         vertices.extend(&[Vertex {
-                              pos: [coords[0].x, coords[0].y],
+                              pos: *(transform * b2::Vec2 { x: w, y: h }).as_array(),
                               uv: [0.0, 0.0],
                               color: color::BLACK,
                           },
                           Vertex {
-                              pos: [coords[1].x, coords[1].y],
+                              pos: *(transform * b2::Vec2 { x: -w, y: h }).as_array(),
                               uv: [0.0, 0.0],
                               color: color::BLACK,
                           },
                           Vertex {
-                              pos: [coords[2].x, coords[2].y],
+                              pos: *(transform * b2::Vec2 { x: -w, y: -h }).as_array(),
                               uv: [0.0, 0.0],
                               color: color::BLACK,
                           },
                           Vertex {
-                              pos: [coords[3].x, coords[3].y],
+                              pos: *(transform * b2::Vec2 { x: w, y: -h }).as_array(),
                               uv: [0.0, 0.0],
                               color: color::BLACK,
                           },
                           Vertex {
-                              pos: [coords[4].x, coords[4].y],
+                              pos: *(transform * b2::Vec2 { x: iw, y: ih }).as_array(),
                               uv: [0.5, 0.5],
                               color: self.color,
                           },
                           Vertex {
-                              pos: [coords[5].x, coords[5].y],
+                              pos: *(transform * b2::Vec2 { x: -iw, y: ih }).as_array(),
                               uv: [0.5, 0.5],
                               color: self.color,
                           },
                           Vertex {
-                              pos: [coords[6].x, coords[6].y],
+                              pos: *(transform * b2::Vec2 { x: -iw, y: -ih }).as_array(),
                               uv: [0.5, 0.5],
                               color: self.color,
                           },
                           Vertex {
-                              pos: [coords[7].x, coords[7].y],
+                              pos: *(transform * b2::Vec2 { x: iw, y: -ih }).as_array(),
                               uv: [0.5, 0.5],
                               color: self.color,
                           }]);

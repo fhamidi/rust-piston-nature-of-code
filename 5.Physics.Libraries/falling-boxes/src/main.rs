@@ -61,27 +61,27 @@ impl FallingBox {
         let start = vertices.len() as u32;
         let body = world.body(self.body_handle);
         let transform = body.transform();
-        let coords = [transform * b2::Vec2 { x: 0.52, y: 0.52 },
-                      transform * b2::Vec2 { x: -0.52, y: 0.52 },
-                      transform * b2::Vec2 { x: -0.52, y: -0.52 },
-                      transform * b2::Vec2 { x: 0.52, y: -0.52 }];
         vertices.extend(&[Vertex {
-                              pos: [coords[0].x, coords[0].y],
+                              pos: *(transform * b2::Vec2 { x: 0.52, y: 0.52 })
+                                  .as_array(),
                               uv: [1.0, 0.0],
                               color: self.color,
                           },
                           Vertex {
-                              pos: [coords[1].x, coords[1].y],
+                              pos: *(transform * b2::Vec2 { x: -0.52, y: 0.52 })
+                                  .as_array(),
                               uv: [0.0, 0.0],
                               color: self.color,
                           },
                           Vertex {
-                              pos: [coords[2].x, coords[2].y],
+                              pos: *(transform * b2::Vec2 { x: -0.52, y: -0.52 })
+                                  .as_array(),
                               uv: [0.0, 1.0],
                               color: self.color,
                           },
                           Vertex {
-                              pos: [coords[3].x, coords[3].y],
+                              pos: *(transform * b2::Vec2 { x: 0.52, y: -0.52 })
+                                  .as_array(),
                               uv: [1.0, 1.0],
                               color: self.color,
                           }]);

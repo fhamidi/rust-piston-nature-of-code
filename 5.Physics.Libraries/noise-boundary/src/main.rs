@@ -157,124 +157,111 @@ impl Token {
         let transform = body.transform();
         let radius = self.radius + BODY_SKIN_DEPTH;
         let inner_radius = self.radius - THICKNESS * 2.0;
-        let coords = [transform *
-                      b2::Vec2 {
-                          x: radius,
-                          y: radius,
-                      },
-                      transform *
-                      b2::Vec2 {
-                          x: -radius,
-                          y: radius,
-                      },
-                      transform *
-                      b2::Vec2 {
-                          x: -radius,
-                          y: -radius,
-                      },
-                      transform *
-                      b2::Vec2 {
-                          x: radius,
-                          y: -radius,
-                      },
-                      transform *
-                      b2::Vec2 {
-                          x: inner_radius,
-                          y: inner_radius,
-                      },
-                      transform *
-                      b2::Vec2 {
-                          x: -inner_radius,
-                          y: inner_radius,
-                      },
-                      transform *
-                      b2::Vec2 {
-                          x: -inner_radius,
-                          y: -inner_radius,
-                      },
-                      transform *
-                      b2::Vec2 {
-                          x: inner_radius,
-                          y: -inner_radius,
-                      },
-
-                      transform *
-                      b2::Vec2 {
-                          x: THICKNESS,
-                          y: self.radius,
-                      },
-                      transform *
-                      b2::Vec2 {
-                          x: -THICKNESS,
-                          y: self.radius,
-                      },
-                      transform *
-                      b2::Vec2 {
-                          x: -THICKNESS,
-                          y: -THICKNESS,
-                      },
-                      transform *
-                      b2::Vec2 {
-                          x: THICKNESS,
-                          y: -THICKNESS,
-                      }];
         vertices.extend(&[Vertex {
-                              pos: [coords[0].x, coords[0].y],
+                              pos: *(transform *
+                                     b2::Vec2 {
+                                         x: radius,
+                                         y: radius,
+                                     }).as_array(),
                               uv: [1.0, 0.0],
                               color: color::BLACK,
                           },
                           Vertex {
-                              pos: [coords[1].x, coords[1].y],
+                              pos: *(transform *
+                                     b2::Vec2 {
+                                         x: -radius,
+                                         y: radius,
+                                     }).as_array(),
                               uv: [0.0, 0.0],
                               color: color::BLACK,
                           },
                           Vertex {
-                              pos: [coords[2].x, coords[2].y],
+                              pos: *(transform *
+                                     b2::Vec2 {
+                                         x: -radius,
+                                         y: -radius,
+                                     }).as_array(),
                               uv: [0.0, 1.0],
                               color: color::BLACK,
                           },
                           Vertex {
-                              pos: [coords[3].x, coords[3].y],
+                              pos: *(transform *
+                                     b2::Vec2 {
+                                         x: radius,
+                                         y: -radius,
+                                     }).as_array(),
                               uv: [1.0, 1.0],
                               color: color::BLACK,
                           },
                           Vertex {
-                              pos: [coords[4].x, coords[4].y],
+                              pos: *(transform *
+                                     b2::Vec2 {
+                                         x: inner_radius,
+                                         y: inner_radius,
+                                     }).as_array(),
                               uv: [1.0, 0.0],
                               color: self.color,
                           },
                           Vertex {
-                              pos: [coords[5].x, coords[5].y],
+                              pos: *(transform *
+                                     b2::Vec2 {
+                                         x: -inner_radius,
+                                         y: inner_radius,
+                                     }).as_array(),
                               uv: [0.0, 0.0],
                               color: self.color,
                           },
                           Vertex {
-                              pos: [coords[6].x, coords[6].y],
+                              pos: *(transform *
+                                     b2::Vec2 {
+                                         x: -inner_radius,
+                                         y: -inner_radius,
+                                     }).as_array(),
                               uv: [0.0, 1.0],
                               color: self.color,
                           },
                           Vertex {
-                              pos: [coords[7].x, coords[7].y],
+                              pos: *(transform *
+                                     b2::Vec2 {
+                                         x: inner_radius,
+                                         y: -inner_radius,
+                                     }).as_array(),
                               uv: [1.0, 1.0],
                               color: self.color,
                           },
                           Vertex {
-                              pos: [coords[8].x, coords[8].y],
+                              pos: *(transform *
+                                     b2::Vec2 {
+                                         x: THICKNESS,
+                                         y: self.radius,
+                                     }).as_array(),
                               uv: [0.5, 0.5],
                               color: color::BLACK,
                           },
                           Vertex {
-                              pos: [coords[9].x, coords[9].y],
+                              pos: *(transform *
+                                     b2::Vec2 {
+                                         x: -THICKNESS,
+                                         y: self.radius,
+                                     }).as_array(),
                               uv: [0.5, 0.5],
                               color: color::BLACK,
                           },
                           Vertex {
-                              pos: [coords[10].x, coords[10].y],
+                              pos: *(transform *
+                                     b2::Vec2 {
+                                         x: -THICKNESS,
+                                         y: -THICKNESS,
+                                     }).as_array(),
                               uv: [0.5, 0.5],
                               color: color::BLACK,
                           },
                           Vertex {
-                              pos: [coords[11].x, coords[11].y],
+                              pos: *(transform *
+                                     b2::Vec2 {
+                                         x: THICKNESS,
+                                         y: -THICKNESS,
+                                     }).as_array(),
                               uv: [0.5, 0.5],
                               color: color::BLACK,
                           }]);
