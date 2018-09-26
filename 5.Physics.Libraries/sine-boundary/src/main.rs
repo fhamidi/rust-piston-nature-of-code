@@ -24,7 +24,7 @@ gfx_defines! {
         vbuf: VertexBuffer<Vertex> = (),
         sampler: TextureSampler<[f32; 4]> = "sampler",
         transform: Global<[f32; 4]> = "transform",
-        out: BlendTarget<gfx::format::Srgba8> = ("o_Color",
+        out: BlendTarget<gfx::format::Srgba8> = ("o_color",
                                                  gfx::state::ColorMask::all(),
                                                  gfx::preset::blend::ALPHA),
     }

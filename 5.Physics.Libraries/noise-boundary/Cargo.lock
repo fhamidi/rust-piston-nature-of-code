@@ -502,7 +502,7 @@ dependencies = [
 
 [[package]]
 name = "noise-boundary"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "piston-app 1.5.0",
  "wrapped2d 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",

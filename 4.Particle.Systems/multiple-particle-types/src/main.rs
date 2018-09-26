@@ -17,7 +17,7 @@ gfx_defines! {
     pipeline particles {
         vbuf: VertexBuffer<Vertex> = (),
         sampler: TextureSampler<[f32; 4]> = "sampler",
-        out: BlendTarget<gfx::format::Srgba8> = ("o_Color",
+        out: BlendTarget<gfx::format::Srgba8> = ("o_color",
                                                  gfx::state::ColorMask::all(),
                                                  gfx::preset::blend::ALPHA),
     }

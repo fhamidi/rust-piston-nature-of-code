@@ -1,6 +1,6 @@
 [package]
 name = "multiple-particle-systems"
-version = "0.3.0"
+version = "0.3.1"
 authors = ["Frédéric Hamidi <frederic.hamidi@gmail.com>"]
 
 [dependencies]

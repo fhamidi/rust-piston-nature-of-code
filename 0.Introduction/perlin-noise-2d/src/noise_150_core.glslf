@@ -98,11 +98,11 @@ float snoise(vec3 v) {
 uniform vec4 color;
 uniform float time;
 
-out vec4 o_Color;
+out vec4 o_color;
 
 void main() {
     vec3 coord = vec3(gl_FragCoord.xy * 0.01, time);
     float value = abs(snoise(coord));
 
-    o_Color = vec4(color.rgb * value, color.a);
+    o_color = vec4(color.rgb * value, color.a);
 }

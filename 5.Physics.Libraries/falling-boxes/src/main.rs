@@ -23,7 +23,7 @@ gfx_defines! {
         vbuf: VertexBuffer<Vertex> = (),
         sampler: TextureSampler<[f32; 4]> = "sampler",
         transform: Global<[f32; 4]> = "transform",
-        out: RenderTarget<gfx::format::Srgba8> = "o_Color",
+        out: RenderTarget<gfx::format::Srgba8> = "o_color",
     }
 }
 

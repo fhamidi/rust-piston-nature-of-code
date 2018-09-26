@@ -16,7 +16,7 @@ gfx_defines! {
         vbuf: VertexBuffer<Vertex> = (),
         color: Global<[f32; 4]> = "color",
         time: Global<f32> = "time",
-        out: RenderTarget<gfx::format::Srgba8> = "o_Color",
+        out: RenderTarget<gfx::format::Srgba8> = "o_color",
     }
 }
 
