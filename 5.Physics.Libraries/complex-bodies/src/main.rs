@@ -9,10 +9,6 @@ extern crate wrapped2d;
 use piston_app::*;
 use wrapped2d::b2;
 
-const BODY_DELTA: f32 = 0.3;
-const BODY_HALF_WIDTH: f32 = 0.125;
-const BODY_HALF_HEIGHT: f32 = 0.5;
-const BODY_RADIUS: f32 = 0.25;
 const BODY_SKIN_DEPTH: f32 = 0.02;
 const PIXELS_PER_METER: f32 = 32.0;
 type World = b2::World<wrapped2d::user_data::NoUserData>;
@@ -100,6 +96,11 @@ struct Entity {
     body_handle: b2::BodyHandle,
     color: Color,
 }
+
+const BODY_DELTA: f32 = 0.3;
+const BODY_HALF_WIDTH: f32 = 0.125;
+const BODY_HALF_HEIGHT: f32 = 0.5;
+const BODY_RADIUS: f32 = 0.25;
 
 impl Entity {
     fn new(world: &mut World, x: f32, y: f32, color: Color) -> Self {
@@ -260,7 +261,7 @@ impl Entity {
 }
 
 struct App {
-    world: Option<World>,
+    world: World,
     boundaries: Vec<Boundary>,
     entities: Vec<Entity>,
     vertices: Vec<Vertex>,
@@ -271,8 +272,9 @@ struct App {
 
 impl App {
     fn new() -> Self {
+        const GRAVITY: b2::Vec2 = b2::Vec2 { x: 0.0, y: -10.0 };
         App {
-            world: None,
+            world: World::new(&GRAVITY),
             boundaries: vec![],
             entities: vec![],
             vertices: Vec::with_capacity(4 * 4096),
@@ -302,36 +304,30 @@ impl App {
 
     fn setup_world(&mut self, state: &PistonAppState) {
         const MAX_BOUNDARIES: usize = 5;
-        let gravity = b2::Vec2 { x: 0.0, y: -10.0 };
-        let mut world = World::new(&gravity);
-        let ground = world.create_body(&b2::BodyDef {
-                                           position: b2::Vec2 { x: 0.0, y: -10.0 },
-                                           ..b2::BodyDef::new()
-                                       });
+        let ground = self.world.create_body(&b2::BodyDef {
+                                                position: b2::Vec2 { x: 0.0, y: -10.0 },
+                                                ..b2::BodyDef::new()
+                                            });
         let width = state.width() as f32;
         let shape = b2::PolygonShape::new_box(width * 4.2 / PIXELS_PER_METER, 10.0);
-        world.body_mut(ground).create_fast_fixture(&shape, 0.0);
+        self.world.body_mut(ground).create_fast_fixture(&shape, 0.0);
         let boundary_width = width / 2.0 / PIXELS_PER_METER - 2.0;
         self.boundaries = (0..MAX_BOUNDARIES)
             .map(|i| {
                      let side = if i % 2 == 0 { -1.0 } else { 1.0 };
-                     Boundary::new(&mut world,
+                     Boundary::new(&mut self.world,
                                    (boundary_width / 2.0 + 1.0) * side,
                                    (i + 1) as f32 * 2.0,
                                    boundary_width,
                                    0.5)
                  })
             .collect();
-        self.world = Some(world);
     }
 
     fn spawn_entity(&mut self, state: &PistonAppState) {
         let x = (state.mouse_x() - state.width() / 2.0) as f32 / PIXELS_PER_METER;
         let y = (state.height() - state.mouse_y()) as f32 / PIXELS_PER_METER;
-        let entity = Entity::new(self.world.as_mut().unwrap(),
-                                 x,
-                                 y,
-                                 state.random_color(Some(1.0)));
+        let entity = Entity::new(&mut self.world, x, y, state.random_color(Some(1.0)));
         self.entities.push(entity);
     }
 }
@@ -361,13 +357,12 @@ impl PistonApp for App {
         }
         self.vertices.clear();
         self.indices.clear();
-        let world = self.world.as_mut().unwrap();
-        world.step(1.0 / 60.0, 8, 3);
-        world.clear_forces();
+        self.world.step(1.0 / 60.0, 8, 3);
+        self.world.clear_forces();
         let renderer = self.renderer.as_ref().unwrap();
         let texture_atlas = renderer.texture_atlas().unwrap();
         for entity in &self.entities {
-            entity.extend_vertex_buffer(world,
+            entity.extend_vertex_buffer(&self.world,
                                         texture_atlas,
                                         &mut self.vertices,
                                         &mut self.indices);

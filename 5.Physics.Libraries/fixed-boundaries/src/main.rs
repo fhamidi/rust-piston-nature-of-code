@@ -9,6 +9,7 @@ extern crate wrapped2d;
 use piston_app::*;
 use wrapped2d::b2;
 
+const BODY_SKIN_DEPTH: f32 = 0.02;
 const PIXELS_PER_METER: f32 = 32.0;
 type World = b2::World<wrapped2d::user_data::NoUserData>;
 
@@ -58,7 +59,8 @@ impl Boundary {
     fn extend_vertex_buffer(&self, vertices: &mut Vec<Vertex>, indices: &mut Vec<u32>) {
         let start = vertices.len() as u32;
         let (x, y) = (self.x, self.y);
-        let (w, h) = (self.half_width + 0.02, self.half_height + 0.02);
+        let (w, h) = (self.half_width + BODY_SKIN_DEPTH,
+                      self.half_height + BODY_SKIN_DEPTH);
         vertices.extend(&[Vertex {
                               pos: [x + w, y + h],
                               uv: [0.0, 0.0],
@@ -128,7 +130,8 @@ impl Brick {
         let start = vertices.len() as u32;
         let body = world.body(self.body_handle);
         let transform = body.transform();
-        let (w, h) = (self.half_width + 0.02, self.half_height + 0.02);
+        let (w, h) = (self.half_width + BODY_SKIN_DEPTH,
+                      self.half_height + BODY_SKIN_DEPTH);
         let (iw, ih) = (w - 0.075, h - 0.075);
         vertices.extend(&[Vertex {
                               pos: *(transform * b2::Vec2 { x: w, y: h }).as_array(),
@@ -177,7 +180,7 @@ impl Brick {
 }
 
 struct App {
-    world: Option<World>,
+    world: World,
     boundaries: Vec<Boundary>,
     bricks: Vec<Brick>,
     vertices: Vec<Vertex>,
@@ -188,8 +191,9 @@ struct App {
 
 impl App {
     fn new() -> Self {
+        const GRAVITY: b2::Vec2 = b2::Vec2 { x: 0.0, y: -10.0 };
         App {
-            world: None,
+            world: World::new(&GRAVITY),
             boundaries: vec![],
             bricks: vec![],
             vertices: Vec::with_capacity(4 * 4096),
@@ -218,27 +222,24 @@ impl App {
     }
 
     fn setup_world(&mut self, state: &PistonAppState) {
-        let gravity = b2::Vec2 { x: 0.0, y: -10.0 };
-        let mut world = World::new(&gravity);
-        let ground = world.create_body(&b2::BodyDef {
-                                           position: b2::Vec2 { x: 0.0, y: -10.0 },
-                                           ..b2::BodyDef::new()
-                                       });
+        let ground = self.world.create_body(&b2::BodyDef {
+                                                position: b2::Vec2 { x: 0.0, y: -10.0 },
+                                                ..b2::BodyDef::new()
+                                            });
         let width = state.width() as f32;
         let shape = b2::PolygonShape::new_box(width * 4.2 / PIXELS_PER_METER, 10.0);
-        world.body_mut(ground).create_fast_fixture(&shape, 0.0);
+        self.world.body_mut(ground).create_fast_fixture(&shape, 0.0);
         let boundary_width = width / 2.0 / PIXELS_PER_METER - 2.0;
-        self.boundaries = vec![Boundary::new(&mut world,
+        self.boundaries = vec![Boundary::new(&mut self.world,
                                              -boundary_width / 2.0 - 1.0,
                                              2.0,
                                              boundary_width,
                                              0.5),
-                               Boundary::new(&mut world,
+                               Boundary::new(&mut self.world,
                                              boundary_width / 2.0 + 1.0,
                                              4.0,
                                              boundary_width,
                                              0.5)];
-        self.world = Some(world);
     }
 
     fn spawn_brick(&mut self, state: &PistonAppState) {
@@ -246,7 +247,7 @@ impl App {
         let uniform = Uniform::new_inclusive(0.2, 1.0);
         let x = (state.mouse_x() - state.width() / 2.0) as f32 / PIXELS_PER_METER;
         let y = (state.height() - state.mouse_y()) as f32 / PIXELS_PER_METER;
-        let brick = Brick::new(self.world.as_mut().unwrap(),
+        let brick = Brick::new(&mut self.world,
                                x,
                                y,
                                rng.sample(uniform),
@@ -278,14 +279,14 @@ impl PistonApp for App {
         }
         self.vertices.clear();
         self.indices.clear();
-        let world = self.world.as_mut().unwrap();
-        world.step(1.0 / 60.0, 8, 3);
-        world.clear_forces();
+        self.world.step(1.0 / 60.0, 8, 3);
+        self.world.clear_forces();
         for boundary in &self.boundaries {
             boundary.extend_vertex_buffer(&mut self.vertices, &mut self.indices);
         }
         for brick in &self.bricks {
-            brick.extend_vertex_buffer(world, &mut self.vertices, &mut self.indices);
+            brick
+                .extend_vertex_buffer(&self.world, &mut self.vertices, &mut self.indices);
         }
         let renderer = self.renderer.as_ref().unwrap();
         let texture_atlas = renderer.texture_atlas().unwrap();

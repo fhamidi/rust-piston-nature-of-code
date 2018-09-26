@@ -90,7 +90,7 @@ impl FallingBox {
 }
 
 struct App {
-    world: Option<World>,
+    world: World,
     boxes: Vec<FallingBox>,
     vertices: Vec<Vertex>,
     indices: Vec<u32>,
@@ -100,8 +100,9 @@ struct App {
 
 impl App {
     fn new() -> Self {
+        const GRAVITY: b2::Vec2 = b2::Vec2 { x: 0.0, y: -10.0 };
         App {
-            world: None,
+            world: World::new(&GRAVITY),
             boxes: vec![],
             vertices: Vec::with_capacity(4 * 4096),
             indices: Vec::with_capacity(6 * 4096),
@@ -127,26 +128,21 @@ impl App {
     }
 
     fn setup_world(&mut self, state: &PistonAppState) {
-        let gravity = b2::Vec2 { x: 0.0, y: -10.0 };
-        let mut world = World::new(&gravity);
-        let ground = world.create_body(&b2::BodyDef {
-                                           position: b2::Vec2 { x: 0.0, y: -10.0 },
-                                           ..b2::BodyDef::new()
-                                       });
+        let ground = self.world.create_body(&b2::BodyDef {
+                                                position: b2::Vec2 { x: 0.0, y: -10.0 },
+                                                ..b2::BodyDef::new()
+                                            });
         let shape = b2::PolygonShape::new_box(state.width() as f32 * 4.2 /
                                               PIXELS_PER_METER,
                                               10.0);
-        world.body_mut(ground).create_fast_fixture(&shape, 0.0);
-        self.world = Some(world);
+        self.world.body_mut(ground).create_fast_fixture(&shape, 0.0);
     }
 
     fn spawn_box(&mut self, state: &PistonAppState) {
         let x = (state.mouse_x() - state.width() / 2.0) as f32 / PIXELS_PER_METER;
         let y = (state.height() - state.mouse_y()) as f32 / PIXELS_PER_METER;
-        let falling_box = FallingBox::new(self.world.as_mut().unwrap(),
-                                          x,
-                                          y,
-                                          state.random_color(Some(1.0)));
+        let falling_box =
+            FallingBox::new(&mut self.world, x, y, state.random_color(Some(1.0)));
         self.boxes.push(falling_box);
     }
 }
@@ -173,12 +169,11 @@ impl PistonApp for App {
         }
         self.vertices.clear();
         self.indices.clear();
-        let world = self.world.as_mut().unwrap();
-        world.step(1.0 / 60.0, 8, 3);
-        world.clear_forces();
+        self.world.step(1.0 / 60.0, 8, 3);
+        self.world.clear_forces();
         for falling_box in &self.boxes {
             falling_box
-                .extend_vertex_buffer(world, &mut self.vertices, &mut self.indices);
+                .extend_vertex_buffer(&self.world, &mut self.vertices, &mut self.indices);
         }
         let renderer = self.renderer.as_ref().unwrap();
         let texture_atlas = renderer.texture_atlas().unwrap();

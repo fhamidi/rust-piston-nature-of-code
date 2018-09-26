@@ -269,7 +269,7 @@ impl Token {
 }
 
 struct App {
-    world: Option<World>,
+    world: World,
     boundary: Option<SineBoundary>,
     tokens: Vec<Token>,
     vertices: Vec<Vertex>,
@@ -280,8 +280,9 @@ struct App {
 
 impl App {
     fn new() -> Self {
+        const GRAVITY: b2::Vec2 = b2::Vec2 { x: 0.0, y: -10.0 };
         App {
-            world: None,
+            world: World::new(&GRAVITY),
             boundary: None,
             tokens: vec![],
             vertices: Vec::with_capacity(4 * 4096),
@@ -309,23 +310,20 @@ impl App {
     }
 
     fn setup_world(&mut self, state: &PistonAppState) {
-        let gravity = b2::Vec2 { x: 0.0, y: -10.0 };
-        let mut world = World::new(&gravity);
         let width = state.width() as f32;
         let half_width = width / 2.0 / PIXELS_PER_METER + 1.0;
-        self.boundary = Some(SineBoundary::new(&mut world,
+        self.boundary = Some(SineBoundary::new(&mut self.world,
                                                -half_width,
                                                5.0,
                                                half_width * 2.0,
                                                4.2,
                                                14.0));
-        self.world = Some(world);
     }
 
     fn spawn_token(&mut self, state: &PistonAppState) {
         let x = (state.mouse_x() - state.width() / 2.0) as f32 / PIXELS_PER_METER;
         let y = (state.height() - state.mouse_y()) as f32 / PIXELS_PER_METER;
-        let token = Token::new(self.world.as_mut().unwrap(),
+        let token = Token::new(&mut self.world,
                                x,
                                y,
                                thread_rng().gen_range(0.16, 0.5),
@@ -356,7 +354,7 @@ impl PistonApp for App {
         }
         self.vertices.clear();
         self.indices.clear();
-        let world = self.world.as_mut().unwrap();
+        let world = &mut self.world;
         world.step(1.0 / 60.0, 8, 3);
         world.clear_forces();
         self.tokens.retain(|token| token.survives(world));
