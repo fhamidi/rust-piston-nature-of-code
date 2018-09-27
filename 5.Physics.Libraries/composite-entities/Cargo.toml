@@ -1,6 +1,6 @@
 [package]
 name = "composite-entities"
-version = "0.1.3"
+version = "0.1.4"
 authors = ["Frédéric Hamidi <frederic.hamidi@gmail.com>"]
 
 [dependencies]

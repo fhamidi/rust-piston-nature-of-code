@@ -414,85 +414,46 @@ impl Entity {
                      vertices: &mut Vec<Vertex>,
                      indices: &mut Vec<u32>) {
         const THICKNESS: f32 = 0.042;
-        let start = vertices.len() as u32;
         let brick_body = world.body(self.brick.body_handle());
         let brick_transform = brick_body.transform();
         let token_bodies = [world.body(self.tokens[0].body_handle()),
                             world.body(self.tokens[1].body_handle())];
         let token_transforms = [token_bodies[0].transform(), token_bodies[1].transform()];
-        let mut coords: Vec<b2::Vec2> = vec![];
-        coords.extend(&self.compute_line_coords(brick_transform *
-                                                b2::Vec2 {
-                                                    x: 0.0,
-                                                    y: ANCHOR_DELTA,
-                                                },
-                                                token_transforms[0] *
-                                                b2::Vec2 { x: 0.0, y: 0.0 },
-                                                THICKNESS));
-        coords.extend(&self.compute_line_coords(brick_transform *
-                                                b2::Vec2 {
-                                                    x: 0.0,
-                                                    y: -ANCHOR_DELTA,
-                                                },
-                                                token_transforms[1] *
-                                                b2::Vec2 { x: 0.0, y: 0.0 },
-                                                THICKNESS));
         let (u, v, tw, th) = texture_atlas.texture_uv_extents(0);
         let uv = [u + tw / 2.0, v + th / 2.0];
         let color = color::grey(0.25);
-        vertices.extend(&[Vertex {
-                              pos: *coords[0].as_array(),
-                              uv: uv,
-                              color: color,
-                          },
-                          Vertex {
-                              pos: *coords[1].as_array(),
-                              uv: uv,
-                              color: color,
-                          },
-                          Vertex {
-                              pos: *coords[2].as_array(),
-                              uv: uv,
-                              color: color,
-                          },
-                          Vertex {
-                              pos: *coords[3].as_array(),
-                              uv: uv,
-                              color: color,
-                          },
-                          Vertex {
-                              pos: *coords[4].as_array(),
-                              uv: uv,
-                              color: color,
-                          },
-                          Vertex {
-                              pos: *coords[5].as_array(),
-                              uv: uv,
-                              color: color,
-                          },
-                          Vertex {
-                              pos: *coords[6].as_array(),
-                              uv: uv,
-                              color: color,
-                          },
-                          Vertex {
-                              pos: *coords[7].as_array(),
-                              uv: uv,
-                              color: color,
-                          }]);
-        indices.extend(&[start, start + 1, start + 2, start + 2, start + 3, start,
-                         start + 4, start + 5, start + 6, start + 6, start + 7,
-                         start + 4]);
-    }
-
-    fn compute_line_coords(&self,
-                           start: b2::Vec2,
-                           end: b2::Vec2,
-                           thickness: f32)
-                           -> [b2::Vec2; 4] {
-        let normal = (end - start).sqew();
-        let delta = normal * thickness / normal.norm();
-        [end + delta, start + delta, start - delta, end - delta]
+        for i in 0..token_transforms.len() {
+            let start = vertices.len() as u32;
+            let first = brick_transform *
+                        b2::Vec2 {
+                            x: 0.0,
+                            y: if i == 0 { ANCHOR_DELTA } else { -ANCHOR_DELTA },
+                        };
+            let second = token_transforms[i] * b2::Vec2 { x: 0.0, y: 0.0 };
+            let normal = (second - first).sqew();
+            let delta = normal * THICKNESS / normal.norm();
+            vertices.extend(&[Vertex {
+                                  pos: *(second + delta).as_array(),
+                                  uv: uv,
+                                  color: color,
+                              },
+                              Vertex {
+                                  pos: *(first + delta).as_array(),
+                                  uv: uv,
+                                  color: color,
+                              },
+                              Vertex {
+                                  pos: *(first - delta).as_array(),
+                                  uv: uv,
+                                  color: color,
+                              },
+                              Vertex {
+                                  pos: *(second - delta).as_array(),
+                                  uv: uv,
+                                  color: color,
+                              }]);
+            indices.extend(&[start, start + 1, start + 2, start + 2, start + 3, start]);
+        }
     }
 }
 
