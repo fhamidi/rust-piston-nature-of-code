@@ -30,10 +30,12 @@ impl Ball {
         Ellipse::new_border(color::BLACK, 1.0)
             .resolution(32)
             .color(state.noise_color(self.base_hue, self.color_offset, Some(1.0)))
-            .draw(ellipse::circle(self.position[0], self.position[1], 32.0),
-                  &context.draw_state,
-                  context.transform,
-                  gfx);
+            .draw(
+                ellipse::circle(self.position[0], self.position[1], 32.0),
+                &context.draw_state,
+                context.transform,
+                gfx,
+            );
     }
 
     fn update(&mut self, state: &PistonAppState) {

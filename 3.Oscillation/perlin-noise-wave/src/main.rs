@@ -35,11 +35,14 @@ impl App {
 
 impl PistonApp for App {
     fn setup(&mut self, window: &mut PistonAppWindow, _: &PistonAppState) {
-        self.node_texture = Some(Texture::from_path(&mut window.factory,
-                                                    "assets/node.png",
-                                                    Flip::None,
-                                                    &TextureSettings::new())
-                                     .unwrap());
+        self.node_texture = Some(
+            Texture::from_path(
+                &mut window.factory,
+                "assets/node.png",
+                Flip::None,
+                &TextureSettings::new(),
+            ).unwrap(),
+        );
     }
 
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
@@ -54,15 +57,15 @@ impl PistonApp for App {
                 color_offset += 1e-3;
                 let y =
                     state.map_range(state.noise(&[angle]), 0.0, 1.0, 0.0, state.height());
-                state.draw_centered_texture(node_texture,
-                                            Some(state.noise_color(self.base_hue,
-                                                                   color_offset,
-                                                                   Some(1.0))),
-                                            x,
-                                            y,
-                                            &context.draw_state,
-                                            context.transform,
-                                            gfx);
+                state.draw_centered_texture(
+                    node_texture,
+                    Some(state.noise_color(self.base_hue, color_offset, Some(1.0))),
+                    x,
+                    y,
+                    &context.draw_state,
+                    context.transform,
+                    gfx,
+                );
                 angle += self.velocity;
                 x += 8.0;
             }

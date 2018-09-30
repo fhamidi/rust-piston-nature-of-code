@@ -29,16 +29,18 @@ impl Mover {
         Ellipse::new_border(color::BLACK, 1.0)
             .resolution(32)
             .color(self.color)
-            .draw(ellipse::circle(self.position[0], self.position[1], 32.0),
-                  &context.draw_state,
-                  context.transform,
-                  gfx);
+            .draw(
+                ellipse::circle(self.position[0], self.position[1], 32.0),
+                &context.draw_state,
+                context.transform,
+                gfx,
+            );
     }
 
     fn update(&mut self, state: &PistonAppState) {
         const MAX_VELOCITY: Scalar = 9.0;
-        self.velocity = vec2_limit(vec2_add(self.velocity, self.acceleration),
-                                   MAX_VELOCITY);
+        self.velocity =
+            vec2_limit(vec2_add(self.velocity, self.acceleration), MAX_VELOCITY);
         self.position = vec2_add(self.position, self.velocity);
         self.check_edges(state);
         let hue = state.map_range(vec2_len(self.velocity), 0.0, MAX_VELOCITY, 0.0, 120.0);

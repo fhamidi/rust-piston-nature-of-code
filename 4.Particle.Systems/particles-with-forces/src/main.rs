@@ -35,26 +35,32 @@ impl Particle {
         self.life > 0.0
     }
 
-    fn draw(&self,
-            texture: &G2dTexture,
-            state: &PistonAppState,
-            context: Context,
-            gfx: &mut G2d) {
-        state.draw_centered_texture(texture,
-                                    Some([self.color[0],
-                                          self.color[1],
-                                          self.color[2],
-                                          self.life as ColorComponent]),
-                                    self.position[0],
-                                    self.position[1],
-                                    &context.draw_state,
-                                    context.transform,
-                                    gfx);
+    fn draw(
+        &self,
+        texture: &G2dTexture,
+        state: &PistonAppState,
+        context: Context,
+        gfx: &mut G2d,
+    ) {
+        state.draw_centered_texture(
+            texture,
+            Some([
+                self.color[0],
+                self.color[1],
+                self.color[2],
+                self.life as ColorComponent,
+            ]),
+            self.position[0],
+            self.position[1],
+            &context.draw_state,
+            context.transform,
+            gfx,
+        );
     }
 
     fn apply_force(&mut self, force: Vec2d) {
-        self.acceleration = vec2_add(self.acceleration,
-                                     vec2_scale(force, 1.0 / self.mass));
+        self.acceleration =
+            vec2_add(self.acceleration, vec2_scale(force, 1.0 / self.mass));
     }
 
     fn update(&mut self) {
@@ -84,11 +90,13 @@ impl ParticleSystem {
         }
     }
 
-    fn draw(&self,
-            texture: &G2dTexture,
-            state: &PistonAppState,
-            context: Context,
-            gfx: &mut G2d) {
+    fn draw(
+        &self,
+        texture: &G2dTexture,
+        state: &PistonAppState,
+        context: Context,
+        gfx: &mut G2d,
+    ) {
         for particle in &self.particles {
             particle.draw(texture, state, context, gfx);
         }
@@ -102,11 +110,10 @@ impl ParticleSystem {
 
     fn spawn_particle(&mut self, state: &PistonAppState) {
         self.color_offset += 0.00042;
-        self.particles
-            .push(Particle::new(state.noise_color(self.base_hue,
-                                                  self.color_offset,
-                                                  Some(1.0)),
-                                self.origin));
+        self.particles.push(Particle::new(
+            state.noise_color(self.base_hue, self.color_offset, Some(1.0)),
+            self.origin,
+        ));
     }
 
     fn update(&mut self, state: &PistonAppState) {
@@ -135,11 +142,14 @@ impl App {
 
 impl PistonApp for App {
     fn setup(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
-        self.particle_texture = Some(Texture::from_path(&mut window.factory,
-                                                        "assets/particle.png",
-                                                        Flip::None,
-                                                        &TextureSettings::new())
-                                         .unwrap());
+        self.particle_texture = Some(
+            Texture::from_path(
+                &mut window.factory,
+                "assets/particle.png",
+                Flip::None,
+                &TextureSettings::new(),
+            ).unwrap(),
+        );
         self.particle_system = Some(ParticleSystem::new(state.width() / 2.0, 42.0));
     }
 

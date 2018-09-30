@@ -40,13 +40,15 @@ struct Boundary {
 impl Boundary {
     fn new(world: &mut World, x: f32, y: f32, width: f32, height: f32) -> Self {
         let handle = world.create_body(&b2::BodyDef {
-                                           position: b2::Vec2 { x: x, y: y },
-                                           ..b2::BodyDef::new()
-                                       });
+            position: b2::Vec2 { x: x, y: y },
+            ..b2::BodyDef::new()
+        });
         let mut body = world.body_mut(handle);
         let (half_width, half_height) = (width / 2.0, height / 2.0);
-        body.create_fast_fixture(&b2::PolygonShape::new_box(half_width, half_height),
-                                 0.0);
+        body.create_fast_fixture(
+            &b2::PolygonShape::new_box(half_width, half_height),
+            0.0,
+        );
         Boundary {
             body_handle: handle,
             x: x,
@@ -59,28 +61,32 @@ impl Boundary {
     fn extend_vertex_buffer(&self, vertices: &mut Vec<Vertex>, indices: &mut Vec<u32>) {
         let start = vertices.len() as u32;
         let (x, y) = (self.x, self.y);
-        let (w, h) = (self.half_width + BODY_SKIN_DEPTH,
-                      self.half_height + BODY_SKIN_DEPTH);
-        vertices.extend(&[Vertex {
-                              pos: [x + w, y + h],
-                              uv: [0.0, 0.0],
-                              color: color::BLACK,
-                          },
-                          Vertex {
-                              pos: [x - w, y + h],
-                              uv: [0.0, 0.0],
-                              color: color::BLACK,
-                          },
-                          Vertex {
-                              pos: [x - w, y - h],
-                              uv: [0.0, 0.0],
-                              color: color::BLACK,
-                          },
-                          Vertex {
-                              pos: [x + w, y - h],
-                              uv: [0.0, 0.0],
-                              color: color::BLACK,
-                          }]);
+        let (w, h) = (
+            self.half_width + BODY_SKIN_DEPTH,
+            self.half_height + BODY_SKIN_DEPTH,
+        );
+        vertices.extend(&[
+            Vertex {
+                pos: [x + w, y + h],
+                uv: [0.0, 0.0],
+                color: color::BLACK,
+            },
+            Vertex {
+                pos: [x - w, y + h],
+                uv: [0.0, 0.0],
+                color: color::BLACK,
+            },
+            Vertex {
+                pos: [x - w, y - h],
+                uv: [0.0, 0.0],
+                color: color::BLACK,
+            },
+            Vertex {
+                pos: [x + w, y - h],
+                uv: [0.0, 0.0],
+                color: color::BLACK,
+            },
+        ]);
         indices.extend(&[start, start + 1, start + 2, start + 2, start + 3, start]);
     }
 }
@@ -94,27 +100,30 @@ struct Brick {
 }
 
 impl Brick {
-    fn new(world: &mut World,
-           x: f32,
-           y: f32,
-           width: f32,
-           height: f32,
-           color: Color)
-           -> Self {
+    fn new(
+        world: &mut World,
+        x: f32,
+        y: f32,
+        width: f32,
+        height: f32,
+        color: Color,
+    ) -> Self {
         let handle = world.create_body(&b2::BodyDef {
-                                           body_type: b2::BodyType::Dynamic,
-                                           position: b2::Vec2 { x: x, y: y },
-                                           ..b2::BodyDef::new()
-                                       });
+            body_type: b2::BodyType::Dynamic,
+            position: b2::Vec2 { x: x, y: y },
+            ..b2::BodyDef::new()
+        });
         let mut body = world.body_mut(handle);
         let (half_width, half_height) = (width / 2.0, height / 2.0);
-        body.create_fixture(&b2::PolygonShape::new_box(half_width, half_height),
-                            &mut b2::FixtureDef {
-                                density: 1.0,
-                                friction: 0.3,
-                                restitution: 0.5,
-                                ..b2::FixtureDef::new()
-                            });
+        body.create_fixture(
+            &b2::PolygonShape::new_box(half_width, half_height),
+            &mut b2::FixtureDef {
+                density: 1.0,
+                friction: 0.3,
+                restitution: 0.5,
+                ..b2::FixtureDef::new()
+            },
+        );
         Brick {
             body_handle: handle,
             half_width: half_width,
@@ -123,59 +132,76 @@ impl Brick {
         }
     }
 
-    fn extend_vertex_buffer(&self,
-                            world: &World,
-                            vertices: &mut Vec<Vertex>,
-                            indices: &mut Vec<u32>) {
+    fn extend_vertex_buffer(
+        &self,
+        world: &World,
+        vertices: &mut Vec<Vertex>,
+        indices: &mut Vec<u32>,
+    ) {
         let start = vertices.len() as u32;
         let body = world.body(self.body_handle);
         let transform = body.transform();
-        let (w, h) = (self.half_width + BODY_SKIN_DEPTH,
-                      self.half_height + BODY_SKIN_DEPTH);
+        let (w, h) = (
+            self.half_width + BODY_SKIN_DEPTH,
+            self.half_height + BODY_SKIN_DEPTH,
+        );
         let (iw, ih) = (w - 0.075, h - 0.075);
-        vertices.extend(&[Vertex {
-                              pos: *(transform * b2::Vec2 { x: w, y: h }).as_array(),
-                              uv: [0.0, 0.0],
-                              color: color::BLACK,
-                          },
-                          Vertex {
-                              pos: *(transform * b2::Vec2 { x: -w, y: h }).as_array(),
-                              uv: [0.0, 0.0],
-                              color: color::BLACK,
-                          },
-                          Vertex {
-                              pos: *(transform * b2::Vec2 { x: -w, y: -h }).as_array(),
-                              uv: [0.0, 0.0],
-                              color: color::BLACK,
-                          },
-                          Vertex {
-                              pos: *(transform * b2::Vec2 { x: w, y: -h }).as_array(),
-                              uv: [0.0, 0.0],
-                              color: color::BLACK,
-                          },
-                          Vertex {
-                              pos: *(transform * b2::Vec2 { x: iw, y: ih }).as_array(),
-                              uv: [0.5, 0.5],
-                              color: self.color,
-                          },
-                          Vertex {
-                              pos: *(transform * b2::Vec2 { x: -iw, y: ih }).as_array(),
-                              uv: [0.5, 0.5],
-                              color: self.color,
-                          },
-                          Vertex {
-                              pos: *(transform * b2::Vec2 { x: -iw, y: -ih }).as_array(),
-                              uv: [0.5, 0.5],
-                              color: self.color,
-                          },
-                          Vertex {
-                              pos: *(transform * b2::Vec2 { x: iw, y: -ih }).as_array(),
-                              uv: [0.5, 0.5],
-                              color: self.color,
-                          }]);
-        indices.extend(&[start, start + 1, start + 2, start + 2, start + 3, start,
-                         start + 4, start + 5, start + 6, start + 6, start + 7,
-                         start + 4]);
+        vertices.extend(&[
+            Vertex {
+                pos: *(transform * b2::Vec2 { x: w, y: h }).as_array(),
+                uv: [0.0, 0.0],
+                color: color::BLACK,
+            },
+            Vertex {
+                pos: *(transform * b2::Vec2 { x: -w, y: h }).as_array(),
+                uv: [0.0, 0.0],
+                color: color::BLACK,
+            },
+            Vertex {
+                pos: *(transform * b2::Vec2 { x: -w, y: -h }).as_array(),
+                uv: [0.0, 0.0],
+                color: color::BLACK,
+            },
+            Vertex {
+                pos: *(transform * b2::Vec2 { x: w, y: -h }).as_array(),
+                uv: [0.0, 0.0],
+                color: color::BLACK,
+            },
+            Vertex {
+                pos: *(transform * b2::Vec2 { x: iw, y: ih }).as_array(),
+                uv: [0.5, 0.5],
+                color: self.color,
+            },
+            Vertex {
+                pos: *(transform * b2::Vec2 { x: -iw, y: ih }).as_array(),
+                uv: [0.5, 0.5],
+                color: self.color,
+            },
+            Vertex {
+                pos: *(transform * b2::Vec2 { x: -iw, y: -ih }).as_array(),
+                uv: [0.5, 0.5],
+                color: self.color,
+            },
+            Vertex {
+                pos: *(transform * b2::Vec2 { x: iw, y: -ih }).as_array(),
+                uv: [0.5, 0.5],
+                color: self.color,
+            },
+        ]);
+        indices.extend(&[
+            start,
+            start + 1,
+            start + 2,
+            start + 2,
+            start + 3,
+            start,
+            start + 4,
+            start + 5,
+            start + 6,
+            start + 6,
+            start + 7,
+            start + 4,
+        ]);
     }
 }
 
@@ -208,38 +234,46 @@ impl App {
         let brick_count = self.bricks.len();
         let vertex_count = self.vertices.len();
         let index_count = self.indices.len();
-        let memory = (boundary_count * std::mem::size_of::<Boundary>() +
-                      brick_count * std::mem::size_of::<Brick>() +
-                      vertex_count * std::mem::size_of::<Vertex>() +
-                      index_count * std::mem::size_of::<u32>()) as
-                     f32 / 1024.0;
-        println!("Frame {} | Bricks: {} | Vertices: {} | Indices: {} | Memory: {:.2} KB",
-                 state.frame_count(),
-                 brick_count,
-                 vertex_count,
-                 index_count,
-                 memory);
+        let memory = (boundary_count * std::mem::size_of::<Boundary>()
+            + brick_count * std::mem::size_of::<Brick>()
+            + vertex_count * std::mem::size_of::<Vertex>()
+            + index_count * std::mem::size_of::<u32>()) as f32
+            / 1024.0;
+        println!(
+            "Frame {} | Bricks: {} | Vertices: {} | Indices: {} | Memory: {:.2} KB",
+            state.frame_count(),
+            brick_count,
+            vertex_count,
+            index_count,
+            memory
+        );
     }
 
     fn setup_world(&mut self, state: &PistonAppState) {
         let ground = self.world.create_body(&b2::BodyDef {
-                                                position: b2::Vec2 { x: 0.0, y: -10.0 },
-                                                ..b2::BodyDef::new()
-                                            });
+            position: b2::Vec2 { x: 0.0, y: -10.0 },
+            ..b2::BodyDef::new()
+        });
         let width = state.width() as f32;
         let shape = b2::PolygonShape::new_box(width * 4.2 / PIXELS_PER_METER, 10.0);
         self.world.body_mut(ground).create_fast_fixture(&shape, 0.0);
         let boundary_width = width / 2.0 / PIXELS_PER_METER - 2.0;
-        self.boundaries = vec![Boundary::new(&mut self.world,
-                                             -boundary_width / 2.0 - 1.0,
-                                             2.0,
-                                             boundary_width,
-                                             0.5),
-                               Boundary::new(&mut self.world,
-                                             boundary_width / 2.0 + 1.0,
-                                             4.0,
-                                             boundary_width,
-                                             0.5)];
+        self.boundaries = vec![
+            Boundary::new(
+                &mut self.world,
+                -boundary_width / 2.0 - 1.0,
+                2.0,
+                boundary_width,
+                0.5,
+            ),
+            Boundary::new(
+                &mut self.world,
+                boundary_width / 2.0 + 1.0,
+                4.0,
+                boundary_width,
+                0.5,
+            ),
+        ];
     }
 
     fn spawn_brick(&mut self, state: &PistonAppState) {
@@ -247,12 +281,14 @@ impl App {
         let uniform = Uniform::new_inclusive(0.2, 1.0);
         let x = (state.mouse_x() - state.width() / 2.0) as f32 / PIXELS_PER_METER;
         let y = (state.height() - state.mouse_y()) as f32 / PIXELS_PER_METER;
-        let brick = Brick::new(&mut self.world,
-                               x,
-                               y,
-                               rng.sample(uniform),
-                               rng.sample(uniform),
-                               state.random_color(Some(1.0)));
+        let brick = Brick::new(
+            &mut self.world,
+            x,
+            y,
+            rng.sample(uniform),
+            rng.sample(uniform),
+            state.random_color(Some(1.0)),
+        );
         self.bricks.push(brick);
     }
 }
@@ -285,8 +321,11 @@ impl PistonApp for App {
             boundary.extend_vertex_buffer(&mut self.vertices, &mut self.indices);
         }
         for brick in &self.bricks {
-            brick
-                .extend_vertex_buffer(&self.world, &mut self.vertices, &mut self.indices);
+            brick.extend_vertex_buffer(
+                &self.world,
+                &mut self.vertices,
+                &mut self.indices,
+            );
         }
         let renderer = self.renderer.as_ref().unwrap();
         let texture_atlas = renderer.texture_atlas().unwrap();
@@ -298,16 +337,16 @@ impl PistonApp for App {
             self.pipeline.as_ref().unwrap(),
             &self.vertices[..],
             &self.indices[..],
-            |vbuf, out| {
-                world::Data {
-                    vbuf: vbuf,
-                    sampler: texture_atlas.texture_view_sampler(),
-                    transform: [0.0,
-                                -1.0,
-                                PIXELS_PER_METER / half_width,
-                                PIXELS_PER_METER / half_height],
-                    out: out,
-                }
+            |vbuf, out| world::Data {
+                vbuf: vbuf,
+                sampler: texture_atlas.texture_view_sampler(),
+                transform: [
+                    0.0,
+                    -1.0,
+                    PIXELS_PER_METER / half_width,
+                    PIXELS_PER_METER / half_height,
+                ],
+                out: out,
             },
         );
     }

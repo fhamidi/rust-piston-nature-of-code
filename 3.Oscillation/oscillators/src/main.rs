@@ -23,28 +23,38 @@ impl Oscillator {
             color: state.random_color(Some(1.0)),
             angle: [0.0, 0.0],
             velocity: [rng.sample(uniform), rng.sample(uniform)],
-            amplitude: [rng.gen_range(20.0, state.width() / 2.0),
-                        rng.gen_range(20.0, state.height() / 2.0)],
+            amplitude: [
+                rng.gen_range(20.0, state.width() / 2.0),
+                rng.gen_range(20.0, state.height() / 2.0),
+            ],
         }
     }
 
-    fn draw(&self,
-            node_texture: &G2dTexture,
-            state: &PistonAppState,
-            context: Context,
-            transform: Matrix2d,
-            gfx: &mut G2d) {
+    fn draw(
+        &self,
+        node_texture: &G2dTexture,
+        state: &PistonAppState,
+        context: Context,
+        transform: Matrix2d,
+        gfx: &mut G2d,
+    ) {
         let x = self.angle[0].sin() * self.amplitude[0];
         let y = self.angle[1].sin() * self.amplitude[1];
-        Line::new(color::BLACK, 1.0)
-            .draw([0.0, 0.0, x, y], &context.draw_state, transform, gfx);
-        state.draw_centered_texture(node_texture,
-                                    Some(self.color),
-                                    x,
-                                    y,
-                                    &context.draw_state,
-                                    transform,
-                                    gfx);
+        Line::new(color::BLACK, 1.0).draw(
+            [0.0, 0.0, x, y],
+            &context.draw_state,
+            transform,
+            gfx,
+        );
+        state.draw_centered_texture(
+            node_texture,
+            Some(self.color),
+            x,
+            y,
+            &context.draw_state,
+            transform,
+            gfx,
+        );
     }
 
     fn update(&mut self) {
@@ -74,11 +84,14 @@ impl App {
 impl PistonApp for App {
     fn setup(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
         const MAX_OSCILLATORS: usize = 32;
-        self.node_texture = Some(Texture::from_path(&mut window.factory,
-                                                    "assets/node.png",
-                                                    Flip::None,
-                                                    &TextureSettings::new())
-                                     .unwrap());
+        self.node_texture = Some(
+            Texture::from_path(
+                &mut window.factory,
+                "assets/node.png",
+                Flip::None,
+                &TextureSettings::new(),
+            ).unwrap(),
+        );
         self.oscillators = (0..MAX_OSCILLATORS)
             .map(|_| Oscillator::new(state))
             .collect();

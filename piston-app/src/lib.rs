@@ -20,7 +20,7 @@ extern crate vecmath;
 pub use std::f64::consts;
 
 pub use gfx::*;
-pub use math::{Scalar, Vec2d, Matrix2d};
+pub use math::{Matrix2d, Scalar, Vec2d};
 pub use piston_window::*;
 pub use rand::distributions::normal::StandardNormal;
 pub use rand::distributions::uniform::Uniform;
@@ -30,8 +30,8 @@ pub use vecmath::*;
 
 use std::collections::hash_set;
 use std::error::Error;
-use std::io::{BufRead, BufReader};
 use std::fs::File;
+use std::io::{BufRead, BufReader};
 use std::path::Path;
 
 use fnv::*;
@@ -122,12 +122,12 @@ impl PistonAppState {
     fn new() -> Self {
         PistonAppState {
             event: Event::Loop(Loop::Render(RenderArgs {
-                                                ext_dt: 0.0,
-                                                width: 0,
-                                                height: 0,
-                                                draw_width: 0,
-                                                draw_height: 0,
-                                            })),
+                ext_dt: 0.0,
+                width: 0,
+                height: 0,
+                draw_width: 0,
+                draw_height: 0,
+            })),
             viewport: Viewport {
                 rect: [0, 0, 0, 0],
                 draw_size: [0, 0],
@@ -240,13 +240,14 @@ impl PistonAppState {
     }
 
     #[inline]
-    pub fn map_range(&self,
-                     value: Scalar,
-                     in_min: Scalar,
-                     in_max: Scalar,
-                     out_min: Scalar,
-                     out_max: Scalar)
-                     -> Scalar {
+    pub fn map_range(
+        &self,
+        value: Scalar,
+        in_min: Scalar,
+        in_max: Scalar,
+        out_min: Scalar,
+        out_max: Scalar,
+    ) -> Scalar {
         (value - in_min) / (in_max - in_min) * (out_max - out_min) + out_min
     }
 
@@ -271,70 +272,85 @@ impl PistonAppState {
     }
 
     pub fn noise(&self, input: &[Scalar]) -> Scalar {
-        self.map_range(match input.len() {
-                           0 => 0.0,
-                           1 => self.noise.get([input[0], 0.0]),
-                           2 => self.noise.get([input[0], input[1]]),
-                           3 => self.noise.get([input[0], input[1], input[2]]),
-                           _ => self.noise.get([input[0], input[1], input[2], input[3]]),
-                       },
-                       -1.0,
-                       1.0,
-                       0.0,
-                       1.0)
+        self.map_range(
+            match input.len() {
+                0 => 0.0,
+                1 => self.noise.get([input[0], 0.0]),
+                2 => self.noise.get([input[0], input[1]]),
+                3 => self.noise.get([input[0], input[1], input[2]]),
+                _ => self.noise.get([input[0], input[1], input[2], input[3]]),
+            },
+            -1.0,
+            1.0,
+            0.0,
+            1.0,
+        )
     }
 
-    pub fn noise_color(&self,
-                       base_hue: Scalar,
-                       offset: Scalar,
-                       alpha: Option<ColorComponent>)
-                       -> Color {
+    pub fn noise_color(
+        &self,
+        base_hue: Scalar,
+        offset: Scalar,
+        alpha: Option<ColorComponent>,
+    ) -> Color {
         const MIN_ALPHA: Scalar = 1.0 / 3.0;
         const MIN_SATURATION: Scalar = 0.5;
         const MIN_VALUE: Scalar = 0.5;
         let alpha = alpha.unwrap_or_else(|| {
-            self.map_range(self.noise.get([offset - 29.0, 0.0]).abs(),
-                           0.0,
-                           1.0,
-                           MIN_ALPHA,
-                           1.0) as ColorComponent
+            self.map_range(
+                self.noise.get([offset - 29.0, 0.0]).abs(),
+                0.0,
+                1.0,
+                MIN_ALPHA,
+                1.0,
+            ) as ColorComponent
         });
         let base_hue = base_hue * 360.0;
-        self.color_from_hsv(self.map_range(self.noise.get([offset, 0.0]).abs(),
-                                           0.0,
-                                           1.0,
-                                           base_hue,
-                                           base_hue + 360.0) %
-                            360.0,
-                            self.map_range(self.noise.get([offset + 17.0, 0.0]).abs(),
-                                           0.0,
-                                           1.0,
-                                           MIN_SATURATION,
-                                           1.0),
-                            self.map_range(self.noise.get([offset - 43.0, 0.0]).abs(),
-                                           0.0,
-                                           1.0,
-                                           MIN_VALUE,
-                                           1.0),
-                            alpha)
+        self.color_from_hsv(
+            self.map_range(
+                self.noise.get([offset, 0.0]).abs(),
+                0.0,
+                1.0,
+                base_hue,
+                base_hue + 360.0,
+            ) % 360.0,
+            self.map_range(
+                self.noise.get([offset + 17.0, 0.0]).abs(),
+                0.0,
+                1.0,
+                MIN_SATURATION,
+                1.0,
+            ),
+            self.map_range(
+                self.noise.get([offset - 43.0, 0.0]).abs(),
+                0.0,
+                1.0,
+                MIN_VALUE,
+                1.0,
+            ),
+            alpha,
+        )
     }
 
     pub fn random_color(&self, alpha: Option<ColorComponent>) -> Color {
         const MIN_COLOR_COMPONENT: ColorComponent = 1.0 / 3.0;
         let mut rng = thread_rng();
         let uniform = Uniform::new_inclusive(MIN_COLOR_COMPONENT, 1.0);
-        [rng.sample(uniform),
-         rng.sample(uniform),
-         rng.sample(uniform),
-         alpha.unwrap_or_else(|| rng.sample(uniform))]
+        [
+            rng.sample(uniform),
+            rng.sample(uniform),
+            rng.sample(uniform),
+            alpha.unwrap_or_else(|| rng.sample(uniform)),
+        ]
     }
 
-    pub fn color_from_hsv(&self,
-                          hue: Scalar,
-                          saturation: Scalar,
-                          value: Scalar,
-                          alpha: ColorComponent)
-                          -> Color {
+    pub fn color_from_hsv(
+        &self,
+        hue: Scalar,
+        saturation: Scalar,
+        value: Scalar,
+        alpha: ColorComponent,
+    ) -> Color {
         let c = value * saturation;
         let h = (hue - ((hue / 360.0).floor() * 360.0)) / 60.0;
         let x = c * (1.0 - (h % 2.0 - 1.0).abs());
@@ -347,20 +363,24 @@ impl PistonAppState {
             h if h >= 4.0 && h <= 5.0 => (x, 0.0, c),
             _ => (c, 0.0, x),
         };
-        [(r + m) as ColorComponent,
-         (g + m) as ColorComponent,
-         (b + m) as ColorComponent,
-         alpha]
+        [
+            (r + m) as ColorComponent,
+            (g + m) as ColorComponent,
+            (b + m) as ColorComponent,
+            alpha,
+        ]
     }
 
-    pub fn draw_centered_texture(&self,
-                                 texture: &G2dTexture,
-                                 color: Option<Color>,
-                                 x: Scalar,
-                                 y: Scalar,
-                                 draw_state: &DrawState,
-                                 transform: Matrix2d,
-                                 gfx: &mut G2d) {
+    pub fn draw_centered_texture(
+        &self,
+        texture: &G2dTexture,
+        color: Option<Color>,
+        x: Scalar,
+        y: Scalar,
+        draw_state: &DrawState,
+        transform: Matrix2d,
+        gfx: &mut G2d,
+    ) {
         let (width, height) = texture.get_size();
         let half_width = width as Scalar / 2.0;
         let half_height = height as Scalar / 2.0;
@@ -373,8 +393,10 @@ impl PistonAppState {
 
 pub type PistonPipeline<M> = pso::PipelineState<Resources, M>;
 
-pub type PistonPipelineSampler = (gfx::handle::ShaderResourceView<Resources, [f32; 4]>,
-                                  gfx::handle::Sampler<Resources>);
+pub type PistonPipelineSampler = (
+    gfx::handle::ShaderResourceView<Resources, [f32; 4]>,
+    gfx::handle::Sampler<Resources>,
+);
 
 #[derive(Debug)]
 pub struct PistonPipelineBuilder {
@@ -407,11 +429,11 @@ impl PistonPipelineBuilder {
         self
     }
 
-    pub fn build<I: pso::PipelineInit>
-        (self,
-         window: &mut PistonAppWindow,
-         init: I)
-         -> Result<(PistonPipeline<I::Meta>, PistonRenderer), Box<Error>> {
+    pub fn build<I: pso::PipelineInit>(
+        self,
+        window: &mut PistonAppWindow,
+        init: I,
+    ) -> Result<(PistonPipeline<I::Meta>, PistonRenderer), Box<Error>> {
         let factory = &mut window.factory;
         let mut default_vertex_shader = colored::VERTEX_GLSL_150_CORE;
         let mut default_fragment_shader = colored::FRAGMENT_GLSL_150_CORE;
@@ -419,13 +441,16 @@ impl PistonPipelineBuilder {
             default_vertex_shader = textured::VERTEX_GLSL_150_CORE;
             default_fragment_shader = textured::FRAGMENT_GLSL_150_CORE;
         }
-        Ok((factory
-                .create_pipeline_simple(self.vertex_shader
-                                            .unwrap_or(default_vertex_shader),
-                                        self.fragment_shader
-                                            .unwrap_or(default_fragment_shader),
-                                        init)?,
-            PistonRenderer { texture_atlas: self.texture_atlas }))
+        Ok((
+            factory.create_pipeline_simple(
+                self.vertex_shader.unwrap_or(default_vertex_shader),
+                self.fragment_shader.unwrap_or(default_fragment_shader),
+                init,
+            )?,
+            PistonRenderer {
+                texture_atlas: self.texture_atlas,
+            },
+        ))
     }
 }
 
@@ -444,18 +469,21 @@ impl PistonRenderer {
         window.encoder.clear(&window.output_color, color);
     }
 
-    pub fn draw<B, D, F, V>(&self,
-                            window: &mut PistonAppWindow,
-                            pipeline: &PistonPipeline<D::Meta>,
-                            vertices: &[V],
-                            indices: B,
-                            f: F)
-        where B: IntoIndexBuffer<Resources>,
-              D: pso::PipelineData<Resources>,
-              F: FnOnce(gfx::handle::Buffer<Resources, V>,
-                        gfx::handle::RenderTargetView<Resources, gfx::format::Srgba8>)
-                        -> D,
-              V: gfx::traits::Pod + pso::buffer::Structure<gfx::format::Format>
+    pub fn draw<B, D, F, V>(
+        &self,
+        window: &mut PistonAppWindow,
+        pipeline: &PistonPipeline<D::Meta>,
+        vertices: &[V],
+        indices: B,
+        f: F,
+    ) where
+        B: IntoIndexBuffer<Resources>,
+        D: pso::PipelineData<Resources>,
+        F: FnOnce(
+            gfx::handle::Buffer<Resources, V>,
+            gfx::handle::RenderTargetView<Resources, gfx::format::Srgba8>,
+        ) -> D,
+        V: gfx::traits::Pod + pso::buffer::Structure<gfx::format::Format>,
     {
         let (vbuf, slice) = window
             .factory
@@ -475,29 +503,36 @@ pub struct TextureAtlas {
 }
 
 impl TextureAtlas {
-    pub fn from_path<P: AsRef<Path>>(window: &mut PistonAppWindow,
-                                     texture_path: P)
-                                     -> Result<Self, Box<Error>> {
+    pub fn from_path<P: AsRef<Path>>(
+        window: &mut PistonAppWindow,
+        texture_path: P,
+    ) -> Result<Self, Box<Error>> {
         Self::from_maybe_paths(window, texture_path, None)
     }
 
-    pub fn from_paths<P: AsRef<Path>>(window: &mut PistonAppWindow,
-                                      texture_path: P,
-                                      atlas_path: P)
-                                      -> Result<Self, Box<Error>> {
+    pub fn from_paths<P: AsRef<Path>>(
+        window: &mut PistonAppWindow,
+        texture_path: P,
+        atlas_path: P,
+    ) -> Result<Self, Box<Error>> {
         Self::from_maybe_paths(window, texture_path, Some(atlas_path))
     }
 
-    pub fn from_maybe_paths<P: AsRef<Path>>(window: &mut PistonAppWindow,
-                                            texture_path: P,
-                                            atlas_path: Option<P>)
-                                            -> Result<Self, Box<Error>> {
-        let texture = Texture::from_path(&mut window.factory,
-                                         texture_path,
-                                         Flip::None,
-                                         &TextureSettings::new())?;
-        let (width, height) = (texture.get_width() as Scalar,
-                               texture.get_height() as Scalar);
+    pub fn from_maybe_paths<P: AsRef<Path>>(
+        window: &mut PistonAppWindow,
+        texture_path: P,
+        atlas_path: Option<P>,
+    ) -> Result<Self, Box<Error>> {
+        let texture = Texture::from_path(
+            &mut window.factory,
+            texture_path,
+            Flip::None,
+            &TextureSettings::new(),
+        )?;
+        let (width, height) = (
+            texture.get_width() as Scalar,
+            texture.get_height() as Scalar,
+        );
         let mut atlas = vec![[0.0, 0.0, width, height]];
         let mut normalized_atlas = vec![[0.0, 0.0, 1.0, 1.0]];
         if let Some(atlas_path) = atlas_path {
@@ -508,10 +543,10 @@ impl TextureAtlas {
             }
         }
         Ok(TextureAtlas {
-               texture: texture,
-               atlas: atlas,
-               normalized_atlas: normalized_atlas,
-           })
+            texture: texture,
+            atlas: atlas,
+            normalized_atlas: normalized_atlas,
+        })
     }
 
     #[inline]
@@ -549,19 +584,21 @@ impl TextureAtlas {
         Ok(atlas)
     }
 
-    fn normalize_atlas(atlas: &[[Scalar; 4]],
-                       width: Scalar,
-                       height: Scalar)
-                       -> Vec<[f32; 4]> {
+    fn normalize_atlas(
+        atlas: &[[Scalar; 4]],
+        width: Scalar,
+        height: Scalar,
+    ) -> Vec<[f32; 4]> {
         atlas
             .iter()
             .map(|extents| {
-                     [(extents[0] / width) as f32,
-                      (extents[1] / height) as f32,
-                      (extents[2] / width) as f32,
-                      (extents[3] / height) as f32]
-                 })
-            .collect()
+                [
+                    (extents[0] / width) as f32,
+                    (extents[1] / height) as f32,
+                    (extents[2] / width) as f32,
+                    (extents[3] / height) as f32,
+                ]
+            }).collect()
     }
 }
 

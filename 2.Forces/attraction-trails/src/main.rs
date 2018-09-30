@@ -26,8 +26,10 @@ impl Attractor {
     fn attract(&self, mover: &Mover) -> Vec2d {
         let force = vec2_sub(self.position, mover.position());
         let distance = vec2_len(force).max(5.0).min(25.0);
-        vec2_scale(vec2_normalized(force),
-                   (self.g * self.mass * mover.mass()) / (distance * distance))
+        vec2_scale(
+            vec2_normalized(force),
+            (self.g * self.mass * mover.mass()) / (distance * distance),
+        )
     }
 }
 
@@ -62,17 +64,21 @@ impl Mover {
     }
 
     fn draw(&self, context: Context, gfx: &mut G2d) {
-        rectangle(self.color,
-                  rectangle::centered_square(self.position[0],
-                                             self.position[1],
-                                             self.mass / 4.2),
-                  context.transform,
-                  gfx);
+        rectangle(
+            self.color,
+            rectangle::centered_square(
+                self.position[0],
+                self.position[1],
+                self.mass / 4.2,
+            ),
+            context.transform,
+            gfx,
+        );
     }
 
     fn apply_force(&mut self, force: Vec2d) {
-        self.acceleration = vec2_add(self.acceleration,
-                                     vec2_scale(force, 1.0 / self.mass));
+        self.acceleration =
+            vec2_add(self.acceleration, vec2_scale(force, 1.0 / self.mass));
     }
 
     fn update(&mut self) {
@@ -106,21 +112,25 @@ impl PistonApp for App {
         let (width, height) = (state.width(), state.height());
         self.attractors = (0..MAX_ATTRACTORS)
             .map(|_| {
-                     Attractor::new(rng.gen_range(0.0, width),
-                                    rng.gen_range(0.0, height),
-                                    rng.gen_range(8.0, 32.0),
-                                    rng.gen_range(MAX_G / 4.2, MAX_G))
-                 })
-            .collect();
+                Attractor::new(
+                    rng.gen_range(0.0, width),
+                    rng.gen_range(0.0, height),
+                    rng.gen_range(8.0, 32.0),
+                    rng.gen_range(MAX_G / 4.2, MAX_G),
+                )
+            }).collect();
         self.movers = (0..MAX_MOVERS)
             .map(|_| {
-                     Mover::new(state.random_color(None),
-                                rng.gen_range(0.0, width),
-                                rng.gen_range(0.0, height),
-                                rng.gen_range(0.1, 4.2))
-                 })
-            .collect();
-        window.draw_2d(state.event(), |_, gfx| { clear(color::WHITE, gfx); });
+                Mover::new(
+                    state.random_color(None),
+                    rng.gen_range(0.0, width),
+                    rng.gen_range(0.0, height),
+                    rng.gen_range(0.1, 4.2),
+                )
+            }).collect();
+        window.draw_2d(state.event(), |_, gfx| {
+            clear(color::WHITE, gfx);
+        });
     }
 
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
@@ -131,8 +141,10 @@ impl PistonApp for App {
             }
             mover.update();
         }
-        window.draw_2d(state.event(), |context, gfx| for mover in &self.movers {
-            mover.draw(context, gfx);
+        window.draw_2d(state.event(), |context, gfx| {
+            for mover in &self.movers {
+                mover.draw(context, gfx);
+            }
         });
     }
 }

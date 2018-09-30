@@ -51,52 +51,74 @@ impl Spaceship {
             [0.75, 0.75, 0.75, 1.0]
         };
         let thruster = Rectangle::new_border(color::BLACK, 1.0).color(thruster_color);
-        thruster.draw(rectangle::centered([-self.radius / 2.0,
-                                           self.radius,
-                                           self.radius / 6.0,
-                                           self.radius / 4.0]),
-                      &context.draw_state,
-                      transform,
-                      gfx);
-        thruster.draw(rectangle::centered([self.radius / 2.0,
-                                           self.radius,
-                                           self.radius / 6.0,
-                                           self.radius / 4.0]),
-                      &context.draw_state,
-                      transform,
-                      gfx);
-        let vertices = [[-self.radius, self.radius],
-                        [0.0, -self.radius],
-                        [self.radius, self.radius]];
+        thruster.draw(
+            rectangle::centered([
+                -self.radius / 2.0,
+                self.radius,
+                self.radius / 6.0,
+                self.radius / 4.0,
+            ]),
+            &context.draw_state,
+            transform,
+            gfx,
+        );
+        thruster.draw(
+            rectangle::centered([
+                self.radius / 2.0,
+                self.radius,
+                self.radius / 6.0,
+                self.radius / 4.0,
+            ]),
+            &context.draw_state,
+            transform,
+            gfx,
+        );
+        let vertices = [
+            [-self.radius, self.radius],
+            [0.0, -self.radius],
+            [self.radius, self.radius],
+        ];
         let border = Line::new_round(color::BLACK, 1.0);
         polygon(self.color, &vertices, transform, gfx);
-        border.draw([vertices[0][0],
-                     vertices[0][1],
-                     vertices[1][0],
-                     vertices[1][1]],
-                    &context.draw_state,
-                    transform,
-                    gfx);
-        border.draw([vertices[1][0],
-                     vertices[1][1],
-                     vertices[2][0],
-                     vertices[2][1]],
-                    &context.draw_state,
-                    transform,
-                    gfx);
-        border.draw([vertices[2][0],
-                     vertices[2][1],
-                     vertices[0][0],
-                     vertices[0][1]],
-                    &context.draw_state,
-                    transform,
-                    gfx);
+        border.draw(
+            [
+                vertices[0][0],
+                vertices[0][1],
+                vertices[1][0],
+                vertices[1][1],
+            ],
+            &context.draw_state,
+            transform,
+            gfx,
+        );
+        border.draw(
+            [
+                vertices[1][0],
+                vertices[1][1],
+                vertices[2][0],
+                vertices[2][1],
+            ],
+            &context.draw_state,
+            transform,
+            gfx,
+        );
+        border.draw(
+            [
+                vertices[2][0],
+                vertices[2][1],
+                vertices[0][0],
+                vertices[0][1],
+            ],
+            &context.draw_state,
+            transform,
+            gfx,
+        );
         self.thrusting = false;
     }
 
     fn update(&mut self, state: &PistonAppState) {
-        let velocity = vec2_scale(vec2_add(self.velocity, self.acceleration),
-                                  self.damping);
+        let velocity =
+            vec2_scale(vec2_add(self.velocity, self.acceleration), self.damping);
         self.velocity = vec2_limit(velocity, self.top_speed);
         self.position = vec2_add(self.position, self.velocity);
         self.acceleration = [0.0, 0.0];
@@ -142,7 +164,9 @@ struct App {
 
 impl App {
     fn new() -> Self {
-        App { ship: Spaceship::new() }
+        App {
+            ship: Spaceship::new(),
+        }
     }
 }
 

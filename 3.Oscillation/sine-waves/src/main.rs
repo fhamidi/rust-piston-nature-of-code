@@ -38,22 +38,24 @@ impl Wave {
         }
     }
 
-    fn draw(&self,
-            node_texture: &G2dTexture,
-            state: &PistonAppState,
-            context: Context,
-            gfx: &mut G2d) {
+    fn draw(
+        &self,
+        node_texture: &G2dTexture,
+        state: &PistonAppState,
+        context: Context,
+        gfx: &mut G2d,
+    ) {
         let mut color_offset = self.color_offset;
         for (x, y) in self.y_values.iter().enumerate() {
-            state.draw_centered_texture(node_texture,
-                                        Some(state.noise_color(self.base_hue,
-                                                               color_offset,
-                                                               Some(1.0))),
-                                        self.origin[0] + x as Scalar * SPACING,
-                                        self.origin[1] + y,
-                                        &context.draw_state,
-                                        context.transform,
-                                        gfx);
+            state.draw_centered_texture(
+                node_texture,
+                Some(state.noise_color(self.base_hue, color_offset, Some(1.0))),
+                self.origin[0] + x as Scalar * SPACING,
+                self.origin[1] + y,
+                &context.draw_state,
+                context.transform,
+                gfx,
+            );
             color_offset += 0.00042;
         }
     }
@@ -79,8 +81,10 @@ impl App {
     fn new() -> Self {
         App {
             node_texture: None,
-            waves: vec![Wave::new([50.0, 180.0], 100.0, 20.0, 500.0),
-                        Wave::new([300.0, 240.0], 300.0, 40.0, 220.0)],
+            waves: vec![
+                Wave::new([50.0, 180.0], 100.0, 20.0, 500.0),
+                Wave::new([300.0, 240.0], 300.0, 40.0, 220.0),
+            ],
         }
     }
 
@@ -91,11 +95,14 @@ impl App {
 
 impl PistonApp for App {
     fn setup(&mut self, window: &mut PistonAppWindow, _: &PistonAppState) {
-        self.node_texture = Some(Texture::from_path(&mut window.factory,
-                                                    "assets/node.png",
-                                                    Flip::None,
-                                                    &TextureSettings::new())
-                                     .unwrap());
+        self.node_texture = Some(
+            Texture::from_path(
+                &mut window.factory,
+                "assets/node.png",
+                Flip::None,
+                &TextureSettings::new(),
+            ).unwrap(),
+        );
     }
 
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {

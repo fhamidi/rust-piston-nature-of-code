@@ -33,21 +33,27 @@ impl Particle {
         self.life > 0.0
     }
 
-    fn draw(&self,
-            texture: &G2dTexture,
-            state: &PistonAppState,
-            context: Context,
-            gfx: &mut G2d) {
-        state.draw_centered_texture(texture,
-                                    Some([self.color[0],
-                                          self.color[1],
-                                          self.color[2],
-                                          self.life as ColorComponent]),
-                                    self.position[0],
-                                    self.position[1],
-                                    &context.draw_state,
-                                    context.transform,
-                                    gfx);
+    fn draw(
+        &self,
+        texture: &G2dTexture,
+        state: &PistonAppState,
+        context: Context,
+        gfx: &mut G2d,
+    ) {
+        state.draw_centered_texture(
+            texture,
+            Some([
+                self.color[0],
+                self.color[1],
+                self.color[2],
+                self.life as ColorComponent,
+            ]),
+            self.position[0],
+            self.position[1],
+            &context.draw_state,
+            context.transform,
+            gfx,
+        );
     }
 
     fn update(&mut self) {
@@ -84,18 +90,24 @@ impl App {
     }
 
     fn spawn_particle(&mut self, state: &PistonAppState) {
-        self.particle =
-            Some(Particle::new(state.random_color(Some(1.0)), state.width() / 2.0, 42.0));
+        self.particle = Some(Particle::new(
+            state.random_color(Some(1.0)),
+            state.width() / 2.0,
+            42.0,
+        ));
     }
 }
 
 impl PistonApp for App {
     fn setup(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
-        self.particle_texture = Some(Texture::from_path(&mut window.factory,
-                                                        "assets/particle.png",
-                                                        Flip::None,
-                                                        &TextureSettings::new())
-                                         .unwrap());
+        self.particle_texture = Some(
+            Texture::from_path(
+                &mut window.factory,
+                "assets/particle.png",
+                Flip::None,
+                &TextureSettings::new(),
+            ).unwrap(),
+        );
         self.spawn_particle(state);
     }
 

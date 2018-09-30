@@ -38,8 +38,10 @@ impl Particle {
         Particle {
             color: color,
             position: position,
-            velocity: [rng.sample(StandardNormal) * 0.24 + velocity[0],
-                       rng.sample(StandardNormal) * 0.24 + velocity[1]],
+            velocity: [
+                rng.sample(StandardNormal) * 0.24 + velocity[0],
+                rng.sample(StandardNormal) * 0.24 + velocity[1],
+            ],
             acceleration: [0.0, 0.05],
             life: 1.0,
         }
@@ -50,44 +52,58 @@ impl Particle {
         self.life > 0.0
     }
 
-    fn extend_vertex_buffer(&self,
-                            state: &PistonAppState,
-                            texture_atlas: &TextureAtlas,
-                            vertices: &mut Vec<Vertex>,
-                            indices: &mut Vec<u32>) {
+    fn extend_vertex_buffer(
+        &self,
+        state: &PistonAppState,
+        texture_atlas: &TextureAtlas,
+        vertices: &mut Vec<Vertex>,
+        indices: &mut Vec<u32>,
+    ) {
         let start = vertices.len() as u32;
         let life = (self.life / 2.0) as ColorComponent;
-        let color = [self.color[0] * life,
-                     self.color[1] * life,
-                     self.color[2] * life,
-                     life];
+        let color = [
+            self.color[0] * life,
+            self.color[1] * life,
+            self.color[2] * life,
+            life,
+        ];
         let (x, y) = (self.position[0], self.position[1]);
         let (w, h) = texture_atlas.texture_offsets(0);
         let (w, h) = (w * self.life, h * self.life);
-        vertices.extend(&[Vertex {
-                              pos: [state.normalize_x(x + w) as f32,
-                                    state.normalize_y(y + h) as f32],
-                              uv: [1.0, 1.0],
-                              color: color,
-                          },
-                          Vertex {
-                              pos: [state.normalize_x(x - w) as f32,
-                                    state.normalize_y(y + h) as f32],
-                              uv: [0.0, 1.0],
-                              color: color,
-                          },
-                          Vertex {
-                              pos: [state.normalize_x(x - w) as f32,
-                                    state.normalize_y(y - h) as f32],
-                              uv: [0.0, 0.0],
-                              color: color,
-                          },
-                          Vertex {
-                              pos: [state.normalize_x(x + w) as f32,
-                                    state.normalize_y(y - h) as f32],
-                              uv: [1.0, 0.0],
-                              color: color,
-                          }]);
+        vertices.extend(&[
+            Vertex {
+                pos: [
+                    state.normalize_x(x + w) as f32,
+                    state.normalize_y(y + h) as f32,
+                ],
+                uv: [1.0, 1.0],
+                color: color,
+            },
+            Vertex {
+                pos: [
+                    state.normalize_x(x - w) as f32,
+                    state.normalize_y(y + h) as f32,
+                ],
+                uv: [0.0, 1.0],
+                color: color,
+            },
+            Vertex {
+                pos: [
+                    state.normalize_x(x - w) as f32,
+                    state.normalize_y(y - h) as f32,
+                ],
+                uv: [0.0, 0.0],
+                color: color,
+            },
+            Vertex {
+                pos: [
+                    state.normalize_x(x + w) as f32,
+                    state.normalize_y(y - h) as f32,
+                ],
+                uv: [1.0, 0.0],
+                color: color,
+            },
+        ]);
         indices.extend(&[start, start + 1, start + 2, start + 2, start + 3, start]);
     }
 
@@ -121,19 +137,24 @@ impl ParticleSystem {
         self.particles.len()
     }
 
-    fn extend_vertex_buffer(&self,
-                            state: &PistonAppState,
-                            texture_atlas: &TextureAtlas,
-                            vertices: &mut Vec<Vertex>,
-                            indices: &mut Vec<u32>) {
+    fn extend_vertex_buffer(
+        &self,
+        state: &PistonAppState,
+        texture_atlas: &TextureAtlas,
+        vertices: &mut Vec<Vertex>,
+        indices: &mut Vec<u32>,
+    ) {
         for particle in &self.particles {
             particle.extend_vertex_buffer(state, texture_atlas, vertices, indices);
         }
     }
 
     fn spawn_particle(&mut self) {
-        self.particles
-            .push(Particle::new(self.color, self.origin, self.particle_velocity));
+        self.particles.push(Particle::new(
+            self.color,
+            self.origin,
+            self.particle_velocity,
+        ));
     }
 
     fn update(&mut self) {
@@ -172,8 +193,11 @@ impl App {
     }
 
     fn spawn_particle_system(&mut self, state: &PistonAppState) {
-        self.particle_systems
-            .push(ParticleSystem::new(state, state.mouse_x(), state.height()));
+        self.particle_systems.push(ParticleSystem::new(
+            state,
+            state.mouse_x(),
+            state.height(),
+        ));
     }
 }
 
@@ -183,15 +207,16 @@ impl PistonApp for App {
         let mut rng = thread_rng();
         self.particle_systems = (0..MAX_INITIAL_PARTICLE_SYSTEMS)
             .map(|_| {
-                     ParticleSystem::new(state,
-                                         rng.gen_range(42.0, state.width() - 42.0),
-                                         state.height())
-                 })
-            .collect();
+                ParticleSystem::new(
+                    state,
+                    rng.gen_range(42.0, state.width() - 42.0),
+                    state.height(),
+                )
+            }).collect();
         let (pipeline, renderer) = PistonPipelineBuilder::new()
-            .texture_atlas(TextureAtlas::from_path(window, "assets/particle.png")
-                               .unwrap())
-            .vertex_shader(include_bytes!("particles_150_core.glslv"))
+            .texture_atlas(
+                TextureAtlas::from_path(window, "assets/particle.png").unwrap(),
+            ).vertex_shader(include_bytes!("particles_150_core.glslv"))
             .fragment_shader(include_bytes!("particles_150_core.glslf"))
             .build(window, particles::new())
             .unwrap();
@@ -201,14 +226,17 @@ impl PistonApp for App {
 
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
         if state.key_hit(Key::D) {
-            let total_particle_count: usize = self.particle_systems
+            let total_particle_count: usize = self
+                .particle_systems
                 .iter()
                 .map(|particle_system| particle_system.len())
                 .sum();
-            println!("Frame {} | Particle systems: {} | Total particles: {}",
-                     state.frame_count(),
-                     self.particle_systems.len(),
-                     total_particle_count);
+            println!(
+                "Frame {} | Particle systems: {} | Total particles: {}",
+                state.frame_count(),
+                self.particle_systems.len(),
+                total_particle_count
+            );
         }
         if state.mouse_button_clicked(MouseButton::Left) {
             self.spawn_particle_system(state);
@@ -219,23 +247,25 @@ impl PistonApp for App {
         let texture_atlas = renderer.texture_atlas().unwrap();
         for particle_system in &mut self.particle_systems {
             particle_system.update();
-            particle_system.extend_vertex_buffer(state,
-                                                 texture_atlas,
-                                                 &mut self.vertices,
-                                                 &mut self.indices);
+            particle_system.extend_vertex_buffer(
+                state,
+                texture_atlas,
+                &mut self.vertices,
+                &mut self.indices,
+            );
         }
         renderer.clear(window, color::BLACK);
-        renderer.draw(window,
-                      self.pipeline(),
-                      &self.vertices[..],
-                      &self.indices[..],
-                      |vbuf, out| {
-                          particles::Data {
-                              vbuf: vbuf,
-                              sampler: texture_atlas.texture_view_sampler(),
-                              out: out,
-                          }
-                      });
+        renderer.draw(
+            window,
+            self.pipeline(),
+            &self.vertices[..],
+            &self.indices[..],
+            |vbuf, out| particles::Data {
+                vbuf: vbuf,
+                sampler: texture_atlas.texture_view_sampler(),
+                out: out,
+            },
+        );
     }
 }
 

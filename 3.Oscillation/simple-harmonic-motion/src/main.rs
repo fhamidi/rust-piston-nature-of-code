@@ -37,17 +37,23 @@ impl PistonApp for App {
                 .transform
                 .trans(state.width() / 2.0, state.height() / 2.0);
             let frame_count = state.frame_count() as Scalar;
-            let x = self.amplitude *
-                    (consts::FRAC_2_PI * frame_count / self.period).cos();
-            Line::new(color::BLACK, 1.0)
-                .draw([0.0, 0.0, x, 0.0], &context.draw_state, transform, gfx);
+            let x =
+                self.amplitude * (consts::FRAC_2_PI * frame_count / self.period).cos();
+            Line::new(color::BLACK, 1.0).draw(
+                [0.0, 0.0, x, 0.0],
+                &context.draw_state,
+                transform,
+                gfx,
+            );
             Ellipse::new_border(color::BLACK, 1.0)
                 .resolution(32)
                 .color(self.bob_color)
-                .draw(ellipse::circle(x, 0.0, 20.0),
-                      &context.draw_state,
-                      transform,
-                      gfx);
+                .draw(
+                    ellipse::circle(x, 0.0, 20.0),
+                    &context.draw_state,
+                    transform,
+                    gfx,
+                );
         });
     }
 }

@@ -32,10 +32,12 @@ impl Liquid {
     }
 
     fn draw(&self, context: Context, gfx: &mut G2d) {
-        rectangle([0.0, 0.0, 1.0 / 3.0, 1.0],
-                  self.rect,
-                  context.transform,
-                  gfx);
+        rectangle(
+            [0.0, 0.0, 1.0 / 3.0, 1.0],
+            self.rect,
+            context.transform,
+            gfx,
+        );
     }
 }
 
@@ -73,22 +75,25 @@ impl Mover {
         Ellipse::new_border(color::BLACK, 1.0)
             .resolution(self.mass as Resolution * 16)
             .color(self.color)
-            .draw(ellipse::circle(self.position[0], self.position[1], self.mass * 8.0),
-                  &context.draw_state,
-                  context.transform,
-                  gfx);
+            .draw(
+                ellipse::circle(self.position[0], self.position[1], self.mass * 8.0),
+                &context.draw_state,
+                context.transform,
+                gfx,
+            );
     }
 
     fn apply_drag(&mut self, liquid: &Liquid) {
-        let drag = vec2_scale(vec2_normalized(self.velocity),
-                              -1.0 * liquid.drag_coeff() *
-                              vec2_square_len(self.velocity));
+        let drag = vec2_scale(
+            vec2_normalized(self.velocity),
+            -1.0 * liquid.drag_coeff() * vec2_square_len(self.velocity),
+        );
         self.apply_force(drag);
     }
 
     fn apply_force(&mut self, force: Vec2d) {
-        self.acceleration = vec2_add(self.acceleration,
-                                     vec2_scale(force, 1.0 / self.mass));
+        self.acceleration =
+            vec2_add(self.acceleration, vec2_scale(force, 1.0 / self.mass));
     }
 
     fn update(&mut self, state: &PistonAppState) {
@@ -133,12 +138,13 @@ impl PistonApp for App {
         let mut rng = thread_rng();
         self.movers = (0..MAX_MOVERS)
             .map(|i| {
-                     Mover::new(state.random_color(Some(1.0)),
-                                i as Scalar * gap + gap / 2.0,
-                                rng.gen_range(0.0, height / 4.0),
-                                rng.gen_range(0.1, 5.0))
-                 })
-            .collect();
+                Mover::new(
+                    state.random_color(Some(1.0)),
+                    i as Scalar * gap + gap / 2.0,
+                    rng.gen_range(0.0, height / 4.0),
+                    rng.gen_range(0.1, 5.0),
+                )
+            }).collect();
     }
 
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {

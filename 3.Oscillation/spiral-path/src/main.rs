@@ -29,7 +29,9 @@ impl App {
 
 impl PistonApp for App {
     fn setup(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
-        window.draw_2d(state.event(), |_, gfx| { clear(color::BLACK, gfx); });
+        window.draw_2d(state.event(), |_, gfx| {
+            clear(color::BLACK, gfx);
+        });
     }
 
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
@@ -37,12 +39,16 @@ impl PistonApp for App {
         window.draw_2d(state.event(), |context, gfx| {
             Ellipse::new(state.noise_color(self.base_hue, self.color_offset, Some(1.0)))
                 .resolution(8)
-                .draw(ellipse::circle(x + state.width() / 2.0,
-                                      y + state.height() / 2.0,
-                                      4.0),
-                      &context.draw_state,
-                      context.transform,
-                      gfx);
+                .draw(
+                    ellipse::circle(
+                        x + state.width() / 2.0,
+                        y + state.height() / 2.0,
+                        4.0,
+                    ),
+                    &context.draw_state,
+                    context.transform,
+                    gfx,
+                );
         });
         self.r += 0.042;
         self.theta += 0.01;

@@ -24,10 +24,12 @@ impl Walker {
     }
 
     fn draw(&self, context: Context, gfx: &mut G2d) {
-        rectangle(color::BLACK,
-                  rectangle::square(self.x, self.y, 1.0),
-                  context.transform,
-                  gfx);
+        rectangle(
+            color::BLACK,
+            rectangle::square(self.x, self.y, 1.0),
+            context.transform,
+            gfx,
+        );
     }
 
     fn update(&mut self, state: &PistonAppState) {
@@ -50,7 +52,9 @@ struct App {
 
 impl App {
     fn new() -> Self {
-        App { walker: Walker::new() }
+        App {
+            walker: Walker::new(),
+        }
     }
 }
 

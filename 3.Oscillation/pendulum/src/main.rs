@@ -49,27 +49,32 @@ impl Pendulum {
     fn draw(&self, context: Context, gfx: &mut G2d) {
         let (anchor_x, anchor_y) = (self.anchor_position[0], self.anchor_position[1]);
         let (bob_x, bob_y) = (self.bob_position[0], self.bob_position[1]);
-        Line::new(color::BLACK, 1.0).draw([anchor_x, anchor_y, bob_x, bob_y],
-                                          &context.draw_state,
-                                          context.transform,
-                                          gfx);
+        Line::new(color::BLACK, 1.0).draw(
+            [anchor_x, anchor_y, bob_x, bob_y],
+            &context.draw_state,
+            context.transform,
+            gfx,
+        );
         Rectangle::new_border(color::BLACK, 1.0)
             .color(self.anchor_color)
-            .draw(rectangle::centered_square(anchor_x, anchor_y, 8.0),
-                  &context.draw_state,
-                  context.transform,
-                  gfx);
+            .draw(
+                rectangle::centered_square(anchor_x, anchor_y, 8.0),
+                &context.draw_state,
+                context.transform,
+                gfx,
+            );
         Ellipse::new_border(color::BLACK, 1.0)
             .resolution(32)
             .color(if self.dragging {
-                       color::BLACK
-                   } else {
-                       self.bob_color
-                   })
-            .draw(ellipse::circle(bob_x, bob_y, self.bob_radius),
-                  &context.draw_state,
-                  context.transform,
-                  gfx);
+                color::BLACK
+            } else {
+                self.bob_color
+            }).draw(
+                ellipse::circle(bob_x, bob_y, self.bob_radius),
+                &context.draw_state,
+                context.transform,
+                gfx,
+            );
     }
 
     fn update(&mut self, state: &PistonAppState) {
@@ -81,15 +86,17 @@ impl Pendulum {
                 self.dragging = false;
             }
         } else if button_pressed {
-            let distance = vec2_len(vec2_sub([state.mouse_x(), state.mouse_y()],
-                                             self.bob_position));
+            let distance = vec2_len(vec2_sub(
+                [state.mouse_x(), state.mouse_y()],
+                self.bob_position,
+            ));
             if distance < self.bob_radius {
                 self.dragging = true;
             }
         }
         if self.dragging {
-            let direction = vec2_sub([state.mouse_x(), state.mouse_y()],
-                                     self.anchor_position);
+            let direction =
+                vec2_sub([state.mouse_x(), state.mouse_y()], self.anchor_position);
             self.angle = -vec2_heading(direction) + consts::FRAC_PI_2;
         } else {
             self.angular_acceleration = -GRAVITY / self.length * self.angle.sin();
@@ -97,8 +104,10 @@ impl Pendulum {
             self.angle += self.angular_velocity;
             self.angular_velocity *= self.damping;
         }
-        self.bob_position = [self.angle.sin() * self.length + self.anchor_position[0],
-                             self.angle.cos() * self.length + self.anchor_position[1]];
+        self.bob_position = [
+            self.angle.sin() * self.length + self.anchor_position[0],
+            self.angle.cos() * self.length + self.anchor_position[1],
+        ];
     }
 }
 
@@ -109,7 +118,9 @@ struct App {
 
 impl App {
     fn new() -> Self {
-        App { pendulum: Pendulum::new() }
+        App {
+            pendulum: Pendulum::new(),
+        }
     }
 }
 

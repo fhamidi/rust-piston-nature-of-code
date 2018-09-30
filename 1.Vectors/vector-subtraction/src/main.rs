@@ -23,10 +23,12 @@ impl PistonApp for App {
         window.draw_2d(state.event(), |context, gfx| {
             clear(color::WHITE, gfx);
             let line = Line::new_round(color::BLACK, 3.0);
-            line.draw([0.0, 0.0, mouse[0], mouse[1]],
-                      &context.draw_state,
-                      context.transform.trans(center[0], center[1]),
-                      gfx);
+            line.draw(
+                [0.0, 0.0, mouse[0], mouse[1]],
+                &context.draw_state,
+                context.transform.trans(center[0], center[1]),
+                gfx,
+            );
         });
     }
 }

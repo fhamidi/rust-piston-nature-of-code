@@ -29,17 +29,21 @@ impl Attractor {
         Ellipse::new_border(color::BLACK, 2.0 + 4.0 * self.g)
             .resolution(self.mass as Resolution * 2)
             .color(self.color)
-            .draw(ellipse::circle(self.position[0], self.position[1], self.mass * 2.0),
-                  &context.draw_state,
-                  context.transform,
-                  gfx);
+            .draw(
+                ellipse::circle(self.position[0], self.position[1], self.mass * 2.0),
+                &context.draw_state,
+                context.transform,
+                gfx,
+            );
     }
 
     fn attract(&self, mover: &Mover) -> Vec2d {
         let force = vec2_sub(self.position, mover.position());
         let distance = vec2_len(force).max(5.0).min(25.0);
-        vec2_scale(vec2_normalized(force),
-                   (self.g * self.mass * mover.mass()) / (distance * distance))
+        vec2_scale(
+            vec2_normalized(force),
+            (self.g * self.mass * mover.mass()) / (distance * distance),
+        )
     }
 }
 
@@ -88,15 +92,17 @@ impl Mover {
             .rot_rad(self.angle);
         Rectangle::new_border(color::BLACK, 1.0)
             .color(self.color)
-            .draw(rectangle::centered_square(0.0, 0.0, self.mass * 16.0),
-                  &context.draw_state,
-                  transform,
-                  gfx);
+            .draw(
+                rectangle::centered_square(0.0, 0.0, self.mass * 16.0),
+                &context.draw_state,
+                transform,
+                gfx,
+            );
     }
 
     fn apply_force(&mut self, force: Vec2d) {
-        self.acceleration = vec2_add(self.acceleration,
-                                     vec2_scale(force, 1.0 / self.mass));
+        self.acceleration =
+            vec2_add(self.acceleration, vec2_scale(force, 1.0 / self.mass));
     }
 
     fn update(&mut self) {
@@ -131,18 +137,20 @@ impl PistonApp for App {
         const MAX_MOVERS: usize = 16;
         let mut rng = thread_rng();
         let (width, height) = (state.width(), state.height());
-        self.attractors
-            .push(Attractor::new(state.random_color(Some(1.0)),
-                                 width / 2.0,
-                                 height / 2.0));
+        self.attractors.push(Attractor::new(
+            state.random_color(Some(1.0)),
+            width / 2.0,
+            height / 2.0,
+        ));
         self.movers = (0..MAX_MOVERS)
             .map(|_| {
-                     Mover::new(state.random_color(Some(2.0 / 3.0)),
-                                rng.gen_range(0.0, width),
-                                rng.gen_range(0.0, height),
-                                rng.gen_range(0.1, 2.0))
-                 })
-            .collect();
+                Mover::new(
+                    state.random_color(Some(2.0 / 3.0)),
+                    rng.gen_range(0.0, width),
+                    rng.gen_range(0.0, height),
+                    rng.gen_range(0.1, 2.0),
+                )
+            }).collect();
     }
 
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {

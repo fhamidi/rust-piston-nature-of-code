@@ -50,10 +50,12 @@ impl PistonApp for App {
                 Ellipse::new_border(color::BLACK, 1.0)
                     .resolution(16)
                     .color(self.baton_colors[i])
-                    .draw(ellipse::circle(108.0 * axis, 0.0, 12.0),
-                          &context.draw_state,
-                          transform,
-                          gfx);
+                    .draw(
+                        ellipse::circle(108.0 * axis, 0.0, 12.0),
+                        &context.draw_state,
+                        transform,
+                        gfx,
+                    );
             }
         });
     }

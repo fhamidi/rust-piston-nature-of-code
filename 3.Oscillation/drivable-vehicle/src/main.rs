@@ -32,10 +32,12 @@ impl Mover {
             .rot_rad(vec2_heading(self.velocity));
         Rectangle::new_border(color::BLACK, 1.0)
             .color(self.color)
-            .draw([-15.0, -5.0, 30.0, 10.0],
-                  &context.draw_state,
-                  transform,
-                  gfx);
+            .draw(
+                [-15.0, -5.0, 30.0, 10.0],
+                &context.draw_state,
+                transform,
+                gfx,
+            );
     }
 
     fn update(&mut self, state: &PistonAppState) {
@@ -45,8 +47,8 @@ impl Mover {
         } else if state.key_pressed(Key::Right) {
             self.acceleration[0] += 0.01;
         }
-        self.velocity = vec2_limit(vec2_add(self.velocity, self.acceleration),
-                                   MAX_VELOCITY);
+        self.velocity =
+            vec2_limit(vec2_add(self.velocity, self.acceleration), MAX_VELOCITY);
         self.velocity[1] += 0.42;
         self.position = vec2_add(self.position, self.velocity);
         self.check_edges(state);

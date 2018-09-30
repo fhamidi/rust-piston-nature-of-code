@@ -33,22 +33,26 @@ impl Mover {
         Ellipse::new_border(color::BLACK, 1.0 + 3.0 * self.g)
             .resolution(self.mass as Resolution * 12)
             .color(self.color)
-            .draw(ellipse::circle(self.position[0], self.position[1], self.mass * 8.0),
-                  &context.draw_state,
-                  context.transform,
-                  gfx);
+            .draw(
+                ellipse::circle(self.position[0], self.position[1], self.mass * 8.0),
+                &context.draw_state,
+                context.transform,
+                gfx,
+            );
     }
 
     fn attract(&self, other: &Self) -> Vec2d {
         let force = vec2_sub(self.position, other.position);
         let distance = vec2_len(force).max(1.0).min(27.0);
-        vec2_scale(vec2_normalized(force),
-                   (self.g * self.mass * other.mass) / (distance * distance))
+        vec2_scale(
+            vec2_normalized(force),
+            (self.g * self.mass * other.mass) / (distance * distance),
+        )
     }
 
     fn apply_force(&mut self, force: Vec2d) {
-        self.acceleration = vec2_add(self.acceleration,
-                                     vec2_scale(force, 1.0 / self.mass));
+        self.acceleration =
+            vec2_add(self.acceleration, vec2_scale(force, 1.0 / self.mass));
     }
 
     fn update(&mut self, state: &PistonAppState) {
@@ -87,13 +91,14 @@ impl PistonApp for App {
         let (width, height) = (state.width(), state.height());
         self.movers = (0..MAX_MOVERS)
             .map(|_| {
-                     Mover::new(state.random_color(None),
-                                rng.gen_range(0.0, width),
-                                rng.gen_range(0.0, height),
-                                rng.gen_range(3.0, 6.0),
-                                rng.gen_range(MAX_G / 4.2, MAX_G))
-                 })
-            .collect();
+                Mover::new(
+                    state.random_color(None),
+                    rng.gen_range(0.0, width),
+                    rng.gen_range(0.0, height),
+                    rng.gen_range(3.0, 6.0),
+                    rng.gen_range(MAX_G / 4.2, MAX_G),
+                )
+            }).collect();
     }
 
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {

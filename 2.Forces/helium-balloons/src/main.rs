@@ -20,8 +20,10 @@ impl Mover {
         let mut rng = thread_rng();
         Mover {
             color: state.random_color(Some(2.0 / 3.0)),
-            position: [rng.gen_range(0.0, state.width()),
-                       rng.gen_range(state.height() * 4.0 / 5.0, state.height())],
+            position: [
+                rng.gen_range(0.0, state.width()),
+                rng.gen_range(state.height() * 4.0 / 5.0, state.height()),
+            ],
             velocity: [0.0, 0.0],
             acceleration: [0.0, 0.0],
         }
@@ -31,10 +33,12 @@ impl Mover {
         Ellipse::new_border(color::BLACK, 1.0)
             .resolution(20)
             .color(self.color)
-            .draw(ellipse::circle(self.position[0], self.position[1], 32.0),
-                  &context.draw_state,
-                  context.transform,
-                  gfx);
+            .draw(
+                ellipse::circle(self.position[0], self.position[1], 32.0),
+                &context.draw_state,
+                context.transform,
+                gfx,
+            );
     }
 
     fn apply_force(&mut self, force: Vec2d) {
@@ -83,16 +87,22 @@ impl App {
             let hue = 240.0 - state.map_range(wind, 0.0, MAX_WIND, 0.0, 240.0);
             let color = state.color_from_hsv(hue, 1.0, 2.0 / 3.0, 1.0);
             let wind_len = state.width() * 0.42;
-            let arrow =
-                [0.0,
-                 0.0,
-                 state.map_range(self.wind[0], -MAX_WIND, MAX_WIND, -wind_len, wind_len),
-                 0.0];
+            let arrow = [
+                0.0,
+                0.0,
+                state.map_range(self.wind[0], -MAX_WIND, MAX_WIND, -wind_len, wind_len),
+                0.0,
+            ];
             let transform = context
                 .transform
                 .trans(state.width() / 2.0, state.height() - 32.0);
-            Line::new_round(color, 2.0)
-                .draw_arrow(arrow, 4.2, &context.draw_state, transform, gfx);
+            Line::new_round(color, 2.0).draw_arrow(
+                arrow,
+                4.2,
+                &context.draw_state,
+                transform,
+                gfx,
+            );
         }
     }
 }
@@ -105,9 +115,13 @@ impl PistonApp for App {
 
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
         if state.mouse_button_pressed(MouseButton::Left) {
-            let mut wind =
-                state
-                    .map_range(state.noise(&[self.wind_offset]), 0.0, 1.0, 0.0, MAX_WIND);
+            let mut wind = state.map_range(
+                state.noise(&[self.wind_offset]),
+                0.0,
+                1.0,
+                0.0,
+                MAX_WIND,
+            );
             if state.mouse_x() < state.width() / 2.0 {
                 wind = -wind;
             }

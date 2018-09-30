@@ -41,15 +41,17 @@ impl Mover {
         Ellipse::new_border(color::BLACK, 1.0)
             .resolution(self.mass as Resolution * 16)
             .color(self.color)
-            .draw(ellipse::circle(self.position[0], self.position[1], self.mass * 8.0),
-                  &context.draw_state,
-                  context.transform,
-                  gfx);
+            .draw(
+                ellipse::circle(self.position[0], self.position[1], self.mass * 8.0),
+                &context.draw_state,
+                context.transform,
+                gfx,
+            );
     }
 
     fn apply_force(&mut self, force: Vec2d) {
-        self.acceleration = vec2_add(self.acceleration,
-                                     vec2_scale(force, 1.0 / self.mass));
+        self.acceleration =
+            vec2_add(self.acceleration, vec2_scale(force, 1.0 / self.mass));
     }
 
     fn update(&mut self, state: &PistonAppState) {
@@ -87,12 +89,13 @@ impl PistonApp for App {
         let uniform = Uniform::new(0.1, 5.0);
         self.movers = (0..MAX_MOVERS)
             .map(|_| {
-                     Mover::new(state.random_color(Some(2.0 / 3.0)),
-                                0.0,
-                                0.0,
-                                rng.sample(uniform))
-                 })
-            .collect();
+                Mover::new(
+                    state.random_color(Some(2.0 / 3.0)),
+                    0.0,
+                    0.0,
+                    rng.sample(uniform),
+                )
+            }).collect();
     }
 
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {

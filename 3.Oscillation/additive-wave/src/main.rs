@@ -45,9 +45,8 @@ impl App {
             theta: 0.0,
             waves: (0..MAX_WAVES)
                 .map(|_| {
-                         Wave::new(rng.gen_range(12.0, 42.0), rng.gen_range(120.0, 240.0))
-                     })
-                .collect(),
+                    Wave::new(rng.gen_range(12.0, 42.0), rng.gen_range(120.0, 240.0))
+                }).collect(),
             y_values: vec![],
         }
     }
@@ -59,11 +58,14 @@ impl App {
 
 impl PistonApp for App {
     fn setup(&mut self, window: &mut PistonAppWindow, _: &PistonAppState) {
-        self.node_texture = Some(Texture::from_path(&mut window.factory,
-                                                    "assets/node.png",
-                                                    Flip::None,
-                                                    &TextureSettings::new())
-                                     .unwrap());
+        self.node_texture = Some(
+            Texture::from_path(
+                &mut window.factory,
+                "assets/node.png",
+                Flip::None,
+                &TextureSettings::new(),
+            ).unwrap(),
+        );
     }
 
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
@@ -86,15 +88,15 @@ impl PistonApp for App {
             let node_texture = self.node_texture();
             for (x, y) in self.y_values.iter().enumerate() {
                 color_offset += 0.00042;
-                state.draw_centered_texture(node_texture,
-                                            Some(state.noise_color(self.base_hue,
-                                                                   color_offset,
-                                                                   Some(1.0))),
-                                            x as Scalar * SPACING,
-                                            state.height() / 2.0 + y,
-                                            &context.draw_state,
-                                            context.transform,
-                                            gfx);
+                state.draw_centered_texture(
+                    node_texture,
+                    Some(state.noise_color(self.base_hue, color_offset, Some(1.0))),
+                    x as Scalar * SPACING,
+                    state.height() / 2.0 + y,
+                    &context.draw_state,
+                    context.transform,
+                    gfx,
+                );
             }
         });
         self.color_offset += 0.00042;

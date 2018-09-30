@@ -21,8 +21,10 @@ impl Mover {
         let uniform = Uniform::new_inclusive(-MAX_VELOCITY, MAX_VELOCITY);
         Mover {
             color: state.random_color(Some(1.0)),
-            position: [rng.gen_range(0.0, state.width()),
-                       rng.gen_range(0.0, state.height())],
+            position: [
+                rng.gen_range(0.0, state.width()),
+                rng.gen_range(0.0, state.height()),
+            ],
             velocity: [rng.sample(uniform), rng.sample(uniform)],
         }
     }
@@ -31,10 +33,12 @@ impl Mover {
         Ellipse::new_border(color::BLACK, 1.0)
             .resolution(32)
             .color(self.color)
-            .draw(ellipse::circle(self.position[0], self.position[1], 32.0),
-                  &context.draw_state,
-                  context.transform,
-                  gfx);
+            .draw(
+                ellipse::circle(self.position[0], self.position[1], 32.0),
+                &context.draw_state,
+                context.transform,
+                gfx,
+            );
     }
 
     fn update(&mut self, state: &PistonAppState) {

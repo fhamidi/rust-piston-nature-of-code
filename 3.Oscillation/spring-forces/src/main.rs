@@ -46,19 +46,20 @@ impl Bob {
     fn draw(&self, context: Context, gfx: &mut G2d) {
         Ellipse::new_border(color::BLACK, 1.0)
             .color(if self.dragging {
-                       color::BLACK
-                   } else {
-                       self.color
-                   })
-            .draw(ellipse::circle(self.position[0], self.position[1], self.radius),
-                  &context.draw_state,
-                  context.transform,
-                  gfx);
+                color::BLACK
+            } else {
+                self.color
+            }).draw(
+                ellipse::circle(self.position[0], self.position[1], self.radius),
+                &context.draw_state,
+                context.transform,
+                gfx,
+            );
     }
 
     fn apply_force(&mut self, force: Vec2d) {
-        self.acceleration = vec2_add(self.acceleration,
-                                     vec2_scale(force, 1.0 / self.mass));
+        self.acceleration =
+            vec2_add(self.acceleration, vec2_scale(force, 1.0 / self.mass));
     }
 
     fn update(&mut self, state: &PistonAppState) {
@@ -69,8 +70,8 @@ impl Bob {
                 self.dragging = false;
             }
         } else if button_pressed {
-            let distance = vec2_len(vec2_sub([state.mouse_x(), state.mouse_y()],
-                                             self.position));
+            let distance =
+                vec2_len(vec2_sub([state.mouse_x(), state.mouse_y()], self.position));
             if distance < self.radius {
                 self.dragging = true;
             }
@@ -78,8 +79,8 @@ impl Bob {
         if self.dragging {
             self.position = [state.mouse_x(), state.mouse_y()];
         } else {
-            self.velocity = vec2_scale(vec2_add(self.velocity, self.acceleration),
-                                       self.damping);
+            self.velocity =
+                vec2_scale(vec2_add(self.velocity, self.acceleration), self.damping);
             self.position = vec2_add(self.position, self.velocity);
         }
         self.acceleration = [0.0, 0.0];
@@ -113,17 +114,20 @@ impl Spring {
     fn draw(&self, bob: &Bob, context: Context, gfx: &mut G2d) {
         let (anchor_x, anchor_y) = (self.anchor_position[0], self.anchor_position[1]);
         let bob_position = bob.position();
-        Line::new(color::BLACK, 1.0)
-            .draw([anchor_x, anchor_y, bob_position[0], bob_position[1]],
-                  &context.draw_state,
-                  context.transform,
-                  gfx);
+        Line::new(color::BLACK, 1.0).draw(
+            [anchor_x, anchor_y, bob_position[0], bob_position[1]],
+            &context.draw_state,
+            context.transform,
+            gfx,
+        );
         Rectangle::new_border(color::BLACK, 1.0)
             .color(self.anchor_color)
-            .draw(rectangle::centered_square(anchor_x, anchor_y, 8.0),
-                  &context.draw_state,
-                  context.transform,
-                  gfx);
+            .draw(
+                rectangle::centered_square(anchor_x, anchor_y, 8.0),
+                &context.draw_state,
+                context.transform,
+                gfx,
+            );
     }
 
     fn connect(&self, bob: &mut Bob) {

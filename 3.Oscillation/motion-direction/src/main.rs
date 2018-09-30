@@ -20,8 +20,10 @@ impl Mover {
         let mut rng = thread_rng();
         Mover {
             color: state.random_color(Some(2.0 / 3.0)),
-            position: [rng.gen_range(0.0, state.width()),
-                       rng.gen_range(0.0, state.height())],
+            position: [
+                rng.gen_range(0.0, state.width()),
+                rng.gen_range(0.0, state.height()),
+            ],
             velocity: [0.0, 0.0],
             acceleration: [0.0, 0.0],
         }
@@ -34,18 +36,20 @@ impl Mover {
             .rot_rad(vec2_heading(self.velocity));
         Rectangle::new_border(color::BLACK, 1.0)
             .color(self.color)
-            .draw([-15.0, -5.0, 30.0, 10.0],
-                  &context.draw_state,
-                  transform,
-                  gfx);
+            .draw(
+                [-15.0, -5.0, 30.0, 10.0],
+                &context.draw_state,
+                transform,
+                gfx,
+            );
     }
 
     fn update(&mut self, state: &PistonAppState) {
         const MAX_VELOCITY: Scalar = 4.2;
         let direction = vec2_sub([state.mouse_x(), state.mouse_y()], self.position);
         self.acceleration = vec2_scale(vec2_normalized(direction), 0.5);
-        self.velocity = vec2_limit(vec2_add(self.velocity, self.acceleration),
-                                   MAX_VELOCITY);
+        self.velocity =
+            vec2_limit(vec2_add(self.velocity, self.acceleration), MAX_VELOCITY);
         self.position = vec2_add(self.position, self.velocity);
     }
 }

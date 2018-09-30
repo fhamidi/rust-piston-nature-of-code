@@ -61,10 +61,12 @@ impl PistonApp for App {
     }
 
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
-        const VERTICES: &[Vertex] = &[Vertex { pos: [1.0, -1.0] },
-                                      Vertex { pos: [-1.0, -1.0] },
-                                      Vertex { pos: [-1.0, 1.0] },
-                                      Vertex { pos: [1.0, 1.0] }];
+        const VERTICES: &[Vertex] = &[
+            Vertex { pos: [1.0, -1.0] },
+            Vertex { pos: [-1.0, -1.0] },
+            Vertex { pos: [-1.0, 1.0] },
+            Vertex { pos: [1.0, 1.0] },
+        ];
         const INDICES: &[u16] = &[0, 1, 2, 2, 3, 0];
         self.color_offset += 1e-3;
         self.time += 0.00666;

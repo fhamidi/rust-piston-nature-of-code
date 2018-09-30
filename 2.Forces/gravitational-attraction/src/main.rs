@@ -29,17 +29,21 @@ impl Attractor {
         Ellipse::new_border([0.0, 0.0, 0.0, alpha], 2.0 + 4.0 * self.g)
             .resolution(self.mass as Resolution)
             .color([self.color[0], self.color[1], self.color[2], alpha])
-            .draw(ellipse::circle(self.position[0], self.position[1], self.mass * 2.0),
-                  &context.draw_state,
-                  context.transform,
-                  gfx);
+            .draw(
+                ellipse::circle(self.position[0], self.position[1], self.mass * 2.0),
+                &context.draw_state,
+                context.transform,
+                gfx,
+            );
     }
 
     fn attract(&self, mover: &Mover) -> Vec2d {
         let force = vec2_sub(self.position, mover.position());
         let distance = vec2_len(force).max(5.0).min(25.0);
-        vec2_scale(vec2_normalized(force),
-                   (self.g * self.mass * mover.mass()) / (distance * distance))
+        vec2_scale(
+            vec2_normalized(force),
+            (self.g * self.mass * mover.mass()) / (distance * distance),
+        )
     }
 }
 
@@ -77,15 +81,17 @@ impl Mover {
         Ellipse::new_border(color::BLACK, 1.0)
             .resolution(self.mass as Resolution * 12)
             .color(self.color)
-            .draw(ellipse::circle(self.position[0], self.position[1], self.mass * 8.0),
-                  &context.draw_state,
-                  context.transform,
-                  gfx);
+            .draw(
+                ellipse::circle(self.position[0], self.position[1], self.mass * 8.0),
+                &context.draw_state,
+                context.transform,
+                gfx,
+            );
     }
 
     fn apply_force(&mut self, force: Vec2d) {
-        self.acceleration = vec2_add(self.acceleration,
-                                     vec2_scale(force, 1.0 / self.mass));
+        self.acceleration =
+            vec2_add(self.acceleration, vec2_scale(force, 1.0 / self.mass));
     }
 
     fn update(&mut self) {
@@ -129,21 +135,23 @@ impl PistonApp for App {
         let (width, height) = (state.width(), state.height());
         self.attractors = (0..MAX_ATTRACTORS)
             .map(|_| {
-                     Attractor::new(state.random_color(Some(1.0)),
-                                    rng.gen_range(width / 6.0, width * 5.0 / 6.0),
-                                    rng.gen_range(height / 6.0, height * 5.0 / 6.0),
-                                    rng.gen_range(10.0, 30.0),
-                                    rng.gen_range(MAX_G / 4.0, MAX_G))
-                 })
-            .collect();
+                Attractor::new(
+                    state.random_color(Some(1.0)),
+                    rng.gen_range(width / 6.0, width * 5.0 / 6.0),
+                    rng.gen_range(height / 6.0, height * 5.0 / 6.0),
+                    rng.gen_range(10.0, 30.0),
+                    rng.gen_range(MAX_G / 4.0, MAX_G),
+                )
+            }).collect();
         self.movers = (0..MAX_MOVERS)
             .map(|_| {
-                     Mover::new(state.random_color(Some(2.0 / 3.0)),
-                                rng.gen_range(0.0, width),
-                                rng.gen_range(0.0, height),
-                                rng.gen_range(0.1, 4.2))
-                 })
-            .collect();
+                Mover::new(
+                    state.random_color(Some(2.0 / 3.0)),
+                    rng.gen_range(0.0, width),
+                    rng.gen_range(0.0, height),
+                    rng.gen_range(0.1, 4.2),
+                )
+            }).collect();
     }
 
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {

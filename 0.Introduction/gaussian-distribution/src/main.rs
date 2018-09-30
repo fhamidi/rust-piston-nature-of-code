@@ -26,12 +26,12 @@ impl PistonApp for App {
         let mean = state.width() / 2.0;
         let x = thread_rng().sample(StandardNormal) * sd + mean;
         window.draw_2d(state.event(), |context, gfx| {
-            Ellipse::new([0.0, 0.0, 0.0, 0.1])
-                .resolution(32)
-                .draw(ellipse::circle(x, state.height() / 2.0, 16.0),
-                      &context.draw_state,
-                      context.transform,
-                      gfx);
+            Ellipse::new([0.0, 0.0, 0.0, 0.1]).resolution(32).draw(
+                ellipse::circle(x, state.height() / 2.0, 16.0),
+                &context.draw_state,
+                context.transform,
+                gfx,
+            );
         });
     }
 }

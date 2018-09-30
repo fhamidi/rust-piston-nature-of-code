@@ -38,10 +38,12 @@ impl PistonApp for App {
             clear(color::WHITE, gfx);
             for x in 0..length {
                 let count = self.random_counts[x] as Scalar;
-                let coords = [x as Scalar * width,
-                              state.height() - count,
-                              width - 1.0,
-                              count];
+                let coords = [
+                    x as Scalar * width,
+                    state.height() - count,
+                    width - 1.0,
+                    count,
+                ];
                 Rectangle::new_border(color::BLACK, 1.0)
                     .color(self.colors[x])
                     .draw(coords, &context.draw_state, context.transform, gfx);

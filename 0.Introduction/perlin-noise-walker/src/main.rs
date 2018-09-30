@@ -30,12 +30,16 @@ impl Walker {
         Ellipse::new_border(color::BLACK, 1.0)
             .resolution(32)
             .color(state.noise_color(self.base_hue, self.color_offset, Some(1.0)))
-            .draw(ellipse::circle(state.map_x(state.noise(&[self.x_offset])),
-                                  state.map_y(state.noise(&[self.y_offset])),
-                                  32.0),
-                  &context.draw_state,
-                  context.transform,
-                  gfx);
+            .draw(
+                ellipse::circle(
+                    state.map_x(state.noise(&[self.x_offset])),
+                    state.map_y(state.noise(&[self.y_offset])),
+                    32.0,
+                ),
+                &context.draw_state,
+                context.transform,
+                gfx,
+            );
     }
 
     fn update(&mut self) {
@@ -52,7 +56,9 @@ struct App {
 
 impl App {
     fn new() -> Self {
-        App { walker: Walker::new() }
+        App {
+            walker: Walker::new(),
+        }
     }
 }
 

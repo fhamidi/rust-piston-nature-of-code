@@ -29,10 +29,12 @@ impl Mover {
         Ellipse::new_border(color::BLACK, 1.0)
             .resolution(32)
             .color(self.color)
-            .draw(ellipse::circle(self.position[0], self.position[1], 32.0),
-                  &context.draw_state,
-                  context.transform,
-                  gfx);
+            .draw(
+                ellipse::circle(self.position[0], self.position[1], 32.0),
+                &context.draw_state,
+                context.transform,
+                gfx,
+            );
     }
 
     fn update(&mut self, state: &PistonAppState) {
@@ -42,8 +44,8 @@ impl Mover {
         } else if state.key_pressed(Key::Up) || state.key_pressed(Key::Right) {
             self.acceleration[0] += 1e-3;
         }
-        self.velocity = vec2_limit(vec2_add(self.velocity, self.acceleration),
-                                   MAX_VELOCITY);
+        self.velocity =
+            vec2_limit(vec2_add(self.velocity, self.acceleration), MAX_VELOCITY);
         if self.velocity[0] < 0.0 {
             self.acceleration[0] = 0.0;
             self.velocity[0] = 0.0;
