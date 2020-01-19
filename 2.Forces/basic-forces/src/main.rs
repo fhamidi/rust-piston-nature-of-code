@@ -95,7 +95,8 @@ impl PistonApp for App {
                     0.0,
                     rng.sample(uniform),
                 )
-            }).collect();
+            })
+            .collect();
     }
 
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {

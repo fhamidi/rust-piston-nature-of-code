@@ -200,7 +200,8 @@ impl PistonApp for App {
                 "assets/particle.png",
                 Flip::None,
                 &TextureSettings::new(),
-            ).unwrap(),
+            )
+            .unwrap(),
         );
         let width = state.width();
         self.particle_system = Some(ParticleSystem::new(width / 2.0, 42.0));

@@ -106,7 +106,8 @@ impl PistonApp for App {
                 "assets/particle.png",
                 Flip::None,
                 &TextureSettings::new(),
-            ).unwrap(),
+            )
+            .unwrap(),
         );
         self.spawn_particle(state);
     }

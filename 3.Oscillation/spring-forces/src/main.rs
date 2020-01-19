@@ -49,7 +49,8 @@ impl Bob {
                 color::BLACK
             } else {
                 self.color
-            }).draw(
+            })
+            .draw(
                 ellipse::circle(self.position[0], self.position[1], self.radius),
                 &context.draw_state,
                 context.transform,

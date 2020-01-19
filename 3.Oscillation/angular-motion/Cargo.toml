@@ -1,6 +1,6 @@
 [package]
 name = "angular-motion"
-version = "0.1.4"
+version = "0.1.5"
 authors = ["Frédéric Hamidi <frederic.hamidi@gmail.com>"]
 
 [dependencies]

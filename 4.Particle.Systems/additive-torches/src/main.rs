@@ -212,11 +212,13 @@ impl PistonApp for App {
                     rng.gen_range(42.0, state.width() - 42.0),
                     state.height(),
                 )
-            }).collect();
+            })
+            .collect();
         let (pipeline, renderer) = PistonPipelineBuilder::new()
             .texture_atlas(
                 TextureAtlas::from_path(window, "assets/particle.png").unwrap(),
-            ).vertex_shader(include_bytes!("particles_150_core.glslv"))
+            )
+            .vertex_shader(include_bytes!("particles_150_core.glslv"))
             .fragment_shader(include_bytes!("particles_150_core.glslf"))
             .build(window, particles::new())
             .unwrap();

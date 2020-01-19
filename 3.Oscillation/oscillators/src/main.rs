@@ -90,7 +90,8 @@ impl PistonApp for App {
                 "assets/node.png",
                 Flip::None,
                 &TextureSettings::new(),
-            ).unwrap(),
+            )
+            .unwrap(),
         );
         self.oscillators = (0..MAX_OSCILLATORS)
             .map(|_| Oscillator::new(state))

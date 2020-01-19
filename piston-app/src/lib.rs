@@ -22,8 +22,8 @@ pub use std::f64::consts;
 pub use gfx::*;
 pub use math::{Matrix2d, Scalar, Vec2d};
 pub use piston_window::*;
-pub use rand::distributions::normal::StandardNormal;
 pub use rand::distributions::uniform::Uniform;
+pub use rand::distributions::StandardNormal;
 pub use rand::prelude::*;
 pub use types::{Color, ColorComponent, Resolution};
 pub use vecmath::*;
@@ -598,7 +598,8 @@ impl TextureAtlas {
                     (extents[2] / width) as f32,
                     (extents[3] / height) as f32,
                 ]
-            }).collect()
+            })
+            .collect()
     }
 }
 

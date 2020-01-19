@@ -144,7 +144,8 @@ impl PistonApp for App {
                     rng.gen_range(0.0, height / 4.0),
                     rng.gen_range(0.1, 5.0),
                 )
-            }).collect();
+            })
+            .collect();
     }
 
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {

@@ -69,7 +69,8 @@ impl Pendulum {
                 color::BLACK
             } else {
                 self.bob_color
-            }).draw(
+            })
+            .draw(
                 ellipse::circle(bob_x, bob_y, self.bob_radius),
                 &context.draw_state,
                 context.transform,

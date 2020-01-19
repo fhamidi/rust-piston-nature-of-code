@@ -197,66 +197,82 @@ impl Entity {
                 color: self.color,
             },
             Vertex {
-                pos: *(transform * b2::Vec2 {
-                    x: r,
-                    y: r + BODY_DELTA,
-                }).as_array(),
+                pos: *(transform
+                    * b2::Vec2 {
+                        x: r,
+                        y: r + BODY_DELTA,
+                    })
+                .as_array(),
                 uv: [ru + rw, rv],
                 color: color::BLACK,
             },
             Vertex {
-                pos: *(transform * b2::Vec2 {
-                    x: -r,
-                    y: r + BODY_DELTA,
-                }).as_array(),
+                pos: *(transform
+                    * b2::Vec2 {
+                        x: -r,
+                        y: r + BODY_DELTA,
+                    })
+                .as_array(),
                 uv: [ru, rv],
                 color: color::BLACK,
             },
             Vertex {
-                pos: *(transform * b2::Vec2 {
-                    x: -r,
-                    y: -r + BODY_DELTA,
-                }).as_array(),
+                pos: *(transform
+                    * b2::Vec2 {
+                        x: -r,
+                        y: -r + BODY_DELTA,
+                    })
+                .as_array(),
                 uv: [ru, rv + rh],
                 color: color::BLACK,
             },
             Vertex {
-                pos: *(transform * b2::Vec2 {
-                    x: r,
-                    y: -r + BODY_DELTA,
-                }).as_array(),
+                pos: *(transform
+                    * b2::Vec2 {
+                        x: r,
+                        y: -r + BODY_DELTA,
+                    })
+                .as_array(),
                 uv: [ru + rw, rv + rh],
                 color: color::BLACK,
             },
             Vertex {
-                pos: *(transform * b2::Vec2 {
-                    x: ir,
-                    y: ir + BODY_DELTA,
-                }).as_array(),
+                pos: *(transform
+                    * b2::Vec2 {
+                        x: ir,
+                        y: ir + BODY_DELTA,
+                    })
+                .as_array(),
                 uv: [ru + rw, rv],
                 color: self.color,
             },
             Vertex {
-                pos: *(transform * b2::Vec2 {
-                    x: -ir,
-                    y: ir + BODY_DELTA,
-                }).as_array(),
+                pos: *(transform
+                    * b2::Vec2 {
+                        x: -ir,
+                        y: ir + BODY_DELTA,
+                    })
+                .as_array(),
                 uv: [ru, rv],
                 color: self.color,
             },
             Vertex {
-                pos: *(transform * b2::Vec2 {
-                    x: -ir,
-                    y: -ir + BODY_DELTA,
-                }).as_array(),
+                pos: *(transform
+                    * b2::Vec2 {
+                        x: -ir,
+                        y: -ir + BODY_DELTA,
+                    })
+                .as_array(),
                 uv: [ru, rv + rh],
                 color: self.color,
             },
             Vertex {
-                pos: *(transform * b2::Vec2 {
-                    x: ir,
-                    y: -ir + BODY_DELTA,
-                }).as_array(),
+                pos: *(transform
+                    * b2::Vec2 {
+                        x: ir,
+                        y: -ir + BODY_DELTA,
+                    })
+                .as_array(),
                 uv: [ru + rw, rv + rh],
                 color: self.color,
             },
@@ -354,7 +370,8 @@ impl App {
                     boundary_width,
                     0.5,
                 )
-            }).collect();
+            })
+            .collect();
     }
 
     fn spawn_entity(&mut self, state: &PistonAppState) {
@@ -374,8 +391,10 @@ impl PistonApp for App {
                     window,
                     "assets/shapes.png",
                     "assets/shapes.atlas",
-                ).unwrap(),
-            ).vertex_shader(include_bytes!("world_150_core.glslv"))
+                )
+                .unwrap(),
+            )
+            .vertex_shader(include_bytes!("world_150_core.glslv"))
             .fragment_shader(include_bytes!("world_150_core.glslf"))
             .build(window, world::new())
             .unwrap();

@@ -71,7 +71,8 @@ impl SineBoundary {
                     x: x + i * STEP,
                     y: y + (i * dx).sin() * amplitude,
                 }
-            }).collect()
+            })
+            .collect()
     }
 
     fn extend_vertex_buffer(&self, vertices: &mut Vec<Vertex>, indices: &mut Vec<u32>) {
@@ -161,98 +162,122 @@ impl Token {
         let inner_radius = self.radius - THICKNESS * 2.0;
         vertices.extend(&[
             Vertex {
-                pos: *(transform * b2::Vec2 {
-                    x: radius,
-                    y: radius,
-                }).as_array(),
+                pos: *(transform
+                    * b2::Vec2 {
+                        x: radius,
+                        y: radius,
+                    })
+                .as_array(),
                 uv: [1.0, 0.0],
                 color: color::BLACK,
             },
             Vertex {
-                pos: *(transform * b2::Vec2 {
-                    x: -radius,
-                    y: radius,
-                }).as_array(),
+                pos: *(transform
+                    * b2::Vec2 {
+                        x: -radius,
+                        y: radius,
+                    })
+                .as_array(),
                 uv: [0.0, 0.0],
                 color: color::BLACK,
             },
             Vertex {
-                pos: *(transform * b2::Vec2 {
-                    x: -radius,
-                    y: -radius,
-                }).as_array(),
+                pos: *(transform
+                    * b2::Vec2 {
+                        x: -radius,
+                        y: -radius,
+                    })
+                .as_array(),
                 uv: [0.0, 1.0],
                 color: color::BLACK,
             },
             Vertex {
-                pos: *(transform * b2::Vec2 {
-                    x: radius,
-                    y: -radius,
-                }).as_array(),
+                pos: *(transform
+                    * b2::Vec2 {
+                        x: radius,
+                        y: -radius,
+                    })
+                .as_array(),
                 uv: [1.0, 1.0],
                 color: color::BLACK,
             },
             Vertex {
-                pos: *(transform * b2::Vec2 {
-                    x: inner_radius,
-                    y: inner_radius,
-                }).as_array(),
+                pos: *(transform
+                    * b2::Vec2 {
+                        x: inner_radius,
+                        y: inner_radius,
+                    })
+                .as_array(),
                 uv: [1.0, 0.0],
                 color: self.color,
             },
             Vertex {
-                pos: *(transform * b2::Vec2 {
-                    x: -inner_radius,
-                    y: inner_radius,
-                }).as_array(),
+                pos: *(transform
+                    * b2::Vec2 {
+                        x: -inner_radius,
+                        y: inner_radius,
+                    })
+                .as_array(),
                 uv: [0.0, 0.0],
                 color: self.color,
             },
             Vertex {
-                pos: *(transform * b2::Vec2 {
-                    x: -inner_radius,
-                    y: -inner_radius,
-                }).as_array(),
+                pos: *(transform
+                    * b2::Vec2 {
+                        x: -inner_radius,
+                        y: -inner_radius,
+                    })
+                .as_array(),
                 uv: [0.0, 1.0],
                 color: self.color,
             },
             Vertex {
-                pos: *(transform * b2::Vec2 {
-                    x: inner_radius,
-                    y: -inner_radius,
-                }).as_array(),
+                pos: *(transform
+                    * b2::Vec2 {
+                        x: inner_radius,
+                        y: -inner_radius,
+                    })
+                .as_array(),
                 uv: [1.0, 1.0],
                 color: self.color,
             },
             Vertex {
-                pos: *(transform * b2::Vec2 {
-                    x: THICKNESS,
-                    y: self.radius,
-                }).as_array(),
+                pos: *(transform
+                    * b2::Vec2 {
+                        x: THICKNESS,
+                        y: self.radius,
+                    })
+                .as_array(),
                 uv: [0.5, 0.5],
                 color: color::BLACK,
             },
             Vertex {
-                pos: *(transform * b2::Vec2 {
-                    x: -THICKNESS,
-                    y: self.radius,
-                }).as_array(),
+                pos: *(transform
+                    * b2::Vec2 {
+                        x: -THICKNESS,
+                        y: self.radius,
+                    })
+                .as_array(),
                 uv: [0.5, 0.5],
                 color: color::BLACK,
             },
             Vertex {
-                pos: *(transform * b2::Vec2 {
-                    x: -THICKNESS,
-                    y: -THICKNESS,
-                }).as_array(),
+                pos: *(transform
+                    * b2::Vec2 {
+                        x: -THICKNESS,
+                        y: -THICKNESS,
+                    })
+                .as_array(),
                 uv: [0.5, 0.5],
                 color: color::BLACK,
             },
             Vertex {
-                pos: *(transform * b2::Vec2 {
-                    x: THICKNESS,
-                    y: -THICKNESS,
-                }).as_array(),
+                pos: *(transform
+                    * b2::Vec2 {
+                        x: THICKNESS,
+                        y: -THICKNESS,
+                    })
+                .as_array(),
                 uv: [0.5, 0.5],
                 color: color::BLACK,
             },

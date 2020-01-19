@@ -1,9 +1,9 @@
 [package]
 name = "noise-boundary"
-version = "0.1.3"
+version = "0.1.4"
 authors = ["Frédéric Hamidi <frederic.hamidi@gmail.com>"]
 
 [dependencies]
 piston-app = { path = "../../piston-app" }
-wrapped2d = "*"
+wrapped2d = "0.4.0"
 

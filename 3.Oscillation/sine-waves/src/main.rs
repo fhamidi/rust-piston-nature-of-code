@@ -101,7 +101,8 @@ impl PistonApp for App {
                 "assets/node.png",
                 Flip::None,
                 &TextureSettings::new(),
-            ).unwrap(),
+            )
+            .unwrap(),
         );
     }
 

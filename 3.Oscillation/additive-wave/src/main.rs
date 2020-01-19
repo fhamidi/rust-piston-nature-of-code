@@ -46,7 +46,8 @@ impl App {
             waves: (0..MAX_WAVES)
                 .map(|_| {
                     Wave::new(rng.gen_range(12.0, 42.0), rng.gen_range(120.0, 240.0))
-                }).collect(),
+                })
+                .collect(),
             y_values: vec![],
         }
     }
@@ -64,7 +65,8 @@ impl PistonApp for App {
                 "assets/node.png",
                 Flip::None,
                 &TextureSettings::new(),
-            ).unwrap(),
+            )
+            .unwrap(),
         );
     }
 

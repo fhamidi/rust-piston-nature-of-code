@@ -118,7 +118,8 @@ impl PistonApp for App {
                     rng.gen_range(8.0, 32.0),
                     rng.gen_range(MAX_G / 4.2, MAX_G),
                 )
-            }).collect();
+            })
+            .collect();
         self.movers = (0..MAX_MOVERS)
             .map(|_| {
                 Mover::new(
@@ -127,7 +128,8 @@ impl PistonApp for App {
                     rng.gen_range(0.0, height),
                     rng.gen_range(0.1, 4.2),
                 )
-            }).collect();
+            })
+            .collect();
         window.draw_2d(state.event(), |_, gfx| {
             clear(color::WHITE, gfx);
         });

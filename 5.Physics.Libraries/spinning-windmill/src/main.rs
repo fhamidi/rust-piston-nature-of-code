@@ -208,98 +208,122 @@ impl Token {
         let (u, v, tw, th) = texture_atlas.texture_uv_extents(1);
         vertices.extend(&[
             Vertex {
-                pos: *(transform * b2::Vec2 {
-                    x: radius,
-                    y: radius,
-                }).as_array(),
+                pos: *(transform
+                    * b2::Vec2 {
+                        x: radius,
+                        y: radius,
+                    })
+                .as_array(),
                 uv: [u + tw, v],
                 color: color::BLACK,
             },
             Vertex {
-                pos: *(transform * b2::Vec2 {
-                    x: -radius,
-                    y: radius,
-                }).as_array(),
+                pos: *(transform
+                    * b2::Vec2 {
+                        x: -radius,
+                        y: radius,
+                    })
+                .as_array(),
                 uv: [u, v],
                 color: color::BLACK,
             },
             Vertex {
-                pos: *(transform * b2::Vec2 {
-                    x: -radius,
-                    y: -radius,
-                }).as_array(),
+                pos: *(transform
+                    * b2::Vec2 {
+                        x: -radius,
+                        y: -radius,
+                    })
+                .as_array(),
                 uv: [u, v + th],
                 color: color::BLACK,
             },
             Vertex {
-                pos: *(transform * b2::Vec2 {
-                    x: radius,
-                    y: -radius,
-                }).as_array(),
+                pos: *(transform
+                    * b2::Vec2 {
+                        x: radius,
+                        y: -radius,
+                    })
+                .as_array(),
                 uv: [u + tw, v + th],
                 color: color::BLACK,
             },
             Vertex {
-                pos: *(transform * b2::Vec2 {
-                    x: inner_radius,
-                    y: inner_radius,
-                }).as_array(),
+                pos: *(transform
+                    * b2::Vec2 {
+                        x: inner_radius,
+                        y: inner_radius,
+                    })
+                .as_array(),
                 uv: [u + tw, v],
                 color: self.color,
             },
             Vertex {
-                pos: *(transform * b2::Vec2 {
-                    x: -inner_radius,
-                    y: inner_radius,
-                }).as_array(),
+                pos: *(transform
+                    * b2::Vec2 {
+                        x: -inner_radius,
+                        y: inner_radius,
+                    })
+                .as_array(),
                 uv: [u, v],
                 color: self.color,
             },
             Vertex {
-                pos: *(transform * b2::Vec2 {
-                    x: -inner_radius,
-                    y: -inner_radius,
-                }).as_array(),
+                pos: *(transform
+                    * b2::Vec2 {
+                        x: -inner_radius,
+                        y: -inner_radius,
+                    })
+                .as_array(),
                 uv: [u, v + th],
                 color: self.color,
             },
             Vertex {
-                pos: *(transform * b2::Vec2 {
-                    x: inner_radius,
-                    y: -inner_radius,
-                }).as_array(),
+                pos: *(transform
+                    * b2::Vec2 {
+                        x: inner_radius,
+                        y: -inner_radius,
+                    })
+                .as_array(),
                 uv: [u + tw, v + th],
                 color: self.color,
             },
             Vertex {
-                pos: *(transform * b2::Vec2 {
-                    x: THICKNESS,
-                    y: self.radius,
-                }).as_array(),
+                pos: *(transform
+                    * b2::Vec2 {
+                        x: THICKNESS,
+                        y: self.radius,
+                    })
+                .as_array(),
                 uv: [u + tw / 2.0, v + th / 2.0],
                 color: color::BLACK,
             },
             Vertex {
-                pos: *(transform * b2::Vec2 {
-                    x: -THICKNESS,
-                    y: self.radius,
-                }).as_array(),
+                pos: *(transform
+                    * b2::Vec2 {
+                        x: -THICKNESS,
+                        y: self.radius,
+                    })
+                .as_array(),
                 uv: [u + tw / 2.0, v + th / 2.0],
                 color: color::BLACK,
             },
             Vertex {
-                pos: *(transform * b2::Vec2 {
-                    x: -THICKNESS,
-                    y: -THICKNESS,
-                }).as_array(),
+                pos: *(transform
+                    * b2::Vec2 {
+                        x: -THICKNESS,
+                        y: -THICKNESS,
+                    })
+                .as_array(),
                 uv: [u + tw / 2.0, v + th / 2.0],
                 color: color::BLACK,
             },
             Vertex {
-                pos: *(transform * b2::Vec2 {
-                    x: THICKNESS,
-                    y: -THICKNESS,
-                }).as_array(),
+                pos: *(transform
+                    * b2::Vec2 {
+                        x: THICKNESS,
+                        y: -THICKNESS,
+                    })
+                .as_array(),
                 uv: [u + tw / 2.0, v + th / 2.0],
                 color: color::BLACK,
             },
@@ -410,34 +434,42 @@ impl Windmill {
         };
         vertices.extend(&[
             Vertex {
-                pos: *(transform * b2::Vec2 {
-                    x: radius,
-                    y: radius,
-                }).as_array(),
+                pos: *(transform
+                    * b2::Vec2 {
+                        x: radius,
+                        y: radius,
+                    })
+                .as_array(),
                 uv: [u + tw, v],
                 color: color,
             },
             Vertex {
-                pos: *(transform * b2::Vec2 {
-                    x: -radius,
-                    y: radius,
-                }).as_array(),
+                pos: *(transform
+                    * b2::Vec2 {
+                        x: -radius,
+                        y: radius,
+                    })
+                .as_array(),
                 uv: [u, v],
                 color: color,
             },
             Vertex {
-                pos: *(transform * b2::Vec2 {
-                    x: -radius,
-                    y: -radius,
-                }).as_array(),
+                pos: *(transform
+                    * b2::Vec2 {
+                        x: -radius,
+                        y: -radius,
+                    })
+                .as_array(),
                 uv: [u, v + th],
                 color: color,
             },
             Vertex {
-                pos: *(transform * b2::Vec2 {
-                    x: radius,
-                    y: -radius,
-                }).as_array(),
+                pos: *(transform
+                    * b2::Vec2 {
+                        x: radius,
+                        y: -radius,
+                    })
+                .as_array(),
                 uv: [u + tw, v + th],
                 color: color,
             },
@@ -511,8 +543,10 @@ impl PistonApp for App {
                     window,
                     "assets/shapes.png",
                     "assets/shapes.atlas",
-                ).unwrap(),
-            ).vertex_shader(include_bytes!("world_150_core.glslv"))
+                )
+                .unwrap(),
+            )
+            .vertex_shader(include_bytes!("world_150_core.glslv"))
             .fragment_shader(include_bytes!("world_150_core.glslf"))
             .build(window, world::new())
             .unwrap();

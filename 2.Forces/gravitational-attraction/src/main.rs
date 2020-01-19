@@ -142,7 +142,8 @@ impl PistonApp for App {
                     rng.gen_range(10.0, 30.0),
                     rng.gen_range(MAX_G / 4.0, MAX_G),
                 )
-            }).collect();
+            })
+            .collect();
         self.movers = (0..MAX_MOVERS)
             .map(|_| {
                 Mover::new(
@@ -151,7 +152,8 @@ impl PistonApp for App {
                     rng.gen_range(0.0, height),
                     rng.gen_range(0.1, 4.2),
                 )
-            }).collect();
+            })
+            .collect();
     }
 
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {

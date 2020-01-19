@@ -1,18 +1,18 @@
 [package]
 name = "piston-app"
-version = "1.5.0"
+version = "1.5.1"
 authors = ["Frédéric Hamidi <frederic.hamidi@gmail.com>"]
 
 [dependencies]
-fnv = "*"
-fps_counter = "*"
-gfx = "*"
-gfx_device_gl = "*"
-noise = "*"
-piston-shaders_graphics2d = "*"
-piston_window = "*"
-pistoncore-sdl2_window = "*"
-rand = "*"
-serde_json = "*"
-vecmath = "*"
+fnv = "1.0.6"
+fps_counter = "1.0.0"
+gfx = "0.17.1"
+gfx_device_gl = "0.15.3"
+noise = "0.5.1"
+piston-shaders_graphics2d = "0.3.1"
+piston_window = "0.80.0"
+pistoncore-sdl2_window = "0.50.0"
+rand = "0.6"
+serde_json = "1.0.39"
+vecmath = "0.3.1"
 
