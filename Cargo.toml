@@ -1,0 +1,12 @@
+[workspace]
+members = [
+    "piston-app",
+    "piston-app-template",
+    "0.Introduction/*",
+    "1.Vectors/*",
+    "2.Forces/*",
+    "3.Oscillation/*",
+    "4.Particle.Systems/*",
+    "5.Physics.Libraries/*"
+]
+

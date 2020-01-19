@@ -2,6 +2,7 @@
 name = "helium-balloons"
 version = "0.3.5"
 authors = ["Frédéric Hamidi <frederic.hamidi@gmail.com>"]
+edition = "2018"
 
 [dependencies]
 piston-app = { path = "../../piston-app" }

@@ -433,7 +433,7 @@ impl PistonPipelineBuilder {
         self,
         window: &mut PistonAppWindow,
         init: I,
-    ) -> Result<(PistonPipeline<I::Meta>, PistonRenderer), Box<Error>> {
+    ) -> Result<(PistonPipeline<I::Meta>, PistonRenderer), Box<dyn Error>> {
         let factory = &mut window.factory;
         let mut default_vertex_shader = colored::VERTEX_GLSL_150_CORE;
         let mut default_fragment_shader = colored::FRAGMENT_GLSL_150_CORE;
@@ -506,7 +506,7 @@ impl TextureAtlas {
     pub fn from_path<P: AsRef<Path>>(
         window: &mut PistonAppWindow,
         texture_path: P,
-    ) -> Result<Self, Box<Error>> {
+    ) -> Result<Self, Box<dyn Error>> {
         Self::from_maybe_paths(window, texture_path, None)
     }
 
@@ -514,7 +514,7 @@ impl TextureAtlas {
         window: &mut PistonAppWindow,
         texture_path: P,
         atlas_path: P,
-    ) -> Result<Self, Box<Error>> {
+    ) -> Result<Self, Box<dyn Error>> {
         Self::from_maybe_paths(window, texture_path, Some(atlas_path))
     }
 
@@ -522,7 +522,7 @@ impl TextureAtlas {
         window: &mut PistonAppWindow,
         texture_path: P,
         atlas_path: Option<P>,
-    ) -> Result<Self, Box<Error>> {
+    ) -> Result<Self, Box<dyn Error>> {
         let texture = Texture::from_path(
             &mut window.factory,
             texture_path,
@@ -571,7 +571,7 @@ impl TextureAtlas {
         (extents[0], extents[1], extents[2], extents[3])
     }
 
-    fn parse_atlas<P: AsRef<Path>>(path: P) -> Result<Vec<[Scalar; 4]>, Box<Error>> {
+    fn parse_atlas<P: AsRef<Path>>(path: P) -> Result<Vec<[Scalar; 4]>, Box<dyn Error>> {
         let mut atlas = vec![];
         let file = File::open(path)?;
         for line in BufReader::new(file).lines() {

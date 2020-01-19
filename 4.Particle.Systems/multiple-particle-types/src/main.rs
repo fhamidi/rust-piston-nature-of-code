@@ -265,14 +265,8 @@ impl Particle for TriangleParticle {
         } else {
             1.0 - state.map_range(life, 0.42, 1.0, 0.0, 1.0)
         };
-        self.particle.extend_vertex_buffer(
-            state,
-            alpha,
-            texture_atlas,
-            2,
-            vertices,
-            indices,
-        );
+        self.particle
+            .extend_vertex_buffer(state, alpha, texture_atlas, 2, vertices, indices);
     }
 
     fn update(&mut self, state: &PistonAppState) {
@@ -289,7 +283,7 @@ struct ParticleSystem {
     base_hue: Scalar,
     color_offset: Scalar,
     origin: Vec2d,
-    particles: Vec<Box<Particle>>,
+    particles: Vec<Box<dyn Particle>>,
 }
 
 impl ParticleSystem {
@@ -384,12 +378,8 @@ impl PistonApp for App {
             .collect();
         let (pipeline, renderer) = PistonPipelineBuilder::new()
             .texture_atlas(
-                TextureAtlas::from_paths(
-                    window,
-                    "assets/particles.png",
-                    "assets/particles.atlas",
-                )
-                .unwrap(),
+                TextureAtlas::from_paths(window, "assets/particles.png", "assets/particles.atlas")
+                    .unwrap(),
             )
             .vertex_shader(include_bytes!("particles_150_core.glslv"))
             .fragment_shader(include_bytes!("particles_150_core.glslf"))

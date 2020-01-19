@@ -17,12 +17,12 @@ impl App {
 }
 
 impl PistonApp for App {
-    fn setup(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
+    fn setup(&mut self, _window: &mut PistonAppWindow, _state: &PistonAppState) {
         unimplemented!();
     }
 
     fn draw(&mut self, window: &mut PistonAppWindow, state: &PistonAppState) {
-        window.draw_2d(state.event(), |context, gfx| {
+        window.draw_2d(state.event(), |_context, _gfx| {
             unimplemented!();
         });
     }

@@ -2,6 +2,7 @@
 name = "piston-app-template"
 version = "0.1.0"
 authors = ["Frédéric Hamidi <frederic.hamidi@gmail.com>"]
+edition = "2018"
 
 [dependencies]
 piston-app = { path = "../piston-app" }
